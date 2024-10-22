@@ -1,0 +1,13 @@
+site_name: Luau C API
+site_url: https://Sleitnick.github.io/luau-api
+site_author: Stephen Leitnick
+
+theme:
+  name: material
+
+repo_name: Sleitnick/luau-api
+repo_url: https://github.com/Sleitnick/luau-api
+
+nav:
+  - Home: index.md
+  
