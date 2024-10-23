@@ -1,0 +1,22 @@
+sections:
+  - name: State Manipulation
+    functions:
+      - name: lua_newstate
+        ret: lua_State*
+        stack: "-0, +0, -"
+        args:
+          - name: f
+            type: lua_Alloc
+            desc: Luau allocator function. All allocations made by Luau (including the construction of the state) are done through this allocator.
+          - name: ud
+            type: void*
+            desc: Opaque userdata pointer that is passed to the allocator function.
+        desc: |
+          Creates a new Luau state. If the allocator fails to allocate
+          memory for the new state, this function will return `nullptr`.
+          Use `lua_close()` to close the state once done.
+
+          ``` cpp title="Example" hl_lines="1"
+          lua_State* L = lua_newstate(allocator, nullptr);
+          lua_close(L);
+          ```
