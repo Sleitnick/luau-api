@@ -4,6 +4,8 @@ site_author: Stephen Leitnick
 
 theme:
   name: material
+  features:
+    - content.code.copy
   palette:
 
     # Palette toggle for automatic mode
@@ -46,6 +48,9 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.superfences
+  - admonition
 
 plugins:
   - offline

@@ -22,7 +22,7 @@ class MarkdownBuilder:
 		self.builder.append(f"<span class=\"signature\">`{sig}`</span>\n<span class=\"stack\">`[{stack}]`</span>")
 	
 	def write(self, filepath: str):
-		with open(filepath, "w") as f:
+		with open(filepath, "w", newline="\n") as f:
 			first = True
 			for s in self.builder:
 				if first:
@@ -32,23 +32,25 @@ class MarkdownBuilder:
 				f.write(s)
 
 def build_signature(fn):
-	args = ", ".join(map(lambda arg: arg["type"] + " " + arg["name"], fn["args"]))
+	args = ""
+	if "args" in fn and fn["args"] is not None:
+		args = ", ".join(map(lambda arg: arg["type"] + " " + arg["name"], fn["args"]))
 	return fn["ret"] + " " + fn["name"] + "(" + args + ")"
 
 def main():
 	builder = MarkdownBuilder()
 
-	builder.append_h1("Luau C API Reference")
-
 	with open("ref.yaml") as ref_stream:
 		data = load(ref_stream, Loader=Loader)
+		builder.append_h1(data["title"])
 		sections = data["sections"]
 		for section in sections:
 			builder.append_h2(section["name"])
 			for fn in section["functions"]:
 				builder.append_subsection(fn["name"])
 				builder.append_signature(build_signature(fn), fn["stack"])
-				builder.append("\n".join(map(lambda arg: "- `" + arg["name"] + "`: " + arg["desc"], fn["args"])))
+				if "args" in fn and fn["args"] is not None:
+					builder.append("\n".join(map(lambda arg: "- `" + arg["name"] + "`: " + arg["desc"], fn["args"])))
 				builder.append(fn["desc"])
 	
 	builder.write("docs/reference.md")
