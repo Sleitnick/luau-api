@@ -197,7 +197,7 @@ lua_settop(L, 0); // clear the stack
 - `idx`: Stack index
 
 
-TODO
+Pushes a copy of the value at index `idx` to the top of the stack.
 
 
 ----
@@ -212,7 +212,17 @@ TODO
 - `idx`: Stack index
 
 
-TODO
+Removes the value at the given stack index `idx`. All other values above the index are shifted down.
+
+```cpp title="Example" hl_lines="5"
+lua_pushinteger(L, 10);
+lua_pushboolean(L, true);
+lua_pushliteral(L, "hello");
+
+lua_remove(L, -2); // remove the 'true' value.
+
+printf("%s\n", luaL_tostring(L, -2)); // 'hello'
+```
 
 
 ----
@@ -221,13 +231,37 @@ TODO
 ### <span class="subsection">`lua_insert`</span>
 
 <span class="signature">`void lua_insert(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +1, -]`</span>
+<span class="stack">`[-1, +1, -]`</span>
 
 - `L`: Lua thread
 - `idx`: Stack index
 
 
-TODO
+Moves the top stack element into the given index, shifting other values up first to give space. The element right under the top stack element becomes the new top element.
+
+```cpp title="Example" hl_lines="15"
+lua_pushboolean(L, true);
+lua_pushinteger(L, 10);
+lua_pushliteral(L, "hello");
+lua_pushinteger(L, 20);
+
+// Current stack order:
+// [-4] true
+// [-3] 10
+// [-2] hello
+// [-1] 20
+
+// Move the top value (20) to index -3.
+// The values below the top and above -3 are shifted up.
+// e.g. the '10' and 'hello' are shifted up first.
+lua_insert(L, -3);
+
+// New stack order:
+// [-4] true
+// [-3] 20
+// [-2] 10
+// [-1] hello
+```
 
 
 ----
@@ -242,7 +276,30 @@ TODO
 - `idx`: Stack index
 
 
-TODO
+Moves the top element over top of the `idx` stack index. The old value at `idx` is overwritten. The top element is popped.
+
+```cpp title="Example" hl_lines="15"
+lua_pushboolean(L, true);
+lua_pushinteger(L, 10);
+lua_pushliteral(L, "hello");
+lua_pushinteger(L, 20);
+
+// Current stack order:
+// [-4] true
+// [-3] 10
+// [-2] hello
+// [-1] 20
+
+// Move the top value (20) to index -3.
+// The values below the top and above -3 are shifted up.
+// e.g. the '10' and 'hello' are shifted up first.
+lua_replace(L, -3);
+
+// New stack order:
+// [-3] true
+// [-2] 20
+// [-1] hello
+```
 
 
 ----
@@ -257,7 +314,15 @@ TODO
 - `size`: Desired stack size
 
 
-TODO
+Ensures the stack is large enough to hold `size` _more_ elements. This will only grow the stack, not shrink it. Returns true if successful, or false if it fails (e.g. the max stack size exceeded).
+
+```cpp title="Example" hl_lines="2"
+// Ensure there are at least 2 more slots on the stack:
+if (lua_checkstack(L, 2)) {
+	lua_pushinteger(L, 10);
+	lua_pushinteger(L, 20);
+}
+```
 
 
 ----
@@ -272,4 +337,60 @@ TODO
 - `size`: Desired stack size
 
 
-TODO
+Similar to `lua_checkstack`, except it bypasses the max stack limit.
+
+
+----
+
+
+### <span class="subsection">`lua_xmove`</span>
+
+<span class="signature">`void lua_xmove(lua_State* from, lua_State* to, int n)`</span>
+<span class="stack">`[-?, +?, -]`</span>
+
+- `from`: Lua thread
+- `to`: Lua thread
+- `n`: Number of items to move
+
+
+Moves the top `n` elements in the `from` stack to the top of the `to` stack. This pops `n` values from the `from` stack and pushes `n` values to the `to` stack.
+
+Note: Both `from` and `to` states must share the same global state (e.g. the main state created with `lua_newstate`).
+
+```cpp title="Example" hl_lines="9"
+// Assume we have lua_State* A and B, both starting with empty stacks.
+
+// Add some items to 'A' stack:
+lua_pushboolean(A, true);
+lua_pushinteger(A, 10);
+lua_pushliteral(A, "hello");
+
+// Moves the top 2 values from 'A' to 'B' (e.g. '10' and 'hello')
+lua_xmove(A, B, 2);
+
+printf("%d\n", lua_gettop(A)); // 1 (just the 'true' value remains)
+printf("%d\n", lua_gettop(B)); // 2 (the '10' and 'hello' values)
+```
+
+
+----
+
+
+### <span class="subsection">`lua_xpush`</span>
+
+<span class="signature">`void lua_xpush(lua_State* from, lua_State* to, int idx)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `from`: Lua thread
+- `to`: Lua thread
+- `idx`: Stack index
+
+
+Pushes a value from the `from` state to the `to` state. The value at index `idx` in `from` is pushed to the top of the `to` stack. This is similar to `lua_pushvalue`, except the value is pushed to a different state.
+
+Similar to `lua_xmove`, both `from` and `to` must share the same global state.
+
+```cpp title="Example"
+// Push the value at index -2 within 'from' to the top of the 'to' stack:
+lua_xpush(from, to, -2);
+```

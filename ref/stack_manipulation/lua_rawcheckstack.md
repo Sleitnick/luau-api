@@ -11,4 +11,4 @@ args:
     desc: Desired stack size
 ---
 
-TODO
+Similar to `lua_checkstack`, except it bypasses the max stack limit.

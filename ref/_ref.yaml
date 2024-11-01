@@ -21,3 +21,5 @@ sections:
       - stack_manipulation/lua_replace.md
       - stack_manipulation/lua_checkstack.md
       - stack_manipulation/lua_rawcheckstack.md
+      - stack_manipulation/lua_xmove.md
+      - stack_manipulation/lua_xpush.md

@@ -11,4 +11,4 @@ args:
     desc: Stack index
 ---
 
-TODO
+Pushes a copy of the value at index `idx` to the top of the stack.
