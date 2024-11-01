@@ -1,8 +1,0 @@
-title: Luau C API Reference
-
-sections:
-  - name: State Manipulation
-    functions:
-      - lua_newstate.md
-      - lua_close.md
-      - lua_newthread.md

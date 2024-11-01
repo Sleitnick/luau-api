@@ -11,19 +11,15 @@ scheduled_event = None
 scheduler = sched.scheduler(time.monotonic, time.sleep)
 
 class ChangeHandler(FileSystemEventHandler):
-	target_path = pathlib.Path("./ref.yaml")
-
 	def __init__(self, fn):
 		self.fn = fn
 
 	def on_modified(self, event: DirModifiedEvent | FileModifiedEvent) -> None:
 		global scheduled_event
-		path = pathlib.Path(event.src_path)
-		if path == self.target_path:
-			if scheduled_event != None:
-				scheduler.cancel(scheduled_event)
-			scheduled_event = scheduler.enter(1, 1, self.fn)
-			scheduler.run()
+		if scheduled_event != None:
+			scheduler.cancel(scheduled_event)
+		scheduled_event = scheduler.enter(1, 1, self.fn)
+		scheduler.run()
 
 class MarkdownBuilder:
 	def __init__(self):
@@ -95,7 +91,7 @@ def read_markdown_file_and_metadata(filepath: str):
 	meta = load("\n".join(yaml_lines), Loader=Loader)
 	
 	return MarkdownRefAndMeta(
-		markdown="\n".join(md_lines),
+		markdown="".join(md_lines),
 		name=meta["name"],
 		ret=meta["ret"],
 		stack=meta["stack"],
@@ -114,7 +110,7 @@ def gen():
 
 	builder = MarkdownBuilder()
 
-	with open("ref.yaml") as ref_stream:
+	with open("./ref/_ref.yaml") as ref_stream:
 		data = load(ref_stream, Loader=Loader)
 		if data == None:
 			print("No data")
@@ -123,7 +119,12 @@ def gen():
 		sections = data["sections"]
 		for section in sections:
 			builder.append_h2(section["name"])
+			first = True
 			for md_filepath in section["functions"]:
+				if first:
+					first = False
+				else:
+					builder.append("----\n")
 				meta = read_markdown_file_and_metadata(f"ref/{md_filepath}")
 				builder.append_subsection(meta.name)
 				builder.append_signature(build_signature(meta), meta.stack)
@@ -138,7 +139,7 @@ def gen():
 def watch_and_gen():
 	event_handler = ChangeHandler(gen)
 	observer = Observer()
-	observer.schedule(event_handler, ".")
+	observer.schedule(event_handler, "./ref", recursive=True)
 	observer.start()
 	try:
 		while True:

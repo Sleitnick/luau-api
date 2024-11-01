@@ -1,0 +1,23 @@
+title: Luau C API Reference
+
+sections:
+  - name: State Manipulation
+    functions:
+      - state_manipulation/lua_newstate.md
+      - state_manipulation/luaL_newstate.md
+      - state_manipulation/lua_close.md
+      - state_manipulation/lua_newthread.md
+      - state_manipulation/lua_mainthread.md
+      - state_manipulation/lua_resetthread.md
+      - state_manipulation/lua_isthreadreset.md
+  - name: Basic Stack Manipulation
+    functions:
+      - stack_manipulation/lua_absindex.md
+      - stack_manipulation/lua_gettop.md
+      - stack_manipulation/lua_settop.md
+      - stack_manipulation/lua_pushvalue.md
+      - stack_manipulation/lua_remove.md
+      - stack_manipulation/lua_insert.md
+      - stack_manipulation/lua_replace.md
+      - stack_manipulation/lua_checkstack.md
+      - stack_manipulation/lua_rawcheckstack.md
