@@ -128,6 +128,9 @@ Resets the Lua thread.
 Checks if the Lua thread is reset.
 
 
+----
+
+
 ## Basic Stack Manipulation
 
 ### <span class="subsection">`lua_absindex`</span>
@@ -394,3 +397,110 @@ Similar to `lua_xmove`, both `from` and `to` must share the same global state.
 // Push the value at index -2 within 'from' to the top of the 'to' stack:
 lua_xpush(from, to, -2);
 ```
+
+
+----
+
+
+## Access Functions
+
+### <span class="subsection">`lua_isnumber`</span>
+
+<span class="signature">`int lua_isnumber(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns `1` if the value at stack index `idx` is a number _or_ the value is a string that can be coerced to a number. Otherwise, returns `0`.
+
+
+----
+
+
+### <span class="subsection">`lua_isstring`</span>
+
+<span class="signature">`int lua_isstring(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns `1` if the value at the given stack index is a string _or_ a number (all numbers can be converted to a string). Otherwise, returns `0`.
+
+
+----
+
+
+### <span class="subsection">`lua_iscfunction`</span>
+
+<span class="signature">`int lua_iscfunction(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+TODO
+
+
+----
+
+
+### <span class="subsection">`lua_isLfunction`</span>
+
+<span class="signature">`int lua_isLfunction(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+TODO
+
+
+----
+
+
+### <span class="subsection">`lua_isuserdata`</span>
+
+<span class="signature">`int lua_isuserdata(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+TODO
+
+
+----
+
+
+### <span class="subsection">`lua_type`</span>
+
+<span class="signature">`int lua_type(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+TODO
+
+
+----
+
+
+### <span class="subsection">`lua_typename`</span>
+
+<span class="signature">`const char* lua_typename(lua_State* L, int tp)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `tp`: Luau type
+
+
+TODO

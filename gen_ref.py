@@ -117,12 +117,17 @@ def gen():
 			return
 		builder.append_h1(data["title"])
 		sections = data["sections"]
+		first_section = True
 		for section in sections:
+			if first_section:
+				first_section = False
+			else:
+				builder.append("----\n")
 			builder.append_h2(section["name"])
-			first = True
+			first_fn = True
 			for md_filepath in section["functions"]:
-				if first:
-					first = False
+				if first_fn:
+					first_fn = False
 				else:
 					builder.append("----\n")
 				meta = read_markdown_file_and_metadata(f"ref/{md_filepath}")

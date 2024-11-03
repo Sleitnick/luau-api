@@ -23,3 +23,12 @@ sections:
       - stack_manipulation/lua_rawcheckstack.md
       - stack_manipulation/lua_xmove.md
       - stack_manipulation/lua_xpush.md
+  - name: Access Functions
+    functions:
+      - access_functions/lua_isnumber.md
+      - access_functions/lua_isstring.md
+      - access_functions/lua_iscfunction.md
+      - access_functions/lua_isLfunction.md
+      - access_functions/lua_isuserdata.md
+      - access_functions/lua_type.md
+      - access_functions/lua_typename.md
