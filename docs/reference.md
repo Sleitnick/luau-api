@@ -443,7 +443,7 @@ Returns `1` if the value at the given stack index is a string _or_ a number (all
 - `idx`: Stack index
 
 
-TODO
+Returns `1` if the value at the given stack index is a C function. Otherwise, returns `0`.
 
 
 ----
@@ -458,7 +458,7 @@ TODO
 - `idx`: Stack index
 
 
-TODO
+Returns `1` if the value at the given stack index is a Luau function. Otherwise, returns `0`.
 
 
 ----
@@ -473,7 +473,7 @@ TODO
 - `idx`: Stack index
 
 
-TODO
+Returns `1` if the value at the given stack index is a userdata object. Otherwise, returns `0`.
 
 
 ----
@@ -488,7 +488,21 @@ TODO
 - `idx`: Stack index
 
 
-TODO
+Returns the value type at the given stack index. If the stack index is invalid, this function returns `LUA_TNONE`.
+
+List of lua types:
+
+- `LUA_TNIL`
+- `LUA_TBOOLEAN`
+- `LUA_TLIGHTUSERDATA`
+- `LUA_TNUMBER`
+- `LUA_TVECTOR`
+- `LUA_TSTRING`
+- `LUA_TTABLE`
+- `LUA_TFUNCTION`
+- `LUA_TUSERDATA`
+- `LUA_TTHREAD`
+- `LUA_TBUFFER`
 
 
 ----
@@ -503,4 +517,66 @@ TODO
 - `tp`: Luau type
 
 
-TODO
+Returns the name of the given type.
+
+```cpp title="Example"
+const char* thread_name = lua_type(L, LUA_TTHREAD);
+printf("%s\n", thread_name); // > "thread"
+```
+
+
+----
+
+
+### <span class="subsection">`lua_equal`</span>
+
+<span class="signature">`int lua_equal(lua_State* L, int idx1, int idx2)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx1`: Stack index
+- `idx2`: Stack index
+
+
+Returns `1` if the values at `idx1` and `idx2` are equal. If applicable, this will call the `__eq` metatable function. Use `lua_rawequal` to avoid the metatable call. Returns `0` if the values are not equal (including if either of the indices are invalid).
+
+```cpp title="Example" hl_lines="4"
+lua_pushliteral(L, "hello");
+lua_pushliteral(L, "hello");
+
+if (lua_equal(L, -2, -1)) {
+	printf("equal\n");
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_rawequal`</span>
+
+<span class="signature">`int lua_rawequal(lua_State* L, int idx1, int idx2)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx1`: Stack index
+- `idx2`: Stack index
+
+
+The same as `lua_equal`, except it does not call any metatable `__eq` functions.
+
+
+----
+
+
+### <span class="subsection">`lua_lessthan`</span>
+
+<span class="signature">`int lua_lessthan(lua_State* L, int idx1, int idx2)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx1`: Stack index
+- `idx2`: Stack index
+
+
+Returns `1` if the value at `idx` is less than the value at `idx2`. Otherwise, returns `0`. This may call the `__lt` metamethod function. Also returns `0` if either index is invalid.

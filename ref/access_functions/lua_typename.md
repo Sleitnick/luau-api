@@ -11,4 +11,9 @@ args:
     desc: Luau type
 ---
 
-TODO
+Returns the name of the given type.
+
+```cpp title="Example"
+const char* thread_name = lua_type(L, LUA_TTHREAD);
+printf("%s\n", thread_name); // > "thread"
+```

@@ -11,4 +11,4 @@ args:
     desc: Stack index
 ---
 
-TODO
+Returns `1` if the value at the given stack index is a Luau function. Otherwise, returns `0`.

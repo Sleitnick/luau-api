@@ -32,3 +32,6 @@ sections:
       - access_functions/lua_isuserdata.md
       - access_functions/lua_type.md
       - access_functions/lua_typename.md
+      - access_functions/lua_equal.md
+      - access_functions/lua_rawequal.md
+      - access_functions/lua_lessthan.md
