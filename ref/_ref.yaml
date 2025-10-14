@@ -35,3 +35,23 @@ sections:
       - access_functions/lua_equal.md
       - access_functions/lua_rawequal.md
       - access_functions/lua_lessthan.md
+      - access_functions/lua_tonumberx.md
+      - access_functions/lua_tointegerx.md
+      - access_functions/lua_tounsignedx.md
+      - access_functions/lua_tovector.md
+      - access_functions/lua_toboolean.md
+      - access_functions/lua_tolstring.md
+      - access_functions/lua_tostringatom.md
+      - access_functions/lua_tolstringatom.md
+      - access_functions/lua_namecallatom.md
+      - access_functions/lua_objlen.md
+      - access_functions/lua_tocfunction.md
+      - access_functions/lua_tolightuserdata.md
+      - access_functions/lua_tolightuserdatatagged.md
+      - access_functions/lua_touserdata.md
+      - access_functions/lua_touserdatatagged.md
+      - access_functions/lua_userdatatag.md
+      - access_functions/lua_lightuserdatatag.md
+      - access_functions/lua_tothread.md
+      - access_functions/lua_tobuffer.md
+      - access_functions/lua_topointer.md

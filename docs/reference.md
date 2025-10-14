@@ -580,3 +580,649 @@ The same as `lua_equal`, except it does not call any metatable `__eq` functions.
 
 
 Returns `1` if the value at `idx` is less than the value at `idx2`. Otherwise, returns `0`. This may call the `__lt` metamethod function. Also returns `0` if either index is invalid.
+
+
+----
+
+
+### <span class="subsection">`lua_tonumberx`</span>
+
+<span class="signature">`double lua_tonumberx(lua_State* L, int idx, int* isnum)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `isnum`: Is number
+
+
+Returns the number at the given stack index. If the value on the stack is a string, Luau will attempt to convert the string to a number.
+
+If the value is a number, or successfully converted to a number, the `isnum` argument will be set to `1`, otherwise `0`.
+
+```cpp title="Example" hl_lines="9 15 21"
+lua_pushliteral(L, "hello");
+lua_pushliteral(L, "12.5");
+lua_pushnumber(L, 15);
+
+double n;
+int isnum;
+
+// isnum will be false, since "hello" cannot be converted to a number:
+n = lua_tonumberx(L, -3, &isnum);
+if (isnum) {
+	printf("n: %f\n", n);
+}
+
+// isnum is true, and "12.5" is converted to 12.5:
+n = lua_tonumberx(L, -2, &isnum);
+if (isnum) {
+	printf("n: %f\n", n);
+}
+
+// isnum is true, and the value is 15:
+n = lua_tonumberx(L, -1, &isnum);
+if (isnum) {
+	printf("n: %f\n", n);
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tointegerx`</span>
+
+<span class="signature">`int lua_tointegerx(lua_State* L, int idx, int* isnum)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `isnum`: Is number
+
+
+Returns the number at the given stack index as an integer. If the value on the stack is a string, Luau will attempt to convert the string to an integer. Numbers in Luau are all doubles, so the returned value is cast to an int.
+
+If the value is a number, or successfully converted to a number, the `isnum` argument will be set to `1`, otherwise `0`.
+
+```cpp title="Example" hl_lines="9 15 21"
+lua_pushliteral(L, "hello");
+lua_pushliteral(L, "12.5");
+lua_pushinteger(L, 15);
+
+int n;
+int isnum;
+
+// isnum will be false, since "hello" cannot be converted to a number:
+n = lua_tointegerx(L, -3, &isnum);
+if (isnum) {
+	printf("n: %d\n", n);
+}
+
+// isnum is true, and "12.5" is converted to 12:
+n = lua_tointegerx(L, -2, &isnum);
+if (isnum) {
+	printf("n: %d\n", n);
+}
+
+// isnum is true, and the value is 15:
+n = lua_tointegerx(L, -1, &isnum);
+if (isnum) {
+	printf("n: %d\n", n);
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tounsignedx`</span>
+
+<span class="signature">`int lua_tounsignedx(lua_State* L, int idx, int* isnum)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `isnum`: Is number
+
+
+Returns the number at the given stack index as an unsigned integer. If the value on the stack is a string, Luau will attempt to convert the string to an integer. Numbers in Luau are all doubles, so the returned value is cast to an unsigned int.
+
+If the value is a number, or successfully converted to a number, the `isnum` argument will be set to `1`, otherwise `0`.
+
+```cpp title="Example" hl_lines="9 15 21"
+lua_pushliteral(L, "hello");
+lua_pushliteral(L, "12.5");
+lua_pushunsigned(L, 15);
+
+unsigned n;
+int isnum;
+
+// isnum will be false, since "hello" cannot be converted to a number:
+n = lua_tounsignedx(L, -3, &isnum);
+if (isnum) {
+	printf("n: %d\n", n);
+}
+
+// isnum is true, and "12.5" is converted to 12:
+n = lua_tounsignedx(L, -2, &isnum);
+if (isnum) {
+	printf("n: %d\n", n);
+}
+
+// isnum is true, and the value is 15:
+n = lua_tounsignedx(L, -1, &isnum);
+if (isnum) {
+	printf("n: %d\n", n);
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tovector`</span>
+
+<span class="signature">`const float* lua_tovector(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the vector at the given Luau index, or `NULL` if not a vector.
+
+By default, vectors in Luau are 3-wide. Luau can be built with the `LUA_VECTOR_SIZE` preprocessor set to `4` for 4-wide vectors.
+
+```cpp title="Example" hl_lines="3"
+lua_pushvector(L, 3, 5, 2); // x, y, z
+
+const float* vec = lua_tovector(L, -1);
+
+float x = vec[0];
+float y = vec[1];
+float z = vec[2];
+printf("%f, %f, %f\n", x, y, z);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_toboolean`</span>
+
+<span class="signature">`int lua_toboolean(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns `1` if the Luau value at the given stack index is truthy, otherwise returns `0`.
+
+A "falsey" value in Luau is any value that is either `nil` or `false`. All other values are evaluated as `true`. In other languages, values like `0` or empty strings might be evaluated as `false`. This is _not_ the case in Luau. _Only_ `nil` and `false` are evaluated as `false`; all other values are evaluated as `true`.
+
+```cpp title="Example"
+lua_pushboolean(L, true);
+lua_pushboolean(L, false);
+lua_pushnil(L);
+lua_pushinteger(L, 0);
+
+if (lua_toboolean(L, -4)) {} // true
+if (lua_toboolean(L, -3)) {} // false
+if (lua_toboolean(L, -2)) {} // false (nil is evaluated as false)
+if (lua_toboolean(L, -1)) {} // true (0 is neither nil or false, so it is evaluated as true in Luau)
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tolstring`</span>
+
+<span class="signature">`const char* lua_tolstring(lua_State* L, int idx, size_t len)`</span>
+<span class="stack">`[-0, +0, m]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `len`: String length
+
+
+Returns the value at the given stack index converted to a string. The length of the string is written to `len`. Like C strings, Luau strings are terminated with `\0`; however, Luau strings may contain `\0` within the string before the end, thus using the `len` argument is imperative for proper consumption. In other words, functions like `strlen` that scan for `\0` may return lengths that are too short.
+
+**Note:** This will _modify_ the value at the given stack index if it is a number, turning it into a Luau string. If the value at the given stack index is neither a string nor a number, this function will return `NULL`, and the `len` argument will be set to `0`.
+
+```cpp title="Example 1" hl_lines="3 4"
+lua_pushliteral(L, "hello world");
+
+size_t len;
+const char* msg = lua_tolstring(L, -1, &len);
+
+if (msg) {
+	printf("message (len: %zu): \"%s\"\n", len, msg); // message (len: 11) "hello world"
+}
+```
+
+As noted above, `lua_tolstring` will convert numbers into strings at their given stack index. If this effect is undesirable, either use `lua_isstring()` first, or use the auxilery `luaL_tolstring` function instead.
+```cpp title="Example 2"
+lua_pushinteger(L, 15);
+
+// The value at index -1 will be converted from a number to a string:
+size_t len;
+const char* msg = lua_tolstring(L, -1, &len);
+
+printf("Type: %s\n", luaL_typename(L, -1)); // Type: string
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tostringatom`</span>
+
+<span class="signature">`const char* lua_tostringatom(lua_State* L, int idx, int* atom)`</span>
+<span class="stack">`[-0, +0, m]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `atom`: Atom
+
+
+Identical to [`lua_tostring`](#lua_tostring), except the string atom is written to the `atom` argument. See the [Atoms](cookbook/atoms.md) page for more information on string atoms.
+
+
+----
+
+
+### <span class="subsection">`lua_tolstringatom`</span>
+
+<span class="signature">`const char* lua_tolstringatom(lua_State* L, int idx, size_t len, int* atom)`</span>
+<span class="stack">`[-0, +0, m]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `len`: String length
+- `atom`: Atom
+
+
+Identical to [`lua_tolstring`](#lua_tolstring), except the string atom is written to the `atom` argument. See the [Atoms](cookbook/atoms.md) page for more information on string atoms.
+
+
+----
+
+
+### <span class="subsection">`lua_namecallatom`</span>
+
+<span class="signature">`const char* lua_namecallatom(lua_State* L, int* atom)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `atom`: Atom
+
+
+When called within a `__namecall` metamethod, this function returns the name of the called method. An optional atom value can be utilized as well.
+
+```cpp title="Example" hl_lines="6-14"
+static constexpr const char* kFoo = "Foo";
+
+struct Foo {};
+
+// Handle namecalls, e.g. Luau calling "foo:Hello()"
+static int Foo_namecall(lua_State* L) {
+	const char* method = lua_namecallatom(L, nullptr);
+	if (strcmp(method, "Hello") == 0) {
+		// User called the 'Hello' method. Return "Goodbye":
+		lua_pushliteral(L, "Goodbye");
+		return 1;
+	}
+	luaL_error(L, "unknown method %s", method);
+}
+
+// Construct new Foo userdata:
+int new_Foo(lua_State* L) {
+	Foo* foo = static_cast<Foo*>(lua_newuserdata(L, sizeof(Foo)));
+	if (luaL_newmetatable(L, kFoo)) {
+		// Assign __namecall metamethod:
+		lua_pushcfunction(L, Foo_namecall, "namecall");
+		lua_rawsetfield(L, "__namecall", -2);
+	}
+	lua_setmetatable(L, -2);
+	return 1;
+}
+
+static const luaL_Reg[] Foo_lib = {
+	{"new", new_Foo},
+	{nullptr, nullptr},
+};
+
+// Called from setup code for Luau state:
+void open_Foo(lua_State* L) {
+	lua_register(L, Foo_lib);
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_objlen`</span>
+
+<span class="signature">`int lua_objlen(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the length of the value at the given stack index. This works for tables (array length), strings (string length), buffers (buffer size), and userdata (userdata size). For non-applicable types, this function will return `0`.
+
+```cpp title="Example" hl_lines="7-10"
+lua_pushliteral(L, "hello");
+lua_newbuffer(L, 12);
+lua_newuserdata(L, 15);
+lua_pushinteger(L, 5);
+
+int n;
+n = lua_objlen(L, -4); // 5 (length of "hello")
+n = lua_objlen(L, -3); // 12 (size of buffer)
+n = lua_objlen(L, -2); // 15 (size of userdata)
+n = lua_objlen(L, -1); // 0 (integer type is N/A, thus 0 is returned)
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tocfunction`</span>
+
+<span class="signature">`lua_CFunction lua_tocfunction(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the C function at the given stack position. If the value is not a C function, this function returns `NULL`.
+
+```cpp title="Example" hl_lines="6"
+int hello() {
+  printf("hello\n");
+  return 0;
+}
+
+lua_pushcfunction(L, hello, "hello");
+
+lua_CFunction f = lua_tocfunction(L, -1);
+if (f) {
+  f(); // hello
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tolightuserdata`</span>
+
+<span class="signature">`void* lua_tolightuserdata(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns a pointer to a lightuserdata on the stack. Returns `NULL` if the value is not a lightuserdata.
+
+```cpp title="Example" hl_lines="10"
+struct Foo {
+	int n;
+};
+
+Foo* foo = new Foo();
+foo->n = 32;
+
+lua_pushlightuserdata(L, foo);
+
+Foo* f = static_cast<Foo*>(lua_tolightuserdata(L, -1));
+printf("foo->n = %d\n", foo->n); // foo->n = 32
+
+// ...pop lightuserdata and delete allocation
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tolightuserdatatagged`</span>
+
+<span class="signature">`void* lua_tolightuserdatatagged(lua_State* L, int idx, int tag)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `tag`: Tag
+
+
+Returns a pointer to a lightuserdata on the stack. Returns `NULL` if the value is not a lightuserdata _or_ if the attached tag does not equal the provided `tag` argument. For more info on tags, see the [Tags](cookbook/tags.md) page.
+
+```cpp title="Example" hl_lines="12"
+constexpr int kFooTag = 1;
+
+struct Foo {
+	int n;
+};
+
+Foo* foo = new Foo();
+foo->n = 32;
+
+lua_pushlightuserdatatagged(L, foo, kFooTag);
+
+Foo* f = static_cast<Foo*>(lua_tolightuserdatatagged(L, -1, kFooTag));
+printf("foo->n = %d\n", foo->n); // foo->n = 32
+
+// ...pop lightuserdata and delete allocation
+```
+
+
+----
+
+
+### <span class="subsection">`lua_touserdata`</span>
+
+<span class="signature">`void* lua_touserdata(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns a pointer to a userdata on the stack. Returns `NULL` if the value is not a userdata.
+
+If it is preferred to throw an error if the value is not a userdata, use the `luaL_checkuserdata` function instead.
+
+**Note:** It may be unsafe to hang onto a pointer to a userdata value. The Luau GC owns the userdata memory, and may free it. See the page on [pinning](cookbook/pinning.md) for tips on keeping a value from being GC'd, or consider using [light userdata](cookbook/light-userdata.md) instead.
+
+```cpp title="Example" hl_lines="8"
+struct Foo {
+	int n;
+};
+
+Foo* foo = static_cast<Foo*>(lua_newuserdata(L, sizeof(Foo)));
+foo->n = 32;
+
+Foo* f = static_cast<Foo*>(lua_touserdata(L, -1));
+printf("foo->n = %d\n", foo->n); // foo->n = 32
+```
+
+
+----
+
+
+### <span class="subsection">`lua_touserdatatagged`</span>
+
+<span class="signature">`void* lua_touserdatatagged(lua_State* L, int idx, int tag)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `tag`: Tag
+
+
+Returns a pointer to a tagged userdata on the stack. Returns `NULL` if the value is not a userdata _or_ the userdata's tag does not match the provided `tag` argument. For more info on tags, see the [Tags](cookbook/tags.md) page.
+
+**Note:** It may be unsafe to hang onto a pointer to a userdata value. The Luau GC owns the userdata memory, and may free it. See the page on [pinning](cookbook/pinning.md) for tips on keeping a value from being GC'd, or consider using [light userdata](cookbook/light-userdata.md) instead.
+
+```cpp title="Example" hl_lines="10"
+constexpr int kFooTag = 1;
+
+struct Foo {
+	int n;
+};
+
+Foo* foo = static_cast<Foo*>(lua_newuserdatatagged(L, sizeof(Foo), kFooTag));
+foo->n = 32;
+
+Foo* f = static_cast<Foo*>(lua_touserdatatagged(L, -1, kFooTag));
+printf("foo->n = %d\n", foo->n); // foo->n = 32
+```
+
+
+----
+
+
+### <span class="subsection">`lua_userdatatag`</span>
+
+<span class="signature">`int lua_userdatatag(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the tag for the userdata at the given stack position. For non-userdata values, this function returns `-1`. If the userdata value was not assigned a tag, the tag will be set to the default of `0`, and thus this function will return `0`.
+
+```cpp title="Example" hl_lines="12-14"
+constexpr int kFooTag = 10;
+constexpr int kBarTag = 20;
+
+struct Foo {};
+struct Bar {};
+struct Baz {};
+
+lua_pushuserdatatagged(L, sizeof(Foo), kFooTag);
+lua_pushuserdatatagged(L, sizeof(Bar), kBarTag);
+lua_pushuserdata(L, sizeof(Baz));
+
+int foo_tag = lua_userdatatag(L, -3); // 10
+int bar_tag = lua_userdatatag(L, -2); // 20
+int baz_tag = lua_userdatatag(L, -1); // 0
+```
+
+
+----
+
+
+### <span class="subsection">`lua_lightuserdatatag`</span>
+
+<span class="signature">`int lua_lightuserdatatag(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the tag for the lightuserdata at the given stack position. For non-lightuserdata values, this function returns `-1`. If the lightuserdata value was not assigned a tag, the tag will be set to the default of `0`, and thus this function will return `0`.
+
+```cpp title="Example" hl_lines="17-19"
+constexpr int kFooTag = 10;
+constexpr int kBarTag = 20;
+
+struct Foo {};
+struct Bar {};
+struct Baz {};
+
+Foo* foo = new Foo();
+lua_pushlightuserdatatagged(L, foo, kFooTag);
+
+Bar* bar = new Bar();
+lua_pushlightuserdatatagged(L, bar, kBarTag);
+
+Baz* baz = new Baz();
+lua_pushlightuserdata(L, baz);
+
+int foo_tag = lua_lightuserdatatag(L, -3); // 10
+int bar_tag = lua_lightuserdatatag(L, -2); // 20
+int baz_tag = lua_lightuserdatatag(L, -1); // 0
+
+// ...pop lightuserdata and delete allocations
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tothread`</span>
+
+<span class="signature">`lua_State* lua_tothread(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the Luau thread at the given stack index, or `NULL` if the value is not a Luau thread.
+
+```cpp title="Example" hl_lines="2"
+lua_State* T = lua_newthread(L); // pushes T onto L's stack
+lua_State* thread = lua_tothread(L, -1); // retrieve T from L's stack
+// thread == T
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tobuffer`</span>
+
+<span class="signature">`void* lua_tobuffer(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the buffer at the given stack index, or `NULL` if the value is not a buffer.
+
+```cpp title="Example" hl_lines="4"
+void* buf = lua_newbuffer(L, 10);
+
+size_t len;
+void* b = lua_tobuffer(L, -1, &len);
+// b == buf
+// len == 10
+```
+
+
+----
+
+
+### <span class="subsection">`lua_topointer`</span>
+
+<span class="signature">`void* lua_topointer(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns a pointer to the value at the given stack index. This works for userdata, lightuserdata, strings, tables, buffers, and functions.
+
+**Note:** This should only be used for debugging purposes.
+
+```cpp title="Example" hl_lines="4"
+void* buf = lua_newbuffer(L, 10);
+
+size_t len;
+void* b = lua_tobuffer(L, -1, &len);
+// b == buf
+// len == 10
+```

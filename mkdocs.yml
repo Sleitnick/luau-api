@@ -37,6 +37,13 @@ extra_css:
 nav:
   - Home: index.md
   - Reference: reference.md
+  - Cookbook:
+    - Setup: cookbook/setup.md
+    - Atoms: cookbook/atoms.md
+    - Tags: cookbook/tags.md
+    - Userdata: cookbook/userdata.md
+    - Light Userdata: cookbook/light-userdata.md
+    - Pinning: cookbook/pinning.md
 
 markdown_extensions: 
   - attr_list
