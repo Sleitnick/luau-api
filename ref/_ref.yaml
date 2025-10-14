@@ -55,3 +55,22 @@ sections:
       - access_functions/lua_tothread.md
       - access_functions/lua_tobuffer.md
       - access_functions/lua_topointer.md
+  - name: Push Functions
+    functions:
+      - push_functions/lua_pushnil.md
+      - push_functions/lua_pushnumber.md
+      - push_functions/lua_pushinteger.md
+      - push_functions/lua_pushunsigned.md
+      - push_functions/lua_pushvector.md
+      - push_functions/lua_pushlstring.md
+      - push_functions/lua_pushstring.md
+      - push_functions/lua_pushvfstring.md
+      - push_functions/lua_pushfstring.md
+      - push_functions/lua_pushcclosurek.md
+      - push_functions/lua_pushboolean.md
+      - push_functions/lua_pushthread.md
+      - push_functions/lua_pushlightuserdatatagged.md
+      - push_functions/lua_newuserdatatagged.md
+      - push_functions/lua_newuserdatataggedwithmetatable.md
+      - push_functions/lua_newuserdatadtor.md
+      - push_functions/lua_newbuffer.md

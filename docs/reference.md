@@ -1226,3 +1226,507 @@ void* b = lua_tobuffer(L, -1, &len);
 // b == buf
 // len == 10
 ```
+
+
+----
+
+
+## Push Functions
+
+### <span class="subsection">`lua_pushnil`</span>
+
+<span class="signature">`void lua_pushnil(lua_State* L)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+
+
+Pushes `nil` to the Luau stack.
+
+```cpp title="Example"
+lua_pushnil(L);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushnumber`</span>
+
+<span class="signature">`void lua_pushnumber(lua_State* L, double n)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `n`: Number
+
+
+Pushes `n` to the stack.
+
+```cpp title="Example"
+lua_pushnumber(L, 15.2);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushinteger`</span>
+
+<span class="signature">`void lua_pushinteger(lua_State* L, int n)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `n`: Number
+
+
+Pushes `n` to the stack. Note that all Luau numbers are doubles, so the value of `n` will be cast to a `double`.
+
+```cpp title="Example"
+lua_pushinteger(L, 32);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushunsigned`</span>
+
+<span class="signature">`void lua_pushunsigned(lua_State* L, unsigned int n)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `n`: Number
+
+
+Pushes `n` to the stack. Note that all Luau numbers are doubles, so the value of `n` will be cast to a `double`.
+
+```cpp title="Example"
+lua_pushunsigned(L, 32);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushvector`</span>
+
+<span class="signature">`void lua_pushvector(lua_State* L, float x, float y, float z)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `x`: X
+- `y`: Y
+- `z`: Z
+
+
+Pushes a vector to the Luau stack. Luau comes with a [vector library](https://luau.org/library#vector-library) for operating against vector values.
+
+**Note:** Unlike Luau numbers being double-precision floating point numbers, Luau vector values are single-precision floats.
+
+```cpp title="Example 3-wide" hl_lines="1"
+// By default, Luau vectors are 3-wide
+
+lua_pushvector(L, 10, 15, 20);
+
+const char* v = lua_tovector(L, -1);
+float x = v[0]; // 10
+float y = v[1]; // 15
+float z = v[2]; // 20
+```
+
+If Luau is built with the `LUA_VECTOR_SIZE` preprocessor set to `4`, then this will be a 4-wide vector, and the function will have an additional `w` parameter.
+```cpp title="Example 4-wide" hl_lines="1"
+// If Luau is built with LUA_VECTOR_SIZE=4
+
+lua_pushvector(L, 10, 15, 20, 25);
+
+const char* v = lua_tovector(L, -1);
+float x = v[0]; // 10
+float y = v[1]; // 15
+float z = v[2]; // 20
+float w = v[3]; // 25
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushlstring`</span>
+
+<span class="signature">`void lua_pushlstring(lua_State* L, const char* str, size_t len)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `str`: C-style string
+- `len`: String length
+
+
+Pushes string `str` to the stack with a length of `len`.
+
+Internally, strings in Luau are copied and interned. Thus, modifications made to the inputted string will not be reflected in the Luau string value.
+
+This function is preferred over [`lua_pushstring`](#lua_pushstring) if the string length is known, or if the string contains `\0` characters as part of the string itself.
+
+```cpp title="Example"
+std::string str = "hello";
+lua_pushlstring(L, str.c_str(), str.size());
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushstring`</span>
+
+<span class="signature">`void lua_pushstring(lua_State* L, const char* str)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `str`: C-style string
+
+
+Pushes string `str` to the stack. The length of the string is determined internally using the C `strlen` function.
+
+If the length of the string is known, it is more efficient to use [`lua_pushlstring`](#lua_pushlstring).
+
+Internally, strings in Luau are copied and interned. Thus, modifications made to the inputted string will not be reflected in the Luau string value.
+
+```cpp title="Example"
+const char* str = "hello";
+lua_pushstring(L, str);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushvfstring`</span>
+
+<span class="signature">`const char* lua_pushvfstring(lua_State* L, const char* fmt, va_list argp)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `fmt`: C-style string for formatting
+- `argp`: Format arguments
+
+
+Pushes a string to the stack, where the string is `fmt` formatted against the arguments in `argp`. The formatted string is also returned.
+
+```cpp title="Example"
+void format_something(lua_State* L, const char* fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	lua_pushvfstring(L, fmt, args);
+	va_end(args);
+}
+
+format_something(L, "number: %d", 32);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushfstring`</span>
+
+<span class="signature">`const char* lua_pushfstring(lua_State* L, const char* fmt,  ...)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `fmt`: C-style string for formatting
+- `...`: Format arguments
+
+
+Pushes a string to the stack, where the string is `fmt` formatted against the arguments. The formatted string is also returned.
+
+```cpp title="Example"
+const char* s = lua_pushfstringL(L, "number: %d", 32);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushcclosurek`</span>
+
+<span class="signature">`void lua_pushcclosurek(lua_State* L, lua_CFunction fn, const char* debugname, int nup, lua_Continuation cont)`</span>
+<span class="stack">`[-n, +1, -]`</span>
+
+- `L`: Lua thread
+- `fn`: C Function
+- `debugname`: Debug name
+- `nup`: Number of upvalues to capture
+- `cont`: Continuation function to invoke
+
+
+Pushes the C function to the stack as a closure, which captures and pops `nup` upvalues from the top of the stack. The closure's continuation function is also assigned to `cont`.
+
+The continuation function is invoked when the closure is resumed.
+
+```cpp title="Example" hl_lines="23"
+int addition_cont(lua_State* L) {
+	double add = lua_tonumber(L, lua_upvalueindex(2)); // 4
+	double n = lua_tonumber(L, 1);
+	double sum = n + add;
+	lua_pushnumber(L, sum);
+	// Stop generator if sum exceeds 100 (this would obviously be bad if 'add' was <= 0)
+	if (sum > 100) {
+		return 1;
+	}
+	return lua_yield(L, 1);
+}
+
+int addition(lua_State* L) {
+	double start = lua_tonumber(L, lua_upvalueindex(1)); // 10
+	double add = lua_tonumber(L, lua_upvalueindex(2)); // 4
+	lua_pushnumber(L, start + add);
+	return lua_yield(L, 1);
+}
+
+int start_addition(lua_State* L) {
+	lua_pushvalue(L, 1);
+	lua_pushvalue(L, 2);
+	lua_pushcclosurek(L, addition, "addition", 2, addition_cont);
+}
+
+// Expose "start_addition" to Luau:
+set_global(L, "start_addition", start_addition);
+```
+
+```lua
+-- Start adder generator from 10 and add by 4:
+local adder = coroutine.wrap(start_addition(10, 4))
+do
+	local sum = adder()
+	print(sum)
+until not sum
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushboolean`</span>
+
+<span class="signature">`void lua_pushboolean(lua_State* L, int b)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `b`: Boolean
+
+
+Pushes boolean `b` to the stack.
+
+```cpp title="Example"
+lua_pushboolean(L, true);
+lua_pushboolean(L, false);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushthread`</span>
+
+<span class="signature">`int lua_pushthread(lua_State* L)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+
+
+Pushes the thread (L) to the stack. Returns `1` if the thread is the main thread, otherwise `0`.
+
+```cpp title="Example" hl_lines="1"
+lua_pushthread(L);
+
+lua_State* T = lua_tothread(L, -1);
+// T == L
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushlightuserdatatagged`</span>
+
+<span class="signature">`void lua_pushlightuserdatatagged(lua_State* L, void* p, int tag)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `p`: Pointer to arbitrary user-owned data
+- `tag`: Tag
+
+
+Pushes the tagged lightuserdata to the stack. Use [`lua_tolightuserdatatagged`](#lua_tolightuserdatatagged) to retrieve the value. For more info on tags, see the [Tags](cookbook/tags.md) page.
+
+```cpp title="Example" hl_lines="6"
+constexpr int kFooTag = 1;
+struct Foo {};
+
+Foo* foo = new Foo();
+
+lua_pushlightuserdatatagged(L, foo, kFooTag);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_newuserdatatagged`</span>
+
+<span class="signature">`void* lua_newuserdatatagged(lua_State* L, size_t sz, int tag)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `sz`: Size of the data
+- `tag`: Tag
+
+
+Creates the tagged userdata and pushes it to the stack. A pointer to the newly-constructed data is returned. Use [`lua_touserdatatagged`](lua_touserdatatagged) to retrieve the value. For more info on tags, see the [Tags](cookbook/tags.md) page.
+
+**Note:** Luau-constructed userdata are not zero-initialized. After construction, assign all fields of the object.
+
+```cpp title="Example" hl_lines="6"
+constexpr int kFooTag = 1;
+struct Foo {
+	int n;
+};
+
+Foo* foo = static_cast<Foo*>(lua_newuserdatatagged(L, sizeof(Foo), kFooTag));
+
+// Before explicit assignment, `n` is garbage, so we should initialize it ourselves:
+foo->n = 0;
+```
+
+
+----
+
+
+### <span class="subsection">`lua_newuserdatataggedwithmetatable`</span>
+
+<span class="signature">`void* lua_newuserdatataggedwithmetatable(lua_State* L, size_t sz, int tag)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `sz`: Size of the data
+- `tag`: Tag
+
+
+Creates the tagged userdata with a pre-defined metatable and pushes it to the stack. A pointer to the newly-constructed data is returned. Use [`lua_touserdatatagged`](lua_touserdatatagged) to retrieve the value. For more info on tags, see the [Tags](cookbook/tags.md) page.
+
+Using this method is faster than attempting to assign a metatable to new userdata every construction, e.g. using `luaL_newmetatable`. Instead, the metatable is created ahead of time using `lua_setuserdatametatable`, linked to the userdata's tag.
+
+```cpp title="Example" hl_lines="35"
+constexpr int kFooTag = 1;
+
+struct Foo {
+	int n;
+};
+
+int Foo_index(lua_State* L) {
+	Foo* foo = static_cast<Foo*>(luaL_touserdatatagged(L, 1, kFooTag));
+	const char* property = lua_tostring(L, 2);
+	if (property && strcmp(property, "n") == 0) {
+		lua_pushinteger(L, foo->n);
+		return 1;
+	}
+	luaL_error(L, "unknown property");
+}
+
+int Foo_newindex(lua_State* L) {
+	Foo* foo = static_cast<Foo*>(luaL_touserdatatagged(L, 1, kFooTag));
+	const char* property = lua_tostring(L, 2);
+	if (property && strcmp(property, "n") == 0) {
+		int new_n = luaL_checkinteger(L, 3);
+		foo->n = new_n;
+		return 0;
+	}
+	luaL_error(L, "unknown property");
+}
+
+const luaL_Reg Foo_metatable[] = {
+	{"__index", Foo_index},
+	{"__newindex", Foo_newindex},
+	{nullptr, nullptr},
+};
+
+int push_Foo() {
+	Foo* foo = static_cast<Foo*>(lua_newuserdatataggedwithmetatable(L, sizeof(Foo), kFooTag));
+	foo->n = 0;
+	return 1;
+}
+
+// Called during some initialization period
+void setup() {
+	luaL_newmetatable(L, "Foo");
+	luaL_register(L, nullptr, Foo_metatable);
+	lua_setuserdatametatable(L, kFooTag);
+
+	lua_setglobal("new_foo", push_Foo);
+}
+```
+
+```lua
+local foo = new_foo()
+foo.n = 55
+print(foo.n) -- 55
+```
+
+
+----
+
+
+### <span class="subsection">`lua_newuserdatadtor`</span>
+
+<span class="signature">`void* lua_newuserdatadtor(lua_State* L, size_t sz, void (*dtor)(void*))`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `sz`: Size of the data
+- `dtor`: Destructor
+
+
+Creates a new userdata with an assigned destructor. Destructors are called when Luau is freeing up the userdata memory.
+
+To assign a destructor for all userdata of a given tag, use [`lua_setuserdatadtor`](#lua_setuserdatadtor).
+
+```cpp title="Example" hl_lines="5-8"
+struct Foo {
+	char* data;
+};
+
+Foo* foo = static_cast<Foo*>(lua_newuserdatadtor(L, sizeof(Foo), [](void* ptr) {
+	// This function is called when Foo is being GC'd. Free up any user-managed resources now.
+	Foo* f = static_cast<Foo*>(ptr);
+	delete[] f->data;
+}));
+
+foo->data = new char[256];
+```
+
+
+----
+
+
+### <span class="subsection">`lua_newbuffer`</span>
+
+<span class="signature">`void* lua_newbuffer(lua_State* L, size_t sz)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `sz`: Size
+
+
+Pushes a new buffer to the stack and returns a pointer to the buffer. Buffers are just arbitrary data. Luau can create and interact with buffers through the [`buffer` library](https://luau.org/library#buffer-library). Use the [`lua_tobuffer`](#lua_tobuffer) function to retrieve a buffer from the stack.
+
+```cpp title="Example" hl_lines="8"
+struct Foo {
+	int n;
+}
+
+// As an example, write 'Foo' to a buffer:
+Foo foo{};
+foo.n = 10;
+void* buf = lua_newbuffer(L, sizeof(Foo));
+memcpy(buf, &foo, sizeof(Foo));
+```

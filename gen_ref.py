@@ -58,6 +58,7 @@ class RefArg:
 		self.name = arg_yaml["name"]
 		self.arg_type = arg_yaml["type"]
 		self.desc = arg_yaml["desc"]
+		self.fn = ("fn" in arg_yaml) and arg_yaml["fn"]
 
 class MarkdownRefAndMeta:
 	def __init__(self, markdown: str, name: str, ret: str, stack: str, args: list[RefArg]):
@@ -101,7 +102,7 @@ def read_markdown_file_and_metadata(filepath: str):
 def build_signature(meta: MarkdownRefAndMeta):
 	args = ""
 	if len(meta.args) > 0:
-		args = ", ".join(map(lambda arg: arg.arg_type + " " + arg.name, meta.args))
+		args = ", ".join(map(lambda arg: arg.arg_type if arg.fn else arg.arg_type + " " + arg.name, meta.args))
 	return f"{meta.ret} {meta.name}({args})"
 
 def gen():
