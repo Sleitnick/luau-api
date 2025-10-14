@@ -87,3 +87,12 @@ sections:
       - get_functions/lua_setsafeenv.md
       - get_functions/lua_getsafeenv.md
       - get_functions/lua_getmetatable.md
+  - name: Set Functions
+    functions:
+      - set_functions/lua_settable.md
+      - set_functions/lua_setfield.md
+      - set_functions/lua_rawsetfield.md
+      - set_functions/lua_rawset.md
+      - set_functions/lua_rawseti.md
+      - set_functions/lua_setmetatable.md
+      - set_functions/lua_setfenv.md

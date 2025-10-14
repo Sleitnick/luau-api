@@ -1956,3 +1956,150 @@ if (lua_getmetatable(L, -1)) {
 	// Metatable is now at the top of the stack
 }
 ```
+
+
+----
+
+
+## Set Functions
+
+### <span class="subsection">`lua_settable`</span>
+
+<span class="signature">`void lua_settable(lua_State* L, int idx)`</span>
+<span class="stack">`[-2, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Sets the value of a table index, e.g. `t[k] = v`, where `t` is located on the stack at `idx`, and the key and value are on the top of the stack.
+
+```cpp title="Example" hl_lines="5"
+lua_newtable(L);
+
+lua_pushliteral(L, "hello");
+lua_pushinteger(L, 50);
+lua_settable(L, -3); // t.hello = 50
+```
+
+
+----
+
+
+### <span class="subsection">`lua_setfield`</span>
+
+<span class="signature">`void lua_setfield(lua_State* L, int idx, const char* k)`</span>
+<span class="stack">`[-1, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `k`: Field
+
+
+Sets the value of a table index, e.g. `t[k] = v`, where `t` is located on the stack at `idx`, and the value is on the top of the stack.
+
+```cpp title="Example" hl_lines="4"
+lua_newtable(L);
+
+lua_pushinteger(L, 50);
+lua_setfield(L, -2, "hello"); // t.hello = 50
+```
+
+
+----
+
+
+### <span class="subsection">`lua_rawsetfield`</span>
+
+<span class="signature">`void lua_rawsetfield(lua_State* L, int idx, const char* k)`</span>
+<span class="stack">`[-1, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `k`: Field
+
+
+The same as [`lua_setfield`](#lua_setfield), except no metamethods are invoked.
+
+
+----
+
+
+### <span class="subsection">`lua_rawset`</span>
+
+<span class="signature">`void lua_rawset(lua_State* L, int idx)`</span>
+<span class="stack">`[-2, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+The same as [`lua_settable`](#lua_settable), except no metamethods are invoked.
+
+
+----
+
+
+### <span class="subsection">`lua_rawseti`</span>
+
+<span class="signature">`int lua_rawseti(lua_State* L, int idx, int n)`</span>
+<span class="stack">`[-1, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `n`: Table index
+
+
+Performs `t[n] = v`, where `t` is the table on the stack at `idx`, and `v` is the value on the top of the stack. The top value is also popped.
+
+```cpp title="Example" hl_lines="5"
+lua_newtable(L);
+
+for (int i = 1; i <= 10; i++) {
+	lua_pushinteger(L, i * 10);
+	lua_rawseti(L, -2, i); // t[i] = i * 10
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_setmetatable`</span>
+
+<span class="signature">`int lua_setmetatable(lua_State* L, int idx)`</span>
+<span class="stack">`[-1, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Takes the table at the top of the stack and assigns it as the metatable of the table on the stack at `idx`.
+
+The return value can be ignored; this function always returns `1`.
+
+```cpp title="Example" hl_lines="7"
+// Create table:
+lua_newtable(L); // t
+
+// Create metatable:
+lua_newtable(L); // mt
+lua_pushliteral("v");
+lua_rawsetfield(L, -2, "__mode"); // mt.__mode = "v"
+lua_setmetatable(L, -2); // setmetatable(t, mt)
+```
+
+
+----
+
+
+### <span class="subsection">`lua_setfenv`</span>
+
+<span class="signature">`int lua_setfenv(lua_State* L, int idx)`</span>
+<span class="stack">`[-1, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Sets the environment of the value at `idx` to the table on the top of the stack, and pops this top value. Returns `0` if the value at the given index is not an applicable type for setting an environment (e.g. a number), otherwise returns `1`.
