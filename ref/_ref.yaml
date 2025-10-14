@@ -96,3 +96,9 @@ sections:
       - set_functions/lua_rawseti.md
       - set_functions/lua_setmetatable.md
       - set_functions/lua_setfenv.md
+  - name: Load and Call Functions
+    functions:
+      - load_call_functions/luau_load.md
+      - load_call_functions/lua_call.md
+      - load_call_functions/lua_pcall.md
+      - load_call_functions/lua_cpcall.md

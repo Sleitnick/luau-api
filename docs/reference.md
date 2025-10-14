@@ -2103,3 +2103,184 @@ lua_setmetatable(L, -2); // setmetatable(t, mt)
 
 
 Sets the environment of the value at `idx` to the table on the top of the stack, and pops this top value. Returns `0` if the value at the given index is not an applicable type for setting an environment (e.g. a number), otherwise returns `1`.
+
+
+----
+
+
+## Load and Call Functions
+
+### <span class="subsection">`luau_load`</span>
+
+<span class="signature">`int luau_load(lua_State* L, const char* chunkname, const char* data, size_t size, int env)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `chunkname`: Chunk name
+- `data`: Bytecode data
+- `size`: Bytecode data size
+- `env`: Environment
+
+
+Loads bytecode onto the given thread as a callable function on the top of the stack. If loading fails, the error message is pushed to the stack instead.
+
+The `chunkname` argument helps with debugging.
+
+Set `env` to `0` to use the default environment. Otherwise, this indicates the stack index for the given environment to use.
+
+```cpp title="Example" hl_lines="6"
+const char* source = "print('hello')";
+
+size_t bytecode_size;
+char* bytecode = luau_compile(source, strlen(source), nullptr, &bytecode_size);
+
+int res = luau_load(L, "=test", bytecode, bytecode_size, 0);
+free(bytecode);
+
+if (res != 0) {
+	size_t len;
+	const char* msg = lua_tolstring(L, -1, &len);
+	lua_pop(L, 1);
+	printf("failed to compile: %s\n", msg);
+	return;
+}
+
+// Move loaded chunk to its own thread and run it:
+lua_State* T = lua_newthread(L);
+lua_pushvalue(L, -2);
+lua_remove(L, -3);
+lua_xmove(L, T, 1);
+int status = lua_resume(T, nullptr, 0);
+// ...handle status
+```
+
+
+----
+
+
+### <span class="subsection">`lua_call`</span>
+
+<span class="signature">`void lua_call(lua_State* L, int nargs, int nresults)`</span>
+<span class="stack">`[-(nargs + 1), +nresults, -]`</span>
+
+- `L`: Lua thread
+- `nargs`: Number of arguments
+- `nresults`: Number of returned values
+
+
+Calls the function at the top of the stack with `nargs` arguments, and expecting `nresults` return values. To use `lua_call`, push the desired function to the stack, and then push the desired arguments to the stack next.
+
+If the function errors, the program will need to handle the error. This differs based on how Luau was built. See [Error Handling](cookbook/error-handling.md) for more information. Also consider using [`lua_pcall`](#lua_pcall) instead.
+
+```cpp title="Example" hl_lines="16"
+int sub(lua_State* L) {
+	double a = luaL_checknumber(L, 1);
+	double b = luaL_checknumber(L, 2);
+	lua_pushnumber(L, a - b);
+	return 1;
+}
+
+// First, push the function:
+lua_pushcfunction(L, sub, "sub");
+
+// Next, push function arguments in order:
+lua_pushnumber(L, 15);
+lua_pushnumber(L, 10);
+
+// Finally, call `lua_call`, which will pop the arguments and function from the stack:
+lua_call(L, 2, 1); // 2 args, 1 result
+
+double difference = lua_tonumber(L, -1); // result is at the top of the stack
+lua_pop(L, 1); // clean up stack
+
+printf("15 - 10 = %f\n", difference);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pcall`</span>
+
+<span class="signature">`void lua_pcall(lua_State* L, int nargs, int nresults, int errfunc)`</span>
+<span class="stack">`[-(nargs + 1), +nresults, -]`</span>
+
+- `L`: Lua thread
+- `nargs`: Number of arguments
+- `nresults`: Number of returned values
+- `errfunc`: Error function index (or 0 for none)
+
+
+Similar to [`lua_call`](#lua_call), except the function is run in protected mode. The status of the call is returned, which can be checked to see if the call succeeded or not. When successful, results are pushed to the stack in the same way as `lua_call`.
+
+If `errfunc` is set to `0`, then the error message will be put onto the stack. Otherwise, `errfunc` must point to a function on the stack. The function will be called with the given error message. Whatever this error function returns will then be placed onto the stack.
+
+```cpp title="Example" hl_lines="16"
+int sub(lua_State* L) {
+	double a = luaL_checknumber(L, 1);
+	double b = luaL_checknumber(L, 2);
+	lua_pushnumber(L, a - b);
+	return 1;
+}
+
+// First, push the function:
+lua_pushcfunction(L, sub, "sub");
+
+// Next, push function arguments in order:
+lua_pushnumber(L, 15);
+lua_pushnumber(L, 10);
+
+// Finally, call `lua_call`, which will pop the arguments and function from the stack:
+int res = lua_pcall(L, 2, 1, 0); // 2 args, 1 result, and no error handler function
+
+if (res == LUA_OK) {
+	double difference = lua_tonumber(L, -1); // result is at the top of the stack
+	lua_pop(L, 1); // clean up stack
+
+	printf("15 - 10 = %f\n", difference);
+} else {
+	const char* err = lua_tostring(L, -1);
+	lua_pop(L, 1);
+	printf("error: %s\n", err);
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_cpcall`</span>
+
+<span class="signature">`int lua_cpcall(lua_State* L, lua_CFunction func, void* ud)`</span>
+<span class="stack">`[-(nargs + 1), +nresults, -]`</span>
+
+- `L`: Lua thread
+- `func`: C function
+- `ud`: Light userdata
+
+
+Calls the C function in protected mode, passing `ud` as the single item on the stack for the function. Returns the status, just like `lua_pcall`. Functions returned by `func` are automatically discarded.
+
+```cpp title="Example" hl_lines="13"
+struct Foo {
+	int n;
+};
+
+int fn(lua_State* L) {
+	Foo* foo = static_cast<Foo*>(lua_tolightuserdata(L, 1));
+	foo->n *= 2;
+	return 0;
+}
+
+Foo foo{};
+foo.n = 10;
+int status = lua_cpcall(L, fn, &foo);
+
+if (status == LUA_OK) {
+	printf("n: %d\n", foo.n); // n: 20
+} else {
+	const char* err = lua_tostring(L, -1);
+	lua_pop(L, 1);
+	printf("error: %s\n", err);
+}
+```
