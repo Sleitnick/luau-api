@@ -1730,3 +1730,229 @@ foo.n = 10;
 void* buf = lua_newbuffer(L, sizeof(Foo));
 memcpy(buf, &foo, sizeof(Foo));
 ```
+
+
+----
+
+
+## Get Functions
+
+### <span class="subsection">`lua_gettable`</span>
+
+<span class="signature">`int lua_gettable(lua_State* L, int idx)`</span>
+<span class="stack">`[-1, +1, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Pushes a value from a table onto the stack. The table is at index `idx` on the stack, and the key into the table is on the top of the stack. This function pops the key at the top of the stack. The `__index` metamethod may be triggered when using this function.  If this is undesirable, use [`lua_rawget`](#lua_rawget) instead.
+
+Returns the type of the value.
+
+```cpp title="Example"
+// Assume the top of the stack is the Luau table: { "hello" = 40 }
+lua_pushliteral(L, "hello");
+int t = lua_gettable(L, -2); // Our key "hello" is at the top of the stack, and -2 is the table.
+// t == LUA_TNUMBER
+// lua_tonumber(L, -1) == 40
+```
+
+
+----
+
+
+### <span class="subsection">`lua_getfield`</span>
+
+<span class="signature">`int lua_getfield(lua_State* L, int idx, const char* k)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `k`: Field
+
+
+Pushes a value from a table onto the stack. The table is at index `idx` on the stack, and the key into the table is `k`. The `__index` metamethod may be triggered when using this function. If this is undesirable, use [`lua_rawgetfield`](#lua_rawgetfield) instead.
+
+Returns the type of the value.
+
+```cpp title="Example"
+// Assume the top of the stack is the Luau table: { "hello" = 40 }
+int t = lua_getfield(L, -2, "hello"); // Our key "hello" is at the top of the stack, and -2 is the table.
+// t == LUA_TNUMBER
+// lua_tonumber(L, -1) == 40
+```
+
+
+----
+
+
+### <span class="subsection">`lua_rawgetfield`</span>
+
+<span class="signature">`int lua_rawgetfield(lua_State* L, int idx, const char* k)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `k`: Field
+
+
+This is the same as [`lua_getfield`](#lua_getfield), except no `__index` metamethod is ever called.
+
+
+----
+
+
+### <span class="subsection">`lua_rawget`</span>
+
+<span class="signature">`int lua_rawget(lua_State* L, int idx)`</span>
+<span class="stack">`[-1, +1, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+This is the same as [`lua_gettable`](#lua_gettable), except no `__index` metamethod is ever called.
+
+
+----
+
+
+### <span class="subsection">`lua_rawgeti`</span>
+
+<span class="signature">`int lua_rawgeti(lua_State* L, int idx, int n)`</span>
+<span class="stack">`[-1, +1, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `n`: Table index
+
+
+Pushes the table value at index `n` onto the stack. The table is located on the stack at `idx`. Similar to `lua_rawget`, no metamethods are called. Note that Luau tables start at index `1`, not `0`.
+
+```cpp title="Example" hl_lines="2"
+// Assume the top of the stack is the Luau table: { 5, 15, 30 }
+lua_rawgeti(L, -1, 2); // t[2]
+double n = lua_tonumber(L, -1);
+printf("%f\n", n); // 15
+```
+
+
+----
+
+
+### <span class="subsection">`lua_createtable`</span>
+
+<span class="signature">`void lua_createtable(lua_State* L, int narr, int nrec)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `narr`: Array size
+- `nrec`: Dictionary size
+
+
+Pushes a new table onto the stack, allocating `narr` slots on the array portion and `nrec` slots on the dictionary portion. Use [`lua_newtable`](#lua_newtable) to create a table with zero size allocation, equivalent to `lua_createtable(0, 0)`.
+
+These allocated slots are _not_ filled.
+
+```cpp title="Example"
+lua_createtable(L, 10, 0); // Push a new table onto the stack with 10 array slots allocated
+// 10 slots allocated, but not filled, e.g. lua_objlen(L, -1) == 0
+```
+
+
+----
+
+
+### <span class="subsection">`lua_setreadonly`</span>
+
+<span class="signature">`void lua_setreadonly(lua_State* L, int idx, int enabled)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `enabled`: Readonly enabled
+
+
+Sets the read-only state of a table. Read-only tables ensure that table values cannot be modified, added, or removed. This is only a shallow application, i.e. a nested table may still be writable.
+
+```cpp title="Example" hl_lines="4"
+lua_newtable(L);
+lua_pushliteral(L, "hello");
+lua_rawsetfield(L, -2, "message"); // t.message = "hello"
+lua_setreadonly(L, -1, true);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_getreadonly`</span>
+
+<span class="signature">`int lua_getreadonly(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns `1` if the table is marked as read-only, otherwise `0`.
+
+```cpp title="Example" hl_lines="4"
+// Assume a table is at the top of the stack
+if (!lua_getreadonly(L, -1)) {
+	// Safe to modify table
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_setsafeenv`</span>
+
+<span class="signature">`void lua_setsafeenv(lua_State* L, int idx, int enabled)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `enabled`: Safe environment enabled
+
+
+Sets the safe-env state of a thread. TODO.
+
+
+----
+
+
+### <span class="subsection">`lua_getsafeenv`</span>
+
+<span class="signature">`int lua_getsafeenv(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Gets the safe-env state of a thread. TODO.
+
+
+----
+
+
+### <span class="subsection">`lua_getmetatable`</span>
+
+<span class="signature">`int lua_getmetatable(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +(0|1), -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Gets the metatable for the object at the given stack index. If the metatable is found, it is pushed to the top of the stack and the function returns `1`. Otherwise, the function returns `0` and the stack remains the same.
+
+```cpp title="Example"
+if (lua_getmetatable(L, -1)) {
+	// Metatable is now at the top of the stack
+}
+```

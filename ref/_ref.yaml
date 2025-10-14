@@ -74,3 +74,16 @@ sections:
       - push_functions/lua_newuserdatataggedwithmetatable.md
       - push_functions/lua_newuserdatadtor.md
       - push_functions/lua_newbuffer.md
+  - name: Get Functions
+    functions:
+      - get_functions/lua_gettable.md
+      - get_functions/lua_getfield.md
+      - get_functions/lua_rawgetfield.md
+      - get_functions/lua_rawget.md
+      - get_functions/lua_rawgeti.md
+      - get_functions/lua_createtable.md
+      - get_functions/lua_setreadonly.md
+      - get_functions/lua_getreadonly.md
+      - get_functions/lua_setsafeenv.md
+      - get_functions/lua_getsafeenv.md
+      - get_functions/lua_getmetatable.md
