@@ -19,7 +19,7 @@ Creates a new userdata with an assigned destructor. Destructors are called when 
 
 To assign a destructor for all userdata of a given tag, use [`lua_setuserdatadtor`](#lua_setuserdatadtor).
 
-```cpp title="Example" hl_lines="5-8"
+```cpp title="Example" hl_lines="5-9"
 struct Foo {
 	char* data;
 };
