@@ -2572,3 +2572,98 @@ enum lua_CoStatus {
     LUA_COERR,     // finished with error
 };
 ```
+
+
+----
+
+
+## Memory Functions
+
+### <span class="subsection">`lua_gc`</span>
+
+<span class="signature">`int lua_gc(lua_State* L, int what, int data)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `what`: What
+- `data`: Data
+
+
+Various garbage collection operations, determined by the `what` argument.
+
+Starting and stopping the GC:
+
+- To stop the GC: `lua_gc(L, LUA_GCSTOP, 0);`
+- To restart the GC: `lua_gc(L, LUA_GCRESTART, 0);`
+- To run a full GC cycle: `lua_gc(L, LUA_GCCOLLECT, 0);`
+- To run a GC step: `lua_gc(L, LUA_GCSTEP, 0);`
+
+Querying the GC:
+
+- To check if the GC is running: `if (lua_gc(L, LUA_GCISRUNNING, 0)) {}`
+- To count GC usage in kilobytes: `int kb = lua_gc(L, LUA_GCCOUNT, 0);`
+- To count the remaining GC in bytes: `int b = lua_gc(L, LUA_GCCOUNTB, 0);`
+
+Tuning the GC:
+
+- To set the GC goal (percentage): `lua_gc(L, LUA_GCSETGOAL, 200);`
+- To set the GC step multiplier (percentage): `lua_gc(L, LUA_GCSETSTEPMUL, 200);`
+- To set the GC step size (KB): `lua_gc(L, LUA_GCSETSTEPSIZE, 1);`
+
+```cpp title="Example"
+// Example of querying bytes used:
+int kb = lua_gc(L, LUA_GCCOUNT, 0);
+int bytes_remaining = lua_gc(L, LUA_GCCOUNTB, 0);
+int bytes_total = (kb * 1024) + byte_remaining;
+printf("gc size: %d bytes", bytes_total);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_setmemcat`</span>
+
+<span class="signature">`int lua_setmemcat(lua_State* L, int category)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `category`: Memory category
+
+
+Set the memory category for a given thread (the default is `0`). There is no associated function to retrieve a thread's current memory category.
+
+Call [`lua_totalbytes`](#lua_totalbytes) to query the amount of memory utilized by a given memory category.
+
+**Note:** While the `category` parameter is an `int`, the actual memory category attached to the thread is a `uint8_t`, and thus the category parameter is cast to `uint8_t`. Therefore, memory categories are limited to the range `[0, 255]`.
+
+```cpp title="Example"
+// Set the memory category of `L` to 10:
+lua_setmemcat(L, 10);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_totalbytes`</span>
+
+<span class="signature">`size_t lua_totalbytes(lua_State* L, int category)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `category`: Memory category
+
+
+Retrieves the total bytes allocated by a given memory category (`0` is the default memory category). Call [`lua_setmemcat`](#lua_setmemcat) to assign a memory category for a given thread.
+
+```cpp title="Example" hl_lines="7"
+constexpr uint8_t kExampleMemCat = 10;
+
+lua_State* T = lua_newthread(L);
+lua_setmemcat(T, kExampleMemCat);
+lua_newbuffer(T, 1024 * 10); // 10KB buffer
+
+size_t total_bytes = lua_totalbytes(T, kExampleMemCat);
+printf("total: %zu bytes\n", total_bytes);
+```

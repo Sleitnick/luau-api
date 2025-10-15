@@ -113,3 +113,8 @@ sections:
       - coroutine_functions/lua_getthreaddata.md
       - coroutine_functions/lua_setthreaddata.md
       - coroutine_functions/lua_costatus.md
+  - name: Memory Functions
+    functions:
+      - memory_functions/lua_gc.md
+      - memory_functions/lua_setmemcat.md
+      - memory_functions/lua_totalbytes.md
