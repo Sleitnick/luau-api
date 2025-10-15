@@ -63,3 +63,4 @@ markdown_extensions:
 
 plugins:
   - offline
+  - search
