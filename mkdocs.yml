@@ -7,7 +7,6 @@ theme:
   features:
     - content.code.copy
   palette:
-
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
       toggle:
@@ -16,7 +15,7 @@ theme:
 
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
-      scheme: default 
+      scheme: default
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
@@ -36,18 +35,19 @@ extra_css:
 
 nav:
   - Home: index.md
-  - Reference: reference.md
+  - Reference: _ref_auto_generated.md
   - Cookbook:
-    - Setup: cookbook/setup.md
-    - Atoms: cookbook/atoms.md
-    - Tags: cookbook/tags.md
-    - Userdata: cookbook/userdata.md
-    - Light Userdata: cookbook/light-userdata.md
-    - Tables: cookbook/tables.md
-    - Pinning: cookbook/pinning.md
-    - Error Handling: cookbook/error-handling.md
+      - Setup: cookbook/setup.md
+      - Atoms: cookbook/atoms.md
+      - Tags: cookbook/tags.md
+      - Userdata: cookbook/userdata.md
+      - Light Userdata: cookbook/light-userdata.md
+      - Tables: cookbook/tables.md
+      - Pinning: cookbook/pinning.md
+      - Coroutine Threads: cookbook/threads.md
+      - Error Handling: cookbook/error-handling.md
 
-markdown_extensions: 
+markdown_extensions:
   - attr_list
   - md_in_html
   - pymdownx.highlight:

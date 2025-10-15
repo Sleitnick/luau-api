@@ -102,3 +102,14 @@ sections:
       - load_call_functions/lua_call.md
       - load_call_functions/lua_pcall.md
       - load_call_functions/lua_cpcall.md
+  - name: Load and Call Functions
+    functions:
+      - coroutine_functions/lua_yield.md
+      - coroutine_functions/lua_break.md
+      - coroutine_functions/lua_resume.md
+      - coroutine_functions/lua_resumeerror.md
+      - coroutine_functions/lua_status.md
+      - coroutine_functions/lua_isyieldable.md
+      - coroutine_functions/lua_getthreaddata.md
+      - coroutine_functions/lua_setthreaddata.md
+      - coroutine_functions/lua_costatus.md

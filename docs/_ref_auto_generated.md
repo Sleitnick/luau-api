@@ -2284,3 +2284,291 @@ if (status == LUA_OK) {
 	printf("error: %s\n", err);
 }
 ```
+
+
+----
+
+
+## Load and Call Functions
+
+### <span class="subsection">`lua_yield`</span>
+
+<span class="signature">`void lua_yield(lua_State* L, int nresults)`</span>
+<span class="stack">`[-?, +?, -]`</span>
+
+- `L`: Lua thread
+- `nresults`: Number of returned values
+
+
+Yields a coroutine thread. This should only be called as the return value of a C function.
+
+The `nresults` argument indicates how many stack values remain on the thread's stack, allowing the caller of `lua_resume` to grab those values.
+
+```cpp title="Example"
+int do_something(lua_State* L) {
+	// Yield back '15' to the lua_resume call:
+	lua_pushinteger(L, 15);
+	return lua_yield(L, 1);
+}
+
+lua_State* T = lua_newthread(L);
+lua_pushcfunction(T, do_something, "do_something");
+int status = lua_resume(L, 0);
+if (status == LUA_YIELD) {
+  int value = lua_tointeger(T, 1); // 15
+  lua_pop(T, 1);
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_break`</span>
+
+<span class="signature">`void lua_break(lua_State* L)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+
+
+Trigger a break (i.e. breakpoint). This is different than `lua_breakpoint`, which installs a breakpoint.
+
+
+----
+
+
+### <span class="subsection">`lua_resume`</span>
+
+<span class="signature">`int lua_resume(lua_State* L, lua_State* from, int narg)`</span>
+<span class="stack">`[-?, +?, -]`</span>
+
+- `L`: Lua thread
+- `from`: From Lua thread
+- `narg`: Number of arguments
+
+
+Resumes a coroutine. The status of the resumption is returned.
+
+To start a new coroutine, do the following:
+1. Create a new thread, e.g. [`lua_newthread`](#lua_newthread)
+1. Place a function onto the new thread's stack
+1. Place arguments in-order onto the new thread's stack (same amount as indicated with `narg` argument)
+1. Call `lua_resume`
+1. Handle the result
+
+To resume an existing coroutine:
+1. Place arguments onto the thread's stack (These will be the returned result from Luau's `coroutine.yield` call)
+1. Call `lua_resume`
+1. Handle the result
+
+```cpp title="Example" hl_lines="22"
+int add(lua_State* L) {
+	// Get args:
+	int a = luaL_checkinteger(L, 1);
+	int b = luaL_checkinteger(L, 2);
+
+	lua_pushinteger(L, a + b);
+
+	return 1;
+}
+
+// Create thread:
+lua_State* T = lua_newthread(L);
+
+// Push function to thread:
+lua_pushcfunction(add, "add");
+
+// Push arguments:
+lua_pushinteger(T, 10);
+lua_pushinteger(T, 20);
+
+// Resume:
+int status = lua_resume(T, L, 2);
+
+if (status == LUA_OK) {
+	// Coroutine is done
+	printf("ok");
+} else if (status == LUA_YIELD) {
+	// Handle yielded thread
+	printf("yielded");
+} else {
+	// Handle error (call lua_getinfo and lua_debugtrace for better debugging and stacktrace information)
+	if (const char* str = lua_tostring(T, -1)) {
+		printf("error: %s\n", str);
+	} else {
+		printf("unknown error: %d\n", status);
+	}
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_resumeerror`</span>
+
+<span class="signature">`int lua_resumeerror(lua_State* L, lua_State* from)`</span>
+<span class="stack">`[-?, +?, -]`</span>
+
+- `L`: Lua thread
+- `from`: From Lua thread
+
+
+Resumes a coroutine, but in an error state. This is useful when reporting an error to a yielded thread.
+
+For example, a coroutine might yield to wait for some sort of web request. The yielded thread needs to be resumed, but also needs to report that an error occurred. Thus, `lua_resume` would not be adequate.
+
+The status of the resumption is returned.
+
+```cpp title="Example" hl_lines="8"
+// Some sort of error occurs for our thread, e.g. a web request fails
+// We'll push a string onto the stack to indicate what went wrong
+lua_pushliteral(T, "oh no, the request failed!");
+
+// Elsewhere, in some hypothetical task scheduler, we resume the yielded thread:
+int status;
+if (there_was_an_error) {
+	status = lua_resumeerror(T, L);
+} else {
+	// ...normal resumption
+}
+
+// ...handle status
+if (status != LUA_OK && status != LUA_YIELD) {
+	const char* err = lua_tostring(T, -1); // Might be our "oh no, the request failed!" error message
+	// ...other more complete error handling
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_status`</span>
+
+<span class="signature">`int lua_status(lua_State* L)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+
+
+Returns any `lua_Status` value:
+```cpp title="lua_Status"
+// Copied from luau/VM/include/lua.h
+enum lua_Status {
+	  LUA_OK = 0,
+    LUA_YIELD,
+    LUA_ERRRUN,
+    LUA_ERRSYNTAX, // legacy error code, preserved for compatibility
+    LUA_ERRMEM,
+    LUA_ERRERR,
+    LUA_BREAK, // yielded for a debug breakpoint
+};
+```
+
+```cpp title="Example" hl_lines="15 19 23"
+int all_good(lua_State* L) {
+	return 0;
+}
+
+int oh_no(lua_State* L) {
+	luaL_error("oh no!");
+}
+
+int yield_something(lua_State* L) {
+	return lua_yield(L, 0);
+}
+
+lua_State* T = lua_newthread(L);
+lua_pushcfunction(all_good, "all_good");
+int status = lua_resume(T, nullptr, 0); // LUA_OK (0)
+
+lua_State* T = lua_newthread(L);
+lua_pushcfunction(oh_no, "oh_no");
+int status = lua_resume(T, nullptr, 0); // LUA_ERRRUN (2)
+
+lua_State* T = lua_newthread(L);
+lua_pushcfunction(yield_something, "yield_something");
+int status = lua_resume(T, nullptr, 0); // LUA_YIELD (1)
+```
+
+
+----
+
+
+### <span class="subsection">`lua_isyieldable`</span>
+
+<span class="signature">`int lua_isyieldable(lua_State* L)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+
+
+Returns `1` if the coroutine is yieldable, otherwise `0`.
+
+
+----
+
+
+### <span class="subsection">`lua_getthreaddata`</span>
+
+<span class="signature">`void* lua_getthreaddata(lua_State* L)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+
+
+Gets data attached to the given thread. This is arbitrary data that is assigned with [`lua_setthreaddata`](#lua_setthreaddata).
+
+
+----
+
+
+### <span class="subsection">`lua_setthreaddata`</span>
+
+<span class="signature">`void lua_setthreaddata(lua_State* L)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+
+
+Sets arbitrary data for a given thread. This is often useful when using lua interrupt or thread callbacks (see [`lua_callbacks`](#lua_callbacks)).
+
+This value ought not be a Luau-owned object (e.g. data created with `lua_newuserdata`), since the lifetime of that memory may be shorter than the lifetime of the given thread.
+
+```cpp title="Example"
+class Foo {};
+
+lua_setthreaddata(L, new Foo());
+// ...
+Foo* foo = static_cast<Foo*>(lua_getthreaddata(L));
+// ...
+lua_setthreaddata(L, nullptr);
+delete foo;
+```
+
+
+----
+
+
+### <span class="subsection">`lua_costatus`</span>
+
+<span class="signature">`int lua_costatus(lua_State* L)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+
+
+Gets the coroutine status (`lua_CoStatus`) of a given thread.
+
+```cpp title="lua_CoStatus"
+// Copied from luau/VM/include/lua.h
+enum lua_CoStatus {
+    LUA_CORUN = 0, // running
+    LUA_COSUS,     // suspended
+    LUA_CONOR,     // 'normal' (it resumed another coroutine)
+    LUA_COFIN,     // finished
+    LUA_COERR,     // finished with error
+};
+```
