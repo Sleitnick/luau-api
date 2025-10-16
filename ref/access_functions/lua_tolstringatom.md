@@ -17,4 +17,4 @@ args:
     desc: Atom
 ---
 
-Identical to [`lua_tolstring`](#lua_tolstring), except the string atom is written to the `atom` argument. See the [Atoms](cookbook/atoms.md) page for more information on string atoms.
+Identical to [`lua_tolstring`](#lua_tolstring), except the string atom is written to the `atom` argument. See the [Atoms](guide/atoms.md) page for more information on string atoms.

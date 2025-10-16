@@ -36,16 +36,16 @@ extra_css:
 nav:
   - Home: index.md
   - Reference: _ref_auto_generated.md
-  - Cookbook:
-      - Setup: cookbook/setup.md
-      - Atoms: cookbook/atoms.md
-      - Tags: cookbook/tags.md
-      - Userdata: cookbook/userdata.md
-      - Light Userdata: cookbook/light-userdata.md
-      - Tables: cookbook/tables.md
-      - Pinning: cookbook/pinning.md
-      - Coroutine Threads: cookbook/threads.md
-      - Error Handling: cookbook/error-handling.md
+  - Guide:
+      - Setup: guide/setup.md
+      - Atoms: guide/atoms.md
+      - Tags: guide/tags.md
+      - Userdata: guide/userdata.md
+      - Light Userdata: guide/light-userdata.md
+      - Tables: guide/tables.md
+      - Pinning: guide/pinning.md
+      - Coroutine Threads: guide/threads.md
+      - Error Handling: guide/error-handling.md
 
 markdown_extensions:
   - attr_list

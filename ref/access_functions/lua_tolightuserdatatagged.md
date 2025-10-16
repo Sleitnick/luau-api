@@ -14,7 +14,7 @@ args:
     desc: Tag
 ---
 
-Returns a pointer to a lightuserdata on the stack. Returns `NULL` if the value is not a lightuserdata _or_ if the attached tag does not equal the provided `tag` argument. For more info on tags, see the [Tags](cookbook/tags.md) page.
+Returns a pointer to a lightuserdata on the stack. Returns `NULL` if the value is not a lightuserdata _or_ if the attached tag does not equal the provided `tag` argument. For more info on tags, see the [Tags](guide/tags.md) page.
 
 ```cpp title="Example" hl_lines="12"
 constexpr int kFooTag = 1;

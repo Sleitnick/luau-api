@@ -15,7 +15,7 @@ Returns a pointer to a userdata on the stack. Returns `NULL` if the value is not
 
 If it is preferred to throw an error if the value is not a userdata, use the `luaL_checkuserdata` function instead.
 
-**Note:** It may be unsafe to hang onto a pointer to a userdata value. The Luau GC owns the userdata memory, and may free it. See the page on [pinning](cookbook/pinning.md) for tips on keeping a value from being GC'd, or consider using [light userdata](cookbook/light-userdata.md) instead.
+**Note:** It may be unsafe to hang onto a pointer to a userdata value. The Luau GC owns the userdata memory, and may free it. See the page on [pinning](guide/pinning.md) for tips on keeping a value from being GC'd, or consider using [light userdata](guide/light-userdata.md) instead.
 
 ```cpp title="Example" hl_lines="8"
 struct Foo {
