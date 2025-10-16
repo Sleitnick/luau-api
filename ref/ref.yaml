@@ -118,3 +118,22 @@ sections:
       - memory_functions/lua_gc.md
       - memory_functions/lua_setmemcat.md
       - memory_functions/lua_totalbytes.md
+  - name: Miscellaneous Functions
+    functions:
+      - misc_functions/lua_error.md
+      - misc_functions/lua_next.md
+      - misc_functions/lua_rawiter.md
+      - misc_functions/lua_concat.md
+      - misc_functions/lua_encodepointer.md
+      - misc_functions/lua_clock.md
+      - misc_functions/lua_setuserdatatag.md
+      - misc_functions/lua_setuserdatadtor.md
+      - misc_functions/lua_getuserdatadtor.md
+      - misc_functions/lua_setuserdatametatable.md
+      - misc_functions/lua_getuserdatametatable.md
+      - misc_functions/lua_setlightuserdataname.md
+      - misc_functions/lua_getlightuserdataname.md
+      - misc_functions/lua_clonefunction.md
+      - misc_functions/lua_cleartable.md
+      - misc_functions/lua_clonetable.md
+      - misc_functions/lua_getallocf.md

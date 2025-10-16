@@ -2667,3 +2667,454 @@ lua_newbuffer(T, 1024 * 10); // 10KB buffer
 size_t total_bytes = lua_totalbytes(T, kExampleMemCat);
 printf("total: %zu bytes\n", total_bytes);
 ```
+
+
+----
+
+
+## Miscellaneous Functions
+
+### <span class="subsection">`lua_error`</span>
+
+<span class="signature">`l_noret lua_error(lua_State* L)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+
+
+Throws a Luau error. Expects the error message to be on the top of the stack. Depending on how Luau is built, this will either perform a `longjmp` or throw a C++ `luau_exception`. See [Error Handling](guide/error-handling.md) for more information.
+
+Using [`luaL_error`](#luaL_error) is typically a more ergonomic way to throw errors, since an error message can be provided.
+
+```cpp title="Example"
+int multiply_by_two(lua_State* L) {
+	// This is just for example (could use luaL_checknumber instead)
+	if (lua_type(L, 1) != LUA_TNUMBER) {
+		// 1. Push error message to the stack:
+		lua_pushfstring(L, "expected number; got %s", luaL_typename(L, 1));
+		// 2. Throw error
+		lua_error(L);
+	}
+
+	double n = lua_tonumber(L, 1);
+	lua_pushnumber(L, n * 2.0);
+	return 1;
+}
+// ...
+lua_pushcfunction(multiply_by_two, "multiply_by_two");
+lua_setglobal(L, "multiply_by_two");
+```
+
+```luau title="Luau Example"
+-- throws error: "expected number; got string"
+multiply_by_two("abc")
+```
+
+
+----
+
+
+### <span class="subsection">`lua_next`</span>
+
+<span class="signature">`int lua_next(lua_State* L, int idx)`</span>
+<span class="stack">`[-1, +(2|0), -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+The `lua_next` function is used to get the next key/pair value in a table, and thus is typically used to iterate a table. Note that [`lua_rawiter`](#lua_rawiter) is a faster and preferable way of iterating a table.
+
+This function pops a key from the top of the stack and pushes two values: the next key and value in the table. The table is located at the provided `idx` position on the stack. If there are no more items next within the table, then nothing is pushed to the stack and the function returns `0`.
+
+To get the first key/value pair in a table, use `nil` as the first key.
+
+```cpp title="Example" hl_lines="4"
+// Assume a table is at the top of the stack
+
+lua_pushnil(L); // First key is nil to indicate we want the first key/value pair from the table
+while (lua_next(L, -2) != 0) { // -2 is the stack index for the table
+	// Key is now at index -2
+	// Value is now at index -1
+	printf("%s: %s\n", luaL_typename(L, -2), luaL_typename(L, -1));
+
+	// Remove 'Value' from the stack, leaving only the Key, which is used
+	// within the next iteration of the loop, and thus is fed back into
+	// the lua_next function.
+	lua_pop(L, 1);
+}
+
+// Nothing to clean up here, as lua_next consumed the keys given. If we happened
+// to break out of the loop early, we would need to pop the key/value items.
+
+// In this example, the table is once again at the top of the stack here.
+```
+
+The `lua_next` function can also be used to check if a Luau table is empty. Luau tables can be both arrays and dictionaries, but the `lua_objlen` function will only count the size of the array portion of the table. Thus, `lua_objlen` might return `0` even if the dictionary portion of the array has items. If given a `nil` key, `lua_next` will only return `0` if both the array and dictionary portion of the table are empty.
+
+```cpp title="Empty Example"
+bool is_table_empty(lua_State* L, int idx) {
+	// User may provide a negative index to the desired table, but we need
+	// to manipulate the stack, so we can use lua_absindex to get the absolute
+	// index of the table, which will remain stable as we change the stack:
+	int abs_idx = lua_absindex(L, idx);
+
+	lua_pushnil(L);
+	if (lua_next(L, abs_idx)) {
+		lua_pop(L, 2); // Pop the key/value pair produced by lua_next
+		return true;
+	}
+
+	return false;
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_rawiter`</span>
+
+<span class="signature">`int lua_rawiter(lua_State* L, int idx, int iter)`</span>
+<span class="stack">`[-0, +2, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `iter`: Iterator
+
+
+Allows for iterating over a Luau table. This iterates over both the array and dictionary portions of the table. The `idx` argument is the stack index of the table. The `iter` argument is the previous index provided by `lua_rawiter` (or `0` for the initial call). See the example below to see how to use this function within a standard for-loop.
+
+The current implementation will iterate over the array portion first, followed by the dictionary portion. However, implementation details are not reliable, and any code should not assume this order will always be the same.
+
+**Note:** The returned value of `lua_rawiter` cannot be used to index directly into the table itself (e.g. `lua_rawgeti`). Instead, the `lua_rawiter` function will push the key/value pair onto the stack. These values should both be popped before iterating again.
+
+```cpp title="Example"
+// Assume a table is at the top of the stack
+
+// Note the somewhat different for-loop setup, assigning and checking the index
+// within the condition check of the loop, and no update expression is used:
+for (int index = 0; index = lua_rawiter(L, -1, index), index >= 0;) {
+	// Key is at stack index -2
+	// Value is at stack index -1
+	printf("%s:%s\n", luaL_typename(L, -2), luaL_typename(L, -1));
+	lua_pop(L, 2); // Pop the key and value
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_concat`</span>
+
+<span class="signature">`void lua_concat(lua_State* L, int n)`</span>
+<span class="stack">`[-n, +1, -]`</span>
+
+- `L`: Lua thread
+- `n`: Number of values
+
+
+Performs string concatenation on the `n` values on the top of the stack. All `n` values are popped, and the resultant string is pushed to the stack. If `n` is `1`, this function does nothing. If `n` is `0`, an empty string is pushed to the stack. For all other values of `n` (assuming >= 2), all values are popped and concatenated into a string.
+
+
+----
+
+
+### <span class="subsection">`lua_encodepointer`</span>
+
+<span class="signature">`uintptr_t lua_encodepointer(lua_State* L, uintptr_t p)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `p`: Pointer
+
+
+Encodes a pointer.
+
+```cpp title="Example" hl_lines="3"
+lua_newtable(L);
+const void* ptr = lua_topointer(L, -1);
+uintptr_t encoded_ptr = lua_encodepointer(L, uintptr_t(ptr));
+printf("Pointer: 0x%016llx\n", encoded_ptr);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_clock`</span>
+
+<span class="signature">`double lua_clock()`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+
+Returns high-precision timestamp in seconds from the OS. This is exactly what the Luau library function `os.clock` uses. Here is the OS Clock function implementation:
+
+```cpp title="example" hl_lines="3"
+// Copied from luau/VM/src/loslib.cpp
+static int os_clock(lua_State* L) {
+	lua_pushnumber(L, lua_clock());
+	return 1;
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_setuserdatatag`</span>
+
+<span class="signature">`int lua_setuserdatatag(lua_State* L, int idx, int tag)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `tag`: Tag
+
+
+Sets the tag for userdata at stack index `idx`. Alternatively, the [`lua_newuserdatatagged`](#lua_newuserdatatagged) and [`lua_newuserdatataggedwithmetatable`](#lua_newuserdatataggedwithmetatable) functions can be used to assign the tag on userdata creation.
+
+
+----
+
+
+### <span class="subsection">`lua_setuserdatadtor`</span>
+
+<span class="signature">`int lua_setuserdatadtor(lua_State* L, int tag, lua_Destructor dtor)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `tag`: Tag
+- `dtor`: Tag
+
+
+Assigns the destructor function for a given userdata tag. All userdata with the given tag will utilize this destructor during GC.
+
+```cpp title="Example" hl_lines="17"
+constexpr int kFooTag = 10;
+
+struct Foo {
+	char* some_allocated_data;
+};
+
+static void Foo_destructor(lua_State* L, void* data) {
+	Foo* foo = static_cast<Foo*>(data);
+	delete foo->some_allocated_data;
+}
+
+void setup_Foo(lua_State* L) {
+	luaL_newmetatable(L, "Foo");
+	// ...build metatable
+	lua_setuserdatametatable(L, kFooTag);
+
+	lua_setuserdatadtor(L, kFooTag, Foo_destructor);
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_getuserdatadtor`</span>
+
+<span class="signature">`lua_Destructor lua_getuserdatadtor(lua_State* L, int tag)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `tag`: Tag
+
+
+Returns the destructor function assigned to the userdata tag.
+
+```cpp title="Example" hl_lines="7 11"
+constexpr int kFooTag = 10;
+struct Foo {};
+static void Foo_destructor(lua_State* L, void* data) {}
+
+void setup_Foo(lua_State* L) {
+	// ...
+	auto dtor_before = lua_getuserdatadtor(L, kFooTag); // dtor_before == nullptr
+
+	lua_setuserdatadtor(L, kFooTag, Foo_destructor);
+
+	auto dtor_after = lua_getuserdatadtor(L, kFooTag); // dtor_after == Foo_destructor
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_setuserdatametatable`</span>
+
+<span class="signature">`void lua_setuserdatametatable(lua_State* L, int tag)`</span>
+<span class="stack">`[-1, +0, -]`</span>
+
+- `L`: Lua thread
+- `tag`: Tag
+
+
+Pops the value (expecting a table) at the top of the stack and sets the userdata metatable for the given userdata tag. This is used in conjunction with [`lua_newuserdatataggedwithmetatable`](#lua_newuserdatataggedwithmetatable). See the example there.
+
+This function can only be called once per tag. Calling this function again for the same tag will throw an error.
+
+
+----
+
+
+### <span class="subsection">`lua_getuserdatametatable`</span>
+
+<span class="signature">`void lua_getuserdatametatable(lua_State* L, int tag)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `tag`: Tag
+
+
+Pushes the metatable associated with the userdata tag onto the stack (or `nil` if there is no associated metatable).
+
+
+----
+
+
+### <span class="subsection">`lua_setlightuserdataname`</span>
+
+<span class="signature">`void lua_setlightuserdataname(lua_State* L, int tag, const char* name)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `tag`: Tag
+- `name`: Name
+
+
+Sets the name for the tagged lightuserdata. The string is copied, so the provided name argument is safe to dispose.
+
+Calling this function more than once for the same tag will throw an error.
+
+```cpp title="Example"
+constexpr int kMyDataTag = 10;
+lua_setlightuserdataname(L, kMyDataTag, "MyData");
+```
+
+
+----
+
+
+### <span class="subsection">`lua_getlightuserdataname`</span>
+
+<span class="signature">`const char* lua_getlightuserdataname(lua_State* L, int tag)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `tag`: Tag
+
+
+Returns the name for the tagged lightuserdata (or `nullptr` if no name is assigned).
+
+```cpp title="Example" hl_lines="3"
+constexpr int kMyDataTag = 10;
+lua_setlightuserdataname(L, kMyDataTag, "MyData");
+const char* name = lua_getlightuserdataname(L, kMyDataTag); // name == "MyData"
+```
+
+
+----
+
+
+### <span class="subsection">`lua_clonefunction`</span>
+
+<span class="signature">`void lua_clonefunction(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Clones a Luau function at the given index and pushes the cloned function to the top of the stack.
+
+
+----
+
+
+### <span class="subsection">`lua_cleartable`</span>
+
+<span class="signature">`void lua_cleartable(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Clears the table at the given index. The internal table capacity does not shrink by default (tables can be configured to shrink by setting `__mode = "s"` on a table's metatable, but only do this if necessary).
+
+```cpp title="Example" hl_lines="10"
+// Create a table with 10 numbers:
+lua_newtable(L);
+for (int i = 1; i <= 10; i++) {
+	lua_pushinteger(L, i);
+	lua_rawseti(L, -2, i); // t[i] = i
+}
+
+printf("Length: %d\n", lua_objlen(L, -1)); // Length: 10
+
+lua_cleartable(L, -1);
+
+printf("Length: %d\n", lua_objlen(L, -1)); // Length: 0
+```
+
+
+----
+
+
+### <span class="subsection">`lua_clonetable`</span>
+
+<span class="signature">`void lua_clonetable(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Creates a shallow copy of the table at `idx` on the stack. The copied table is pushed to the stack.
+
+```cpp title="Example" hl_lines="9"
+// Create a table with 10 numbers:
+lua_newtable(L);
+for (int i = 1; i <= 10; i++) {
+	lua_pushinteger(L, i);
+	lua_rawseti(L, -2, i); // t[i] = i
+}
+
+// Clone the table:
+lua_clonetable(L, -1);
+
+// Clear the original table:
+lua_cleartable(L, -2);
+
+// Show that they have different lengths:
+printf("Length Original: %d\n", lua_objlen(L, -2)); // Length Original: 0
+printf("Length Clone: %d\n", lua_objlen(L, -1)); // Length Clone: 10
+```
+
+
+----
+
+
+### <span class="subsection">`lua_getallocf`</span>
+
+<span class="signature">`lua_Alloc lua_getallocf(lua_State* L, void** ud)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `ud`: Userdata
+
+
+Returns the memory allocator function, and writes the the opaque userdata pointer. These are the values that were originally passed to `lua_newstate`.
+
+**Note:** `ud` is only written if the value was provided as non-null to `lua_newstate`. Beware of garbage values.
+
+```cpp title="Example"
+void* ud = nullptr; // Note: explicitly initalized as nullptr
+lua_Alloc alloc_fn = lua_getallocf(L, &ud);
+```
