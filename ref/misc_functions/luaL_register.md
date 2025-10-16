@@ -22,8 +22,8 @@ If `libname` is null, the function assumes a table is at the top of the stack, a
 
 ```cpp title="Example" hl_lines="6-11 14"
 // Library functions:
-static int do_this(lua_State* L) { /* ... */}
-static int do_that(lua_State* L) { /* ... */}
+static int do_this(lua_State* L) { /* ... */ }
+static int do_that(lua_State* L) { /* ... */ }
 
 // Define library key/pairs:
 static const luaL_Reg foo_lib[] = {
@@ -51,9 +51,9 @@ constexpr int kFooTag = 10;
 
 struct Foo {};
 
-static int Foo_index(lua_State* L) { /* ... */}
-static int Foo_newindex(lua_State* L) { /* ... */}
-static int Foo_tostring(lua_State* L) { /* ... */}
+static int Foo_index(lua_State* L) { /* ... */ }
+static int Foo_newindex(lua_State* L) { /* ... */ }
+static int Foo_tostring(lua_State* L) { /* ... */ }
 
 static const luaL_Reg foo_mt[] = {
 	{"__index", Foo_index},
