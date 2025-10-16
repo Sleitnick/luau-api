@@ -21,6 +21,7 @@ sections:
       - stack_manipulation/lua_insert.md
       - stack_manipulation/lua_replace.md
       - stack_manipulation/lua_checkstack.md
+      - stack_manipulation/luaL_checkstack.md
       - stack_manipulation/lua_rawcheckstack.md
       - stack_manipulation/lua_xmove.md
       - stack_manipulation/lua_xpush.md
@@ -185,6 +186,8 @@ sections:
       - misc_functions/lua_clonetable.md
       - misc_functions/lua_getallocf.md
       - misc_functions/lua_callbacks.md
+      - misc_functions/luaL_checktype.md
+      - misc_functions/luaL_checkany.md
       - misc_functions/luaL_register.md
   - name: Ref Functions
     functions:

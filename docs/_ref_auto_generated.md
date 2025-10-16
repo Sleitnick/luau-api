@@ -360,6 +360,30 @@ if (lua_checkstack(L, 2)) {
 ----
 
 
+### <span class="subsection">`lua_checkstack`</span>
+
+<span class="signature">`void lua_checkstack(lua_State* L, int size, const char* msg)`</span>
+<span class="stack">`[-0, +0, m]`</span>
+
+- `L`: Lua thread
+- `size`: Desired stack size
+- `msg`: Error message
+
+
+Ensures the stack is large enough to hold `size` _more_ elements. This will only grow the stack, not shrink it. Throws an error if the stack cannot be resized to the desired size.
+
+```cpp title="Example"
+// Ensure there are at least 2 more slots on the stack:
+luaL_checkstack(L, 2, "failed to grow stack for the two numbers");
+
+lua_pushinteger(L, 10);
+lua_pushinteger(L, 20);
+```
+
+
+----
+
+
 ### <span class="subsection">`lua_rawcheckstack`</span>
 
 <span class="signature">`void lua_rawcheckstack(lua_State* L, int size)`</span>
@@ -3924,6 +3948,44 @@ lua_callbacks(L)->panic = handle_panic;
 lua_callbacks(L)->userthread = handle_user_thread;
 // ...
 ```
+
+
+----
+
+
+### <span class="subsection">`luaL_checktype`</span>
+
+<span class="signature">`void luaL_checktype(lua_State* L, int narg, int t)`</span>
+<span class="stack">`[-0, +0, m]`</span>
+
+- `L`: Lua thread
+- `narg`: Argument number
+- `t`: Luau type
+
+
+Asserts the type at the given index.
+
+```cpp title="Example"
+int do_something(lua_State* L) {
+	// Assert that the first argument is a table:
+	luaL_checktype(L, 1, LUA_TTABLE);
+}
+```
+
+
+----
+
+
+### <span class="subsection">`luaL_checkany`</span>
+
+<span class="signature">`void luaL_checkany(lua_State* L, int narg)`</span>
+<span class="stack">`[-0, +0, m]`</span>
+
+- `L`: Lua thread
+- `narg`: Argument number
+
+
+Asserts the value at the given index is any value (including `nil`). In other words, this asserts that the value is not none.
 
 
 ----
