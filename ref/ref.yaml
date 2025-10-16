@@ -34,7 +34,6 @@ sections:
       - access_functions/lua_equal.md
       - access_functions/lua_rawequal.md
       - access_functions/lua_lessthan.md
-      - access_functions/lua_tovector.md
       - access_functions/lua_namecallatom.md
       - access_functions/lua_objlen.md
       - access_functions/lua_tocfunction.md
@@ -50,7 +49,6 @@ sections:
   - name: Push Functions
     functions:
       - push_functions/lua_pushnil.md
-      - push_functions/lua_pushvector.md
       - push_functions/lua_pushcclosurek.md
       - push_functions/lua_pushcclosure.md
       - push_functions/lua_pushcfunction.md
@@ -125,6 +123,13 @@ sections:
       - boolean_functions/lua_isboolean.md
       - boolean_functions/luaL_checkboolean.md
       - boolean_functions/luaL_optboolean.md
+  - name: Vector Functions
+    functions:
+      - vector_functions/lua_pushvector.md
+      - vector_functions/lua_tovector.md
+      - vector_functions/lua_isvector.md
+      - vector_functions/luaL_checkvector.md
+      - vector_functions/luaL_optvector.md
   - name: Metatable Functions
     functions:
       - metatable_functions/lua_setmetatable.md
@@ -192,7 +197,6 @@ sections:
       - type_functions/lua_istable.md
       - type_functions/lua_islightuserdata.md
       - type_functions/lua_isnil.md
-      - type_functions/lua_isvector.md
       - type_functions/lua_isthread.md
       - type_functions/lua_isbuffer.md
       - type_functions/lua_isnone.md

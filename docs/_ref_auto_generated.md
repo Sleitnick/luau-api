@@ -584,34 +584,6 @@ Returns `1` if the value at `idx` is less than the value at `idx2`. Otherwise, r
 ----
 
 
-### <span class="subsection">`lua_tovector`</span>
-
-<span class="signature">`const float* lua_tovector(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Returns the vector at the given Luau index, or `NULL` if not a vector.
-
-By default, vectors in Luau are 3-wide. Luau can be built with the `LUA_VECTOR_SIZE` preprocessor set to `4` for 4-wide vectors.
-
-```cpp title="Example" hl_lines="3"
-lua_pushvector(L, 3, 5, 2); // x, y, z
-
-const float* vec = lua_tovector(L, -1);
-
-float x = vec[0];
-float y = vec[1];
-float z = vec[2];
-printf("%f, %f, %f\n", x, y, z);
-```
-
-
-----
-
-
 ### <span class="subsection">`lua_namecallatom`</span>
 
 <span class="signature">`const char* lua_namecallatom(lua_State* L, int* atom)`</span>
@@ -1007,49 +979,6 @@ Pushes `nil` to the Luau stack.
 
 ```cpp title="Example"
 lua_pushnil(L);
-```
-
-
-----
-
-
-### <span class="subsection">`lua_pushvector`</span>
-
-<span class="signature">`void lua_pushvector(lua_State* L, float x, float y, float z)`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `x`: X
-- `y`: Y
-- `z`: Z
-
-
-Pushes a vector to the Luau stack. Luau comes with a [vector library](https://luau.org/library#vector-library) for operating against vector values.
-
-**Note:** Unlike Luau numbers being double-precision floating point numbers, Luau vector values are single-precision floats.
-
-```cpp title="Example 3-wide" hl_lines="1"
-// By default, Luau vectors are 3-wide
-
-lua_pushvector(L, 10, 15, 20);
-
-const char* v = lua_tovector(L, -1);
-float x = v[0]; // 10
-float y = v[1]; // 15
-float z = v[2]; // 20
-```
-
-If Luau is built with the `LUA_VECTOR_SIZE` preprocessor set to `4`, then this will be a 4-wide vector, and the function will have an additional `w` parameter.
-```cpp title="Example 4-wide" hl_lines="1"
-// If Luau is built with LUA_VECTOR_SIZE=4
-
-lua_pushvector(L, 10, 15, 20, 25);
-
-const char* v = lua_tovector(L, -1);
-float x = v[0]; // 10
-float y = v[1]; // 15
-float z = v[2]; // 20
-float w = v[3]; // 25
 ```
 
 
@@ -2588,6 +2517,129 @@ Returns `1` or `0` for the given boolean value. Returns `def` if the value at th
 ----
 
 
+## Vector Functions
+
+### <span class="subsection">`lua_pushvector`</span>
+
+<span class="signature">`void lua_pushvector(lua_State* L, float x, float y, float z)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `x`: X
+- `y`: Y
+- `z`: Z
+
+
+Pushes a vector to the Luau stack. Luau comes with a [vector library](https://luau.org/library#vector-library) for operating against vector values.
+
+**Note:** Unlike Luau numbers being double-precision floating point numbers, Luau vector values are single-precision floats.
+
+```cpp title="Example 3-wide" hl_lines="1"
+// By default, Luau vectors are 3-wide
+
+lua_pushvector(L, 10, 15, 20);
+
+const char* v = lua_tovector(L, -1);
+float x = v[0]; // 10
+float y = v[1]; // 15
+float z = v[2]; // 20
+```
+
+If Luau is built with the `LUA_VECTOR_SIZE` preprocessor set to `4`, then this will be a 4-wide vector, and the function will have an additional `w` parameter.
+```cpp title="Example 4-wide" hl_lines="1"
+// If Luau is built with LUA_VECTOR_SIZE=4
+
+lua_pushvector(L, 10, 15, 20, 25);
+
+const char* v = lua_tovector(L, -1);
+float x = v[0]; // 10
+float y = v[1]; // 15
+float z = v[2]; // 20
+float w = v[3]; // 25
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tovector`</span>
+
+<span class="signature">`const float* lua_tovector(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the vector at the given Luau index, or `NULL` if not a vector.
+
+By default, vectors in Luau are 3-wide. Luau can be built with the `LUA_VECTOR_SIZE` preprocessor set to `4` for 4-wide vectors.
+
+```cpp title="Example" hl_lines="3"
+lua_pushvector(L, 3, 5, 2); // x, y, z
+
+const float* vec = lua_tovector(L, -1);
+
+float x = vec[0];
+float y = vec[1];
+float z = vec[2];
+printf("%f, %f, %f\n", x, y, z);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_isvector`</span>
+
+<span class="signature">`int lua_isvector(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Checks if the value at the given stack index is a vector.
+
+```cpp title="Example"
+if (lua_isvector(L, -1)) { /* ... */ }
+```
+
+
+----
+
+
+### <span class="subsection">`luaL_checkvector`</span>
+
+<span class="signature">`const float* luaL_checkvector(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the vector at the given Luau index. If the value at the given index is not a vector, an error is thrown.
+
+
+----
+
+
+### <span class="subsection">`luaL_optvector`</span>
+
+<span class="signature">`const float* luaL_optvector(lua_State* L, int idx, const float* def)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `def`: Default
+
+
+Returns the vector at the given Luau index. If the value at the given index is nil or none, then `def` is returned. Otherwise, an error is thrown.
+
+
+----
+
+
 ## Metatable Functions
 
 ### <span class="subsection">`lua_setmetatable`</span>
@@ -4094,25 +4146,6 @@ Checks if the value at the given stack index is nil.
 
 ```cpp title="Example"
 if (lua_isnil(L, -1)) { /* ... */ }
-```
-
-
-----
-
-
-### <span class="subsection">`lua_isvector`</span>
-
-<span class="signature">`int lua_isvector(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Checks if the value at the given stack index is a vector.
-
-```cpp title="Example"
-if (lua_isvector(L, -1)) { /* ... */ }
 ```
 
 
