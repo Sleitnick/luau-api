@@ -2971,7 +2971,7 @@ printf("total: %zu bytes\n", total_bytes);
 
 Throws a Luau error. Expects the error message to be on the top of the stack. Depending on how Luau is built, this will either perform a `longjmp` or throw a C++ `luau_exception`. See [Error Handling](guide/error-handling.md) for more information.
 
-Using [`luaL_error`](#luaL_error) is typically a more ergonomic way to throw errors, since an error message can be provided.
+Using [`luaL_error`](#lual_error) is typically a more ergonomic way to throw errors, since an error message can be provided.
 
 ```cpp title="Example"
 int multiply_by_two(lua_State* L) {
