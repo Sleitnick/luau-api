@@ -2959,7 +2959,7 @@ printf("total: %zu bytes\n", total_bytes);
 ----
 
 
-## Miscellaneous Functions
+## Error Functions
 
 ### <span class="subsection">`lua_error`</span>
 
@@ -3000,6 +3000,119 @@ multiply_by_two("abc")
 
 ----
 
+
+### <span class="subsection">`luaL_error`</span>
+
+<span class="signature">`l_noret luaL_error(lua_State* L, const char* fmt,  ...)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `fmt`: Format string
+- `...`: Args
+
+
+Throws a Luau error with the given error message.
+
+```cpp title="Example"
+luaL_error(L, "something went wrong");
+
+// Error message can be formatted:
+int some_code = 2;
+const char* message = "it zigged but it should have zagged";
+luaL_error(L, "%d - %s", some_code, message);
+```
+
+
+----
+
+
+### <span class="subsection">`luaL_typeerror`</span>
+
+<span class="signature">`l_noret luaL_typeerror(lua_State* L, int narg, const char* tname)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `narg`: Argument number
+- `tname`: Type name
+
+
+Throws a Luau error with a templated error message for an incorrect type.
+
+```cpp title="Example"
+int send_table(lua_State* L) {
+	// expects a table as the first argument
+	if (!lua_istable(L, 1)) {
+		luaL_typeerror(L, 1, "table"); // "invalid argument #1 to 'send_table' (table expected, got <TYPENAME>)"
+	}
+
+	// ...
+}
+```
+
+
+----
+
+
+### <span class="subsection">`luaL_argerror`</span>
+
+<span class="signature">`l_noret luaL_argerror(lua_State* L, int narg, const char* extramsg)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `narg`: Argument number
+- `extramsg`: Extra message
+
+
+Throws a Luau error with a templated error message for an incorrect argument.
+
+```cpp title="Example" hl_lines="5-7"
+int divide(lua_State* L) {
+	double numerator = luaL_checknumber(L, 1);
+	double denominator = luaL_checknumber(L, 2);
+
+	if (denominator == 0) {
+		luaL_argerror(L, 2, "cannot divide by zero");
+	}
+
+	lua_pushnumber(L, numerator / denominator);
+	return 1;
+}
+```
+
+
+----
+
+
+### <span class="subsection">`luaL_argcheck`</span>
+
+<span class="signature">`l_noret luaL_argcheck(lua_State* L, int cond, int narg, const char* extramsg)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `cond`: Condition
+- `narg`: Argument number
+- `extramsg`: Extra message
+
+
+Throws a Luau error with a templated error message for an incorrect argument. This is similar to `luaL_argerror`, except it encapsulates a condition, similar to an assertion.
+
+```cpp title="Example" hl_lines="5"
+int divide(lua_State* L) {
+	double numerator = luaL_checknumber(L, 1);
+	double denominator = luaL_checknumber(L, 2);
+
+	luaL_argcheck(L, denominator == 0, 2, "cannot divide by zero");
+
+	lua_pushnumber(L, numerator / denominator);
+	return 1;
+}
+```
+
+
+----
+
+
+## Miscellaneous Functions
 
 ### <span class="subsection">`lua_next`</span>
 
