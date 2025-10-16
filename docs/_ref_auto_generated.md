@@ -3118,3 +3118,79 @@ Returns the memory allocator function, and writes the the opaque userdata pointe
 void* ud = nullptr; // Note: explicitly initalized as nullptr
 lua_Alloc alloc_fn = lua_getallocf(L, &ud);
 ```
+
+
+----
+
+
+## Ref Functions
+
+### <span class="subsection">`lua_ref`</span>
+
+<span class="signature">`int lua_ref(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Creates a reference to the given Luau value at `idx` on the stack. The returned integer can be seen as an opaque handle to the value. Creating a reference is also an easy way to pin a Luau value, preventing it from being GC'd. A reference can be created for any value on the stack. Attempting to create a reference to a nil value will return `LUA_REFNIL`.
+
+Be sure to call [`lua_unref`](#lua_unref) when done with the reference. Call [`lua_getref`](#lua_getref) to retrieve the referenced value.
+
+**Note:** Unlike in Lua, Luau does _not_ modify the stack when creating a reference. The stack remains the same.
+
+```cpp title="Example" hl_lines="2"
+lua_newtable(L);
+int table_ref = lua_ref(L, -1);
+lua_pop(L, 1);
+// GC won't clean up the table, even though it was popped, becase a reference
+// has been created for the table.
+```
+
+
+----
+
+
+### <span class="subsection">`lua_unref`</span>
+
+<span class="signature">`void lua_unref(lua_State* L, int ref)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `ref`: Reference
+
+
+Removes a reference that was originally created with `lua_ref`. Passing in `LUA_REFNIL` or `LUA_NOREF` is allowed (in those cases, the function does nothing). However, passing in an already-removed reference is _not_ allowed and may throw an error, or silently remove another reference. If idempotence is required, ensure your reference variable is set to `LUA_REFNIL` or `LUA_NOREF` after calling `lua_unref`.
+
+```cpp title="Example" hl_lines="5"
+lua_newtable(L);
+int table_ref = lua_ref(L, -1);
+
+// Sometime later:
+lua_unref(L, table_ref);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_getref`</span>
+
+<span class="signature">`int lua_getref(lua_State* L, int ref)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `ref`: Reference
+
+
+Retrieves the value from a given reference handle. The value is pushed to the top of the stack.
+
+```cpp title="Example" hl_lines="5"
+lua_newtable(L);
+int table_ref = lua_ref(L, -1);
+
+// Sometime later:
+lua_getref(L, table_ref);
+// Top of stack is now the table from the reference
+```

@@ -137,3 +137,8 @@ sections:
       - misc_functions/lua_cleartable.md
       - misc_functions/lua_clonetable.md
       - misc_functions/lua_getallocf.md
+  - name: Ref Functions
+    functions:
+      - ref_functions/lua_ref.md
+      - ref_functions/lua_unref.md
+      - ref_functions/lua_getref.md
