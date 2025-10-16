@@ -26,7 +26,6 @@ sections:
       - stack_manipulation/lua_xpush.md
   - name: Access Functions
     functions:
-      - access_functions/lua_isnumber.md
       - access_functions/lua_iscfunction.md
       - access_functions/lua_isLfunction.md
       - access_functions/lua_isuserdata.md
@@ -35,12 +34,6 @@ sections:
       - access_functions/lua_equal.md
       - access_functions/lua_rawequal.md
       - access_functions/lua_lessthan.md
-      - access_functions/lua_tonumberx.md
-      - access_functions/lua_tonumber.md
-      - access_functions/lua_tointegerx.md
-      - access_functions/lua_tointeger.md
-      - access_functions/lua_tounsignedx.md
-      - access_functions/lua_tounsigned.md
       - access_functions/lua_tovector.md
       - access_functions/lua_toboolean.md
       - access_functions/lua_namecallatom.md
@@ -58,9 +51,6 @@ sections:
   - name: Push Functions
     functions:
       - push_functions/lua_pushnil.md
-      - push_functions/lua_pushnumber.md
-      - push_functions/lua_pushinteger.md
-      - push_functions/lua_pushunsigned.md
       - push_functions/lua_pushvector.md
       - push_functions/lua_pushcclosurek.md
       - push_functions/lua_pushcclosure.md
@@ -104,13 +94,32 @@ sections:
       - string_functions/lua_pushstring.md
       - string_functions/lua_pushvfstring.md
       - string_functions/lua_pushfstring.md
-      - string_functions/lua_isstring.md
       - string_functions/lua_tolstring.md
       - string_functions/lua_tostring.md
       - string_functions/lua_tostringatom.md
       - string_functions/lua_tolstringatom.md
       - string_functions/lua_strlen.md
+      - string_functions/lua_isstring.md
       - string_functions/luaL_checklstring.md
+      - string_functions/luaL_optlstring.md
+  - name: Number Functions
+    functions:
+      - number_functions/lua_pushnumber.md
+      - number_functions/lua_pushinteger.md
+      - number_functions/lua_pushunsigned.md
+      - number_functions/lua_tonumberx.md
+      - number_functions/lua_tonumber.md
+      - number_functions/lua_tointegerx.md
+      - number_functions/lua_tointeger.md
+      - number_functions/lua_tounsignedx.md
+      - number_functions/lua_tounsigned.md
+      - number_functions/lua_isnumber.md
+      - number_functions/luaL_checknumber.md
+      - number_functions/luaL_checkinteger.md
+      - number_functions/luaL_checkunsigned.md
+      - number_functions/luaL_optnumber.md
+      - number_functions/luaL_optinteger.md
+      - number_functions/luaL_optunsigned.md
   - name: Metatable Functions
     functions:
       - metatable_functions/lua_setmetatable.md

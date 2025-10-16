@@ -433,21 +433,6 @@ lua_xpush(from, to, -2);
 
 ## Access Functions
 
-### <span class="subsection">`lua_isnumber`</span>
-
-<span class="signature">`int lua_isnumber(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Returns `1` if the value at stack index `idx` is a number _or_ the value is a string that can be coerced to a number. Otherwise, returns `0`.
-
-
-----
-
-
 ### <span class="subsection">`lua_iscfunction`</span>
 
 <span class="signature">`int lua_iscfunction(lua_State* L, int idx)`</span>
@@ -594,186 +579,6 @@ The same as `lua_equal`, except it does not call any metatable `__eq` functions.
 
 
 Returns `1` if the value at `idx` is less than the value at `idx2`. Otherwise, returns `0`. This may call the `__lt` metamethod function. Also returns `0` if either index is invalid.
-
-
-----
-
-
-### <span class="subsection">`lua_tonumberx`</span>
-
-<span class="signature">`double lua_tonumberx(lua_State* L, int idx, int* isnum)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-- `isnum`: Is number
-
-
-Returns the number at the given stack index. If the value on the stack is a string, Luau will attempt to convert the string to a number.
-
-If the value is a number, or successfully converted to a number, the `isnum` argument will be set to `1`, otherwise `0`.
-
-```cpp title="Example" hl_lines="9 15 21"
-lua_pushliteral(L, "hello");
-lua_pushliteral(L, "12.5");
-lua_pushnumber(L, 15);
-
-double n;
-int isnum;
-
-// isnum will be false, since "hello" cannot be converted to a number:
-n = lua_tonumberx(L, -3, &isnum);
-if (isnum) {
-	printf("n: %f\n", n);
-}
-
-// isnum is true, and "12.5" is converted to 12.5:
-n = lua_tonumberx(L, -2, &isnum);
-if (isnum) {
-	printf("n: %f\n", n);
-}
-
-// isnum is true, and the value is 15:
-n = lua_tonumberx(L, -1, &isnum);
-if (isnum) {
-	printf("n: %f\n", n);
-}
-```
-
-
-----
-
-
-### <span class="subsection">`lua_tonumber`</span>
-
-<span class="signature">`double lua_tonumber(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Returns the number at the given stack index. If the value on the stack is a string, Luau will attempt to convert the string to a number. Identical to [`lua_tonumberx`](#lua_tonumberx), without the last `isnum` argument.
-
-
-----
-
-
-### <span class="subsection">`lua_tointegerx`</span>
-
-<span class="signature">`int lua_tointegerx(lua_State* L, int idx, int* isnum)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-- `isnum`: Is number
-
-
-Returns the number at the given stack index as an integer. If the value on the stack is a string, Luau will attempt to convert the string to an integer. Numbers in Luau are all doubles, so the returned value is cast to an int.
-
-If the value is a number, or successfully converted to a number, the `isnum` argument will be set to `1`, otherwise `0`.
-
-```cpp title="Example" hl_lines="9 15 21"
-lua_pushliteral(L, "hello");
-lua_pushliteral(L, "12.5");
-lua_pushinteger(L, 15);
-
-int n;
-int isnum;
-
-// isnum will be false, since "hello" cannot be converted to a number:
-n = lua_tointegerx(L, -3, &isnum);
-if (isnum) {
-	printf("n: %d\n", n);
-}
-
-// isnum is true, and "12.5" is converted to 12:
-n = lua_tointegerx(L, -2, &isnum);
-if (isnum) {
-	printf("n: %d\n", n);
-}
-
-// isnum is true, and the value is 15:
-n = lua_tointegerx(L, -1, &isnum);
-if (isnum) {
-	printf("n: %d\n", n);
-}
-```
-
-
-----
-
-
-### <span class="subsection">`lua_tointeger`</span>
-
-<span class="signature">`int lua_tointeger(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Returns the number at the given stack index as an integer. If the value on the stack is a string, Luau will attempt to convert the string to an integer. Numbers in Luau are all doubles, so the returned value is cast to an int. Identical to [`lua_tointegerx`](#lua_tointegerx), without the last `isnum` argument.
-
-
-----
-
-
-### <span class="subsection">`lua_tounsignedx`</span>
-
-<span class="signature">`unsigned lua_tounsignedx(lua_State* L, int idx, int* isnum)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-- `isnum`: Is number
-
-
-Returns the number at the given stack index as an unsigned integer. If the value on the stack is a string, Luau will attempt to convert the string to an integer. Numbers in Luau are all doubles, so the returned value is cast to an unsigned int.
-
-If the value is a number, or successfully converted to a number, the `isnum` argument will be set to `1`, otherwise `0`.
-
-```cpp title="Example" hl_lines="9 15 21"
-lua_pushliteral(L, "hello");
-lua_pushliteral(L, "12.5");
-lua_pushunsigned(L, 15);
-
-unsigned n;
-int isnum;
-
-// isnum will be false, since "hello" cannot be converted to a number:
-n = lua_tounsignedx(L, -3, &isnum);
-if (isnum) {
-	printf("n: %d\n", n);
-}
-
-// isnum is true, and "12.5" is converted to 12:
-n = lua_tounsignedx(L, -2, &isnum);
-if (isnum) {
-	printf("n: %d\n", n);
-}
-
-// isnum is true, and the value is 15:
-n = lua_tounsignedx(L, -1, &isnum);
-if (isnum) {
-	printf("n: %d\n", n);
-}
-```
-
-
-----
-
-
-### <span class="subsection">`lua_tounsigned`</span>
-
-<span class="signature">`unsigned lua_tounsigned(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Returns the number at the given stack index as an unsigned integer. If the value on the stack is a string, Luau will attempt to convert the string to an integer. Numbers in Luau are all doubles, so the returned value is cast to an unsigned int. Identical to [`lua_tounsignedx`](#lua_tounsignedx), without the last `isnum` argument.
 
 
 ----
@@ -1231,63 +1036,6 @@ Pushes `nil` to the Luau stack.
 
 ```cpp title="Example"
 lua_pushnil(L);
-```
-
-
-----
-
-
-### <span class="subsection">`lua_pushnumber`</span>
-
-<span class="signature">`void lua_pushnumber(lua_State* L, double n)`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `n`: Number
-
-
-Pushes `n` to the stack.
-
-```cpp title="Example"
-lua_pushnumber(L, 15.2);
-```
-
-
-----
-
-
-### <span class="subsection">`lua_pushinteger`</span>
-
-<span class="signature">`void lua_pushinteger(lua_State* L, int n)`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `n`: Number
-
-
-Pushes `n` to the stack. Note that all Luau numbers are doubles, so the value of `n` will be cast to a `double`.
-
-```cpp title="Example"
-lua_pushinteger(L, 32);
-```
-
-
-----
-
-
-### <span class="subsection">`lua_pushunsigned`</span>
-
-<span class="signature">`void lua_pushunsigned(lua_State* L, unsigned int n)`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `n`: Number
-
-
-Pushes `n` to the stack. Note that all Luau numbers are doubles, so the value of `n` will be cast to a `double`.
-
-```cpp title="Example"
-lua_pushunsigned(L, 32);
 ```
 
 
@@ -2230,21 +1978,6 @@ const char* s = lua_pushfstringL(L, "number: %d", 32);
 ----
 
 
-### <span class="subsection">`lua_isstring`</span>
-
-<span class="signature">`int lua_isstring(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Returns `1` if the value at the given stack index is a string _or_ a number (all numbers can be converted to a string). Otherwise, returns `0`.
-
-
-----
-
-
 ### <span class="subsection">`lua_tolstring`</span>
 
 <span class="signature">`const char* lua_tolstring(lua_State* L, int idx, size_t len)`</span>
@@ -2343,6 +2076,457 @@ Identical to [`lua_tolstring`](#lua_tolstring), except the string atom is writte
 
 
 Alias for [`lua_objlen`](#lua_objlen).
+
+
+----
+
+
+### <span class="subsection">`lua_isstring`</span>
+
+<span class="signature">`int lua_isstring(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns `1` if the value at the given stack index is a string _or_ a number (all numbers can be converted to a string). Otherwise, returns `0`.
+
+
+----
+
+
+### <span class="subsection">`luaL_checklstring`</span>
+
+<span class="signature">`const char* luaL_checklstring(lua_State* L, int idx, size_t len)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `len`: String length
+
+
+Similar to [`lua_tolstring`](#lua_tolstring), except the type will be asserted. If the value is not a string, an error will be thrown.
+
+```cpp title="Example"
+int send_message(lua_State* L) {
+	size_t message_len;
+	const char* message = luaL_checklstring(L, 1, &message_len);
+}
+```
+
+
+----
+
+
+### <span class="subsection">`luaL_optlstring`</span>
+
+<span class="signature">`const char* luaL_optlstring(lua_State* L, int idx, const char* def, size_t len)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `def`: Default string
+- `len`: String length
+
+
+Gets the string at the given stack index. If the value at the given index is not a string, then `def` is returned instead.
+
+```cpp title="Example"
+int send_message(lua_State* L) {
+	size_t message_len;
+	const char* message = luaL_optlstring(L, 1, "Default message", &message_len);
+}
+```
+
+
+----
+
+
+## Number Functions
+
+### <span class="subsection">`lua_pushnumber`</span>
+
+<span class="signature">`void lua_pushnumber(lua_State* L, double n)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `n`: Number
+
+
+Pushes `n` to the stack.
+
+```cpp title="Example"
+lua_pushnumber(L, 15.2);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushinteger`</span>
+
+<span class="signature">`void lua_pushinteger(lua_State* L, int n)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `n`: Number
+
+
+Pushes `n` to the stack. Note that all Luau numbers are doubles, so the value of `n` will be cast to a `double`.
+
+```cpp title="Example"
+lua_pushinteger(L, 32);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushunsigned`</span>
+
+<span class="signature">`void lua_pushunsigned(lua_State* L, unsigned int n)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `n`: Number
+
+
+Pushes `n` to the stack. Note that all Luau numbers are doubles, so the value of `n` will be cast to a `double`.
+
+```cpp title="Example"
+lua_pushunsigned(L, 32);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tonumberx`</span>
+
+<span class="signature">`double lua_tonumberx(lua_State* L, int idx, int* isnum)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `isnum`: Is number
+
+
+Returns the number at the given stack index. If the value on the stack is a string, Luau will attempt to convert the string to a number.
+
+If the value is a number, or successfully converted to a number, the `isnum` argument will be set to `1`, otherwise `0`.
+
+```cpp title="Example" hl_lines="9 15 21"
+lua_pushliteral(L, "hello");
+lua_pushliteral(L, "12.5");
+lua_pushnumber(L, 15);
+
+double n;
+int isnum;
+
+// isnum will be false, since "hello" cannot be converted to a number:
+n = lua_tonumberx(L, -3, &isnum);
+if (isnum) {
+	printf("n: %f\n", n);
+}
+
+// isnum is true, and "12.5" is converted to 12.5:
+n = lua_tonumberx(L, -2, &isnum);
+if (isnum) {
+	printf("n: %f\n", n);
+}
+
+// isnum is true, and the value is 15:
+n = lua_tonumberx(L, -1, &isnum);
+if (isnum) {
+	printf("n: %f\n", n);
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tonumber`</span>
+
+<span class="signature">`double lua_tonumber(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the number at the given stack index. If the value on the stack is a string, Luau will attempt to convert the string to a number. Identical to [`lua_tonumberx`](#lua_tonumberx), without the last `isnum` argument.
+
+
+----
+
+
+### <span class="subsection">`lua_tointegerx`</span>
+
+<span class="signature">`int lua_tointegerx(lua_State* L, int idx, int* isnum)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `isnum`: Is number
+
+
+Returns the number at the given stack index as an integer. If the value on the stack is a string, Luau will attempt to convert the string to an integer. Numbers in Luau are all doubles, so the returned value is cast to an int.
+
+If the value is a number, or successfully converted to a number, the `isnum` argument will be set to `1`, otherwise `0`.
+
+```cpp title="Example" hl_lines="9 15 21"
+lua_pushliteral(L, "hello");
+lua_pushliteral(L, "12.5");
+lua_pushinteger(L, 15);
+
+int n;
+int isnum;
+
+// isnum will be false, since "hello" cannot be converted to a number:
+n = lua_tointegerx(L, -3, &isnum);
+if (isnum) {
+	printf("n: %d\n", n);
+}
+
+// isnum is true, and "12.5" is converted to 12:
+n = lua_tointegerx(L, -2, &isnum);
+if (isnum) {
+	printf("n: %d\n", n);
+}
+
+// isnum is true, and the value is 15:
+n = lua_tointegerx(L, -1, &isnum);
+if (isnum) {
+	printf("n: %d\n", n);
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tointeger`</span>
+
+<span class="signature">`int lua_tointeger(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the number at the given stack index as an integer. If the value on the stack is a string, Luau will attempt to convert the string to an integer. Numbers in Luau are all doubles, so the returned value is cast to an int. Identical to [`lua_tointegerx`](#lua_tointegerx), without the last `isnum` argument.
+
+
+----
+
+
+### <span class="subsection">`lua_tounsignedx`</span>
+
+<span class="signature">`unsigned lua_tounsignedx(lua_State* L, int idx, int* isnum)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `isnum`: Is number
+
+
+Returns the number at the given stack index as an unsigned integer. If the value on the stack is a string, Luau will attempt to convert the string to an integer. Numbers in Luau are all doubles, so the returned value is cast to an unsigned int.
+
+If the value is a number, or successfully converted to a number, the `isnum` argument will be set to `1`, otherwise `0`.
+
+```cpp title="Example" hl_lines="9 15 21"
+lua_pushliteral(L, "hello");
+lua_pushliteral(L, "12.5");
+lua_pushunsigned(L, 15);
+
+unsigned n;
+int isnum;
+
+// isnum will be false, since "hello" cannot be converted to a number:
+n = lua_tounsignedx(L, -3, &isnum);
+if (isnum) {
+	printf("n: %d\n", n);
+}
+
+// isnum is true, and "12.5" is converted to 12:
+n = lua_tounsignedx(L, -2, &isnum);
+if (isnum) {
+	printf("n: %d\n", n);
+}
+
+// isnum is true, and the value is 15:
+n = lua_tounsignedx(L, -1, &isnum);
+if (isnum) {
+	printf("n: %d\n", n);
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tounsigned`</span>
+
+<span class="signature">`unsigned lua_tounsigned(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the number at the given stack index as an unsigned integer. If the value on the stack is a string, Luau will attempt to convert the string to an integer. Numbers in Luau are all doubles, so the returned value is cast to an unsigned int. Identical to [`lua_tounsignedx`](#lua_tounsignedx), without the last `isnum` argument.
+
+
+----
+
+
+### <span class="subsection">`lua_isnumber`</span>
+
+<span class="signature">`int lua_isnumber(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns `1` if the value at stack index `idx` is a number _or_ the value is a string that can be coerced to a number. Otherwise, returns `0`.
+
+
+----
+
+
+### <span class="subsection">`luaL_checknumber`</span>
+
+<span class="signature">`double luaL_checknumber(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the number at the given stack index. If the value is not a number, an error is thrown.
+
+```cpp title="Example"
+int add(lua_State* L) {
+	double lhs = luaL_checknumber(L, 1);
+	double rhs = luaL_checknumber(L, 2);
+
+	lua_pushnumber(L, lhs + rhs);
+	return 1;
+}
+```
+
+
+----
+
+
+### <span class="subsection">`luaL_checkinteger`</span>
+
+<span class="signature">`int luaL_checkinteger(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the number (cast to `int`) at the given stack index. If the value is not a number, an error is thrown.
+
+```cpp title="Example"
+int add_int(lua_State* L) {
+	int lhs = luaL_checkinteger(L, 1);
+	int rhs = luaL_checkinteger(L, 2);
+
+	lua_pushinteger(L, lhs + rhs);
+	return 1;
+}
+```
+
+
+----
+
+
+### <span class="subsection">`luaL_checkunsigned`</span>
+
+<span class="signature">`unsigned luaL_checkunsigned(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the number (cast to `unsigned`) at the given stack index. If the value is not a number, an error is thrown.
+
+```cpp title="Example"
+int add_int(lua_State* L) {
+	unsigned lhs = luaL_checkunsigned(L, 1);
+	unsigned rhs = luaL_checkunsigned(L, 2);
+
+	lua_pushunsigned(L, lhs + rhs);
+	return 1;
+}
+```
+
+
+----
+
+
+### <span class="subsection">`luaL_optnumber`</span>
+
+<span class="signature">`double luaL_optnumber(lua_State* L, int idx, double def)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `def`: Default
+
+
+Returns the number at the given stack index, or the default number if the value at the stack index is not a number.
+
+```cpp title="Example" hl_lines="5"
+int approx_equal(lua_State* L) {
+	double a = luaL_checknumber(L, 1);
+	double b = luaL_checknumber(L, 2);
+
+	double epsilon = luaL_optnumber(L, 3, 0.00001);
+
+	lua_pushboolean(L, fabs(a - b) < epsilon);
+	return 1;
+}
+```
+
+
+----
+
+
+### <span class="subsection">`luaL_optinteger`</span>
+
+<span class="signature">`int luaL_optinteger(lua_State* L, int idx, int def)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `def`: Default
+
+
+Returns the number (cast to `int`) at the given stack index, or the default number if the value at the stack index is not a number.
+
+
+----
+
+
+### <span class="subsection">`luaL_optunsigned`</span>
+
+<span class="signature">`unsigned luaL_optunsigned(lua_State* L, int idx, unsigned def)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `def`: Default
+
+
+Returns the number (cast to `unsigned`) at the given stack index, or the default number if the value at the stack index is not a number.
 
 
 ----
