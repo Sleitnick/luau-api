@@ -2201,27 +2201,6 @@ Gets the safe-env state of a thread. TODO.
 ----
 
 
-### <span class="subsection">`lua_getmetatable`</span>
-
-<span class="signature">`int lua_getmetatable(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +(0|1), -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Gets the metatable for the object at the given stack index. If the metatable is found, it is pushed to the top of the stack and the function returns `1`. Otherwise, the function returns `0` and the stack remains the same.
-
-```cpp title="Example"
-if (lua_getmetatable(L, -1)) {
-	// Metatable is now at the top of the stack
-}
-```
-
-
-----
-
-
 ## Set Functions
 
 ### <span class="subsection">`lua_settable`</span>
@@ -2352,6 +2331,23 @@ for (int i = 1; i <= 10; i++) {
 ----
 
 
+### <span class="subsection">`lua_setfenv`</span>
+
+<span class="signature">`int lua_setfenv(lua_State* L, int idx)`</span>
+<span class="stack">`[-1, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Sets the environment of the value at `idx` to the table on the top of the stack, and pops this top value. Returns `0` if the value at the given index is not an applicable type for setting an environment (e.g. a number), otherwise returns `1`.
+
+
+----
+
+
+## Metatable Functions
+
 ### <span class="subsection">`lua_setmetatable`</span>
 
 <span class="signature">`int lua_setmetatable(lua_State* L, int idx)`</span>
@@ -2380,16 +2376,104 @@ lua_setmetatable(L, -2); // setmetatable(t, mt)
 ----
 
 
-### <span class="subsection">`lua_setfenv`</span>
+### <span class="subsection">`lua_getmetatable`</span>
 
-<span class="signature">`int lua_setfenv(lua_State* L, int idx)`</span>
-<span class="stack">`[-1, +0, -]`</span>
+<span class="signature">`int lua_getmetatable(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +(0|1), -]`</span>
 
 - `L`: Lua thread
 - `idx`: Stack index
 
 
-Sets the environment of the value at `idx` to the table on the top of the stack, and pops this top value. Returns `0` if the value at the given index is not an applicable type for setting an environment (e.g. a number), otherwise returns `1`.
+Gets the metatable for the object at the given stack index. If the metatable is found, it is pushed to the top of the stack and the function returns `1`. Otherwise, the function returns `0` and the stack remains the same.
+
+```cpp title="Example"
+if (lua_getmetatable(L, -1)) {
+	// Metatable is now at the top of the stack
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_setuserdatametatable`</span>
+
+<span class="signature">`void lua_setuserdatametatable(lua_State* L, int tag)`</span>
+<span class="stack">`[-1, +0, -]`</span>
+
+- `L`: Lua thread
+- `tag`: Tag
+
+
+Pops the value (expecting a table) at the top of the stack and sets the userdata metatable for the given userdata tag. This is used in conjunction with [`lua_newuserdatataggedwithmetatable`](#lua_newuserdatataggedwithmetatable). See the example there.
+
+This function can only be called once per tag. Calling this function again for the same tag will throw an error.
+
+
+----
+
+
+### <span class="subsection">`lua_getuserdatametatable`</span>
+
+<span class="signature">`void lua_getuserdatametatable(lua_State* L, int tag)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `tag`: Tag
+
+
+Pushes the metatable associated with the userdata tag onto the stack (or `nil` if there is no associated metatable).
+
+
+----
+
+
+### <span class="subsection">`lua_getmetafield`</span>
+
+<span class="signature">`int lua_getmetafield(lua_State* L, int idx, const char* field)`</span>
+<span class="stack">`[-0, +(0|1), -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `field`: Metatable field
+
+
+Attempts to get the given metatable field for the table at `idx`. If the table doesn't have a metatable, or the metatable doesn't have `field`, then this function returns `0` and nothing is pushed onto the stack. Otherwise, the function returns `1` and the field is pushed onto the stack.
+
+```cpp title="Example"
+// Assume the top of the stack is a table
+
+if (lua_getmetafield(L, -1, "__index")) {
+	// ...
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_callmeta`</span>
+
+<span class="signature">`int lua_callmeta(lua_State* L, int idx, const char* field)`</span>
+<span class="stack">`[-0, +(0|1), -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `field`: Metatable field
+
+
+Attempts to call the given metatable function for the table at `idx`. If the table doesn't have a metatable, or the metatable doesn't have `field`, then this function returns `0` and nothing is pushed onto the stack. Otherwise, the function returns `1` and the result of the called metatable function is pushed onto the stack.
+
+```cpp title="Example"
+// Assume the top of the stack is a table
+
+if (lua_callmeta(L, -1, "__tostring")) {
+	const char* result = lua_tostring(L, -1);
+	lua_pop(L, 1);
+	// ...
+}
+```
 
 
 ----
@@ -3367,38 +3451,6 @@ void setup_Foo(lua_State* L) {
 	auto dtor_after = lua_getuserdatadtor(L, kFooTag); // dtor_after == Foo_destructor
 }
 ```
-
-
-----
-
-
-### <span class="subsection">`lua_setuserdatametatable`</span>
-
-<span class="signature">`void lua_setuserdatametatable(lua_State* L, int tag)`</span>
-<span class="stack">`[-1, +0, -]`</span>
-
-- `L`: Lua thread
-- `tag`: Tag
-
-
-Pops the value (expecting a table) at the top of the stack and sets the userdata metatable for the given userdata tag. This is used in conjunction with [`lua_newuserdatataggedwithmetatable`](#lua_newuserdatataggedwithmetatable). See the example there.
-
-This function can only be called once per tag. Calling this function again for the same tag will throw an error.
-
-
-----
-
-
-### <span class="subsection">`lua_getuserdatametatable`</span>
-
-<span class="signature">`void lua_getuserdatametatable(lua_State* L, int tag)`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `tag`: Tag
-
-
-Pushes the metatable associated with the userdata tag onto the stack (or `nil` if there is no associated metatable).
 
 
 ----
