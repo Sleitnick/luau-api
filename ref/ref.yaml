@@ -137,6 +137,7 @@ sections:
       - error_functions/lua_error.md
       - error_functions/luaL_error.md
       - error_functions/luaL_typeerror.md
+      - error_functions/luaL_argexpected.md
       - error_functions/luaL_argerror.md
       - error_functions/luaL_argcheck.md
   - name: Miscellaneous Functions

@@ -3053,6 +3053,32 @@ int send_table(lua_State* L) {
 ----
 
 
+### <span class="subsection">`luaL_argexpected`</span>
+
+<span class="signature">`l_noret luaL_argexpected(lua_State* L, int cond, int narg, const char* tname)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `cond`: Condition
+- `narg`: Argument number
+- `tname`: Type name
+
+
+Throws a Luau error with a templated error message for an incorrect type. This is similar to `luaL_typeerror`, except it encapsulates a condition, similar to an assertion.
+
+```cpp title="Example"
+int send_table(lua_State* L) {
+	// expects a table as the first argument
+	luaL_argexpected(L, lua_istable(L, 1), 1, "table");
+
+	// ...
+}
+```
+
+
+----
+
+
 ### <span class="subsection">`luaL_argerror`</span>
 
 <span class="signature">`l_noret luaL_argerror(lua_State* L, int narg, const char* extramsg)`</span>
