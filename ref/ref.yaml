@@ -27,7 +27,6 @@ sections:
   - name: Access Functions
     functions:
       - access_functions/lua_isnumber.md
-      - access_functions/lua_isstring.md
       - access_functions/lua_iscfunction.md
       - access_functions/lua_isLfunction.md
       - access_functions/lua_isuserdata.md
@@ -44,13 +43,8 @@ sections:
       - access_functions/lua_tounsigned.md
       - access_functions/lua_tovector.md
       - access_functions/lua_toboolean.md
-      - access_functions/lua_tolstring.md
-      - access_functions/lua_tostring.md
-      - access_functions/lua_tostringatom.md
-      - access_functions/lua_tolstringatom.md
       - access_functions/lua_namecallatom.md
       - access_functions/lua_objlen.md
-      - access_functions/lua_strlen.md
       - access_functions/lua_tocfunction.md
       - access_functions/lua_tolightuserdata.md
       - access_functions/lua_tolightuserdatatagged.md
@@ -68,11 +62,6 @@ sections:
       - push_functions/lua_pushinteger.md
       - push_functions/lua_pushunsigned.md
       - push_functions/lua_pushvector.md
-      - push_functions/lua_pushlstring.md
-      - push_functions/lua_pushstring.md
-      - push_functions/lua_pushvfstring.md
-      - push_functions/lua_pushfstring.md
-      - push_functions/lua_pushliteral.md
       - push_functions/lua_pushcclosurek.md
       - push_functions/lua_pushcclosure.md
       - push_functions/lua_pushcfunction.md
@@ -108,6 +97,20 @@ sections:
       - set_functions/lua_rawset.md
       - set_functions/lua_rawseti.md
       - set_functions/lua_setfenv.md
+  - name: String Functions
+    functions:
+      - string_functions/lua_pushliteral.md
+      - string_functions/lua_pushlstring.md
+      - string_functions/lua_pushstring.md
+      - string_functions/lua_pushvfstring.md
+      - string_functions/lua_pushfstring.md
+      - string_functions/lua_isstring.md
+      - string_functions/lua_tolstring.md
+      - string_functions/lua_tostring.md
+      - string_functions/lua_tostringatom.md
+      - string_functions/lua_tolstringatom.md
+      - string_functions/lua_strlen.md
+      - string_functions/luaL_checklstring.md
   - name: Metatable Functions
     functions:
       - metatable_functions/lua_setmetatable.md

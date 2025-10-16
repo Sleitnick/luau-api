@@ -448,21 +448,6 @@ Returns `1` if the value at stack index `idx` is a number _or_ the value is a st
 ----
 
 
-### <span class="subsection">`lua_isstring`</span>
-
-<span class="signature">`int lua_isstring(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Returns `1` if the value at the given stack index is a string _or_ a number (all numbers can be converted to a string). Otherwise, returns `0`.
-
-
-----
-
-
 ### <span class="subsection">`lua_iscfunction`</span>
 
 <span class="signature">`int lua_iscfunction(lua_State* L, int idx)`</span>
@@ -851,94 +836,6 @@ if (lua_toboolean(L, -1)) {} // true (0 is neither nil or false, so it is evalua
 ----
 
 
-### <span class="subsection">`lua_tolstring`</span>
-
-<span class="signature">`const char* lua_tolstring(lua_State* L, int idx, size_t len)`</span>
-<span class="stack">`[-0, +0, m]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-- `len`: String length
-
-
-Returns the value at the given stack index converted to a string. The length of the string is written to `len`. Like C strings, Luau strings are terminated with `\0`; however, Luau strings may contain `\0` within the string before the end, thus using the `len` argument is imperative for proper consumption. In other words, functions like `strlen` that scan for `\0` may return lengths that are too short.
-
-**Note:** This will _modify_ the value at the given stack index if it is a number, turning it into a Luau string. If the value at the given stack index is neither a string nor a number, this function will return `NULL`, and the `len` argument will be set to `0`.
-
-```cpp title="Example 1" hl_lines="3 4"
-lua_pushliteral(L, "hello world");
-
-size_t len;
-const char* msg = lua_tolstring(L, -1, &len);
-
-if (msg) {
-	printf("message (len: %zu): \"%s\"\n", len, msg); // message (len: 11) "hello world"
-}
-```
-
-As noted above, `lua_tolstring` will convert numbers into strings at their given stack index. If this effect is undesirable, either use `lua_isstring()` first, or use the auxilery `luaL_tolstring` function instead.
-```cpp title="Example 2"
-lua_pushinteger(L, 15);
-
-// The value at index -1 will be converted from a number to a string:
-size_t len;
-const char* msg = lua_tolstring(L, -1, &len);
-
-printf("Type: %s\n", luaL_typename(L, -1)); // Type: string
-```
-
-
-----
-
-
-### <span class="subsection">`lua_tostring`</span>
-
-<span class="signature">`const char* lua_tostring(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Equivalent to [`lua_tolstring`](#lua_tolstring), without the length argument.
-
-
-----
-
-
-### <span class="subsection">`lua_tostringatom`</span>
-
-<span class="signature">`const char* lua_tostringatom(lua_State* L, int idx, int* atom)`</span>
-<span class="stack">`[-0, +0, m]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-- `atom`: Atom
-
-
-Identical to [`lua_tostring`](#lua_tostring), except the string atom is written to the `atom` argument. See the [Atoms](guide/atoms.md) page for more information on string atoms.
-
-
-----
-
-
-### <span class="subsection">`lua_tolstringatom`</span>
-
-<span class="signature">`const char* lua_tolstringatom(lua_State* L, int idx, size_t len, int* atom)`</span>
-<span class="stack">`[-0, +0, m]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-- `len`: String length
-- `atom`: Atom
-
-
-Identical to [`lua_tolstring`](#lua_tolstring), except the string atom is written to the `atom` argument. See the [Atoms](guide/atoms.md) page for more information on string atoms.
-
-
-----
-
-
 ### <span class="subsection">`lua_namecallatom`</span>
 
 <span class="signature">`const char* lua_namecallatom(lua_State* L, int* atom)`</span>
@@ -1016,21 +913,6 @@ n = lua_objlen(L, -3); // 12 (size of buffer)
 n = lua_objlen(L, -2); // 15 (size of userdata)
 n = lua_objlen(L, -1); // 0 (integer type is N/A, thus 0 is returned)
 ```
-
-
-----
-
-
-### <span class="subsection">`lua_strlen`</span>
-
-<span class="signature">`int lua_strlen(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Alias for [`lua_objlen`](#lua_objlen).
 
 
 ----
@@ -1449,121 +1331,6 @@ float x = v[0]; // 10
 float y = v[1]; // 15
 float z = v[2]; // 20
 float w = v[3]; // 25
-```
-
-
-----
-
-
-### <span class="subsection">`lua_pushlstring`</span>
-
-<span class="signature">`void lua_pushlstring(lua_State* L, const char* str, size_t len)`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `str`: C-style string
-- `len`: String length
-
-
-Pushes string `str` to the stack with a length of `len`.
-
-Internally, strings in Luau are copied and interned. Thus, modifications made to the inputted string will not be reflected in the Luau string value.
-
-This function is preferred over [`lua_pushstring`](#lua_pushstring) if the string length is known, or if the string contains `\0` characters as part of the string itself.
-
-```cpp title="Example"
-std::string str = "hello";
-lua_pushlstring(L, str.c_str(), str.size());
-```
-
-
-----
-
-
-### <span class="subsection">`lua_pushstring`</span>
-
-<span class="signature">`void lua_pushstring(lua_State* L, const char* str)`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `str`: C-style string
-
-
-Pushes string `str` to the stack. The length of the string is determined internally using the C `strlen` function.
-
-If the length of the string is known, it is more efficient to use [`lua_pushlstring`](#lua_pushlstring).
-
-Internally, strings in Luau are copied and interned. Thus, modifications made to the inputted string will not be reflected in the Luau string value.
-
-```cpp title="Example"
-const char* str = "hello";
-lua_pushstring(L, str);
-```
-
-
-----
-
-
-### <span class="subsection">`lua_pushvfstring`</span>
-
-<span class="signature">`const char* lua_pushvfstring(lua_State* L, const char* fmt, va_list argp)`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `fmt`: C-style string for formatting
-- `argp`: Format arguments
-
-
-Pushes a string to the stack, where the string is `fmt` formatted against the arguments in `argp`. The formatted string is also returned.
-
-```cpp title="Example"
-void format_something(lua_State* L, const char* fmt, ...) {
-	va_list args;
-	va_start(args, fmt);
-	lua_pushvfstring(L, fmt, args);
-	va_end(args);
-}
-
-format_something(L, "number: %d", 32);
-```
-
-
-----
-
-
-### <span class="subsection">`lua_pushfstring`</span>
-
-<span class="signature">`const char* lua_pushfstring(lua_State* L, const char* fmt,  ...)`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `fmt`: C-style string for formatting
-- `...`: Format arguments
-
-
-Pushes a string to the stack, where the string is `fmt` formatted against the arguments. The formatted string is also returned.
-
-```cpp title="Example"
-const char* s = lua_pushfstringL(L, "number: %d", 32);
-```
-
-
-----
-
-
-### <span class="subsection">`lua_pushliteral`</span>
-
-<span class="signature">`void lua_pushliteral(lua_State* L, const char* str)`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `str`: C-style string
-
-
-Pushes the string literal `str` to the stack with a length of `len`.
-
-```cpp title="Example"
-lua_pushliteral(L, "hello world");
 ```
 
 
@@ -2341,6 +2108,241 @@ for (int i = 1; i <= 10; i++) {
 
 
 Sets the environment of the value at `idx` to the table on the top of the stack, and pops this top value. Returns `0` if the value at the given index is not an applicable type for setting an environment (e.g. a number), otherwise returns `1`.
+
+
+----
+
+
+## String Functions
+
+### <span class="subsection">`lua_pushliteral`</span>
+
+<span class="signature">`void lua_pushliteral(lua_State* L, const char* str)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `str`: C-style string
+
+
+Pushes the string literal `str` to the stack with a length of `len`.
+
+```cpp title="Example"
+lua_pushliteral(L, "hello world");
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushlstring`</span>
+
+<span class="signature">`void lua_pushlstring(lua_State* L, const char* str, size_t len)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `str`: C-style string
+- `len`: String length
+
+
+Pushes string `str` to the stack with a length of `len`.
+
+Internally, strings in Luau are copied and interned. Thus, modifications made to the inputted string will not be reflected in the Luau string value.
+
+This function is preferred over [`lua_pushstring`](#lua_pushstring) if the string length is known, or if the string contains `\0` characters as part of the string itself.
+
+```cpp title="Example"
+std::string str = "hello";
+lua_pushlstring(L, str.c_str(), str.size());
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushstring`</span>
+
+<span class="signature">`void lua_pushstring(lua_State* L, const char* str)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `str`: C-style string
+
+
+Pushes string `str` to the stack. The length of the string is determined internally using the C `strlen` function.
+
+If the length of the string is known, it is more efficient to use [`lua_pushlstring`](#lua_pushlstring).
+
+Internally, strings in Luau are copied and interned. Thus, modifications made to the inputted string will not be reflected in the Luau string value.
+
+```cpp title="Example"
+const char* str = "hello";
+lua_pushstring(L, str);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushvfstring`</span>
+
+<span class="signature">`const char* lua_pushvfstring(lua_State* L, const char* fmt, va_list argp)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `fmt`: C-style string for formatting
+- `argp`: Format arguments
+
+
+Pushes a string to the stack, where the string is `fmt` formatted against the arguments in `argp`. The formatted string is also returned.
+
+```cpp title="Example"
+void format_something(lua_State* L, const char* fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	lua_pushvfstring(L, fmt, args);
+	va_end(args);
+}
+
+format_something(L, "number: %d", 32);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushfstring`</span>
+
+<span class="signature">`const char* lua_pushfstring(lua_State* L, const char* fmt,  ...)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `fmt`: C-style string for formatting
+- `...`: Format arguments
+
+
+Pushes a string to the stack, where the string is `fmt` formatted against the arguments. The formatted string is also returned.
+
+```cpp title="Example"
+const char* s = lua_pushfstringL(L, "number: %d", 32);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_isstring`</span>
+
+<span class="signature">`int lua_isstring(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns `1` if the value at the given stack index is a string _or_ a number (all numbers can be converted to a string). Otherwise, returns `0`.
+
+
+----
+
+
+### <span class="subsection">`lua_tolstring`</span>
+
+<span class="signature">`const char* lua_tolstring(lua_State* L, int idx, size_t len)`</span>
+<span class="stack">`[-0, +0, m]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `len`: String length
+
+
+Returns the value at the given stack index converted to a string. The length of the string is written to `len`. Like C strings, Luau strings are terminated with `\0`; however, Luau strings may contain `\0` within the string before the end, thus using the `len` argument is imperative for proper consumption. In other words, functions like `strlen` that scan for `\0` may return lengths that are too short.
+
+**Note:** This will _modify_ the value at the given stack index if it is a number, turning it into a Luau string. If the value at the given stack index is neither a string nor a number, this function will return `NULL`, and the `len` argument will be set to `0`.
+
+```cpp title="Example 1" hl_lines="3 4"
+lua_pushliteral(L, "hello world");
+
+size_t len;
+const char* msg = lua_tolstring(L, -1, &len);
+
+if (msg) {
+	printf("message (len: %zu): \"%s\"\n", len, msg); // message (len: 11) "hello world"
+}
+```
+
+As noted above, `lua_tolstring` will convert numbers into strings at their given stack index. If this effect is undesirable, either use `lua_isstring()` first, or use the auxilery `luaL_tolstring` function instead.
+```cpp title="Example 2"
+lua_pushinteger(L, 15);
+
+// The value at index -1 will be converted from a number to a string:
+size_t len;
+const char* msg = lua_tolstring(L, -1, &len);
+
+printf("Type: %s\n", luaL_typename(L, -1)); // Type: string
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tostring`</span>
+
+<span class="signature">`const char* lua_tostring(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Equivalent to [`lua_tolstring`](#lua_tolstring), without the length argument.
+
+
+----
+
+
+### <span class="subsection">`lua_tostringatom`</span>
+
+<span class="signature">`const char* lua_tostringatom(lua_State* L, int idx, int* atom)`</span>
+<span class="stack">`[-0, +0, m]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `atom`: Atom
+
+
+Identical to [`lua_tostring`](#lua_tostring), except the string atom is written to the `atom` argument. See the [Atoms](guide/atoms.md) page for more information on string atoms.
+
+
+----
+
+
+### <span class="subsection">`lua_tolstringatom`</span>
+
+<span class="signature">`const char* lua_tolstringatom(lua_State* L, int idx, size_t len, int* atom)`</span>
+<span class="stack">`[-0, +0, m]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `len`: String length
+- `atom`: Atom
+
+
+Identical to [`lua_tolstring`](#lua_tolstring), except the string atom is written to the `atom` argument. See the [Atoms](guide/atoms.md) page for more information on string atoms.
+
+
+----
+
+
+### <span class="subsection">`lua_strlen`</span>
+
+<span class="signature">`int lua_strlen(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Alias for [`lua_objlen`](#lua_objlen).
 
 
 ----
