@@ -17,7 +17,7 @@ args:
     desc: String length
 ---
 
-Gets the string at the given stack index. If the value at the given index is not a string, then `def` is returned instead.
+Gets the string at the given stack index. If the value at the given index is nil or none, then `def` is returned instead. Otherwise, an error is thrown.
 
 ```cpp title="Example"
 int send_message(lua_State* L) {

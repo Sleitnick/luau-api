@@ -14,4 +14,4 @@ args:
     desc: Default
 ---
 
-Returns the number (cast to `int`) at the given stack index, or the default number if the value at the stack index is not a number.
+Returns the number (cast to `int`) at the given stack index, or the default number if the value at the stack index is nil or none. Otherwise, an error is thrown.

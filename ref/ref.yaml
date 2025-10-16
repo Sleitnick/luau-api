@@ -35,7 +35,6 @@ sections:
       - access_functions/lua_rawequal.md
       - access_functions/lua_lessthan.md
       - access_functions/lua_tovector.md
-      - access_functions/lua_toboolean.md
       - access_functions/lua_namecallatom.md
       - access_functions/lua_objlen.md
       - access_functions/lua_tocfunction.md
@@ -55,7 +54,6 @@ sections:
       - push_functions/lua_pushcclosurek.md
       - push_functions/lua_pushcclosure.md
       - push_functions/lua_pushcfunction.md
-      - push_functions/lua_pushboolean.md
       - push_functions/lua_pushthread.md
       - push_functions/lua_pushlightuserdatatagged.md
       - push_functions/lua_pushlightuserdata.md
@@ -120,6 +118,13 @@ sections:
       - number_functions/luaL_optnumber.md
       - number_functions/luaL_optinteger.md
       - number_functions/luaL_optunsigned.md
+  - name: Boolean Functions
+    functions:
+      - boolean_functions/lua_pushboolean.md
+      - boolean_functions/lua_toboolean.md
+      - boolean_functions/lua_isboolean.md
+      - boolean_functions/luaL_checkboolean.md
+      - boolean_functions/luaL_optboolean.md
   - name: Metatable Functions
     functions:
       - metatable_functions/lua_setmetatable.md
@@ -187,7 +192,6 @@ sections:
       - type_functions/lua_istable.md
       - type_functions/lua_islightuserdata.md
       - type_functions/lua_isnil.md
-      - type_functions/lua_isboolean.md
       - type_functions/lua_isvector.md
       - type_functions/lua_isthread.md
       - type_functions/lua_isbuffer.md

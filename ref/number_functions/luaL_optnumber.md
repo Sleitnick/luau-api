@@ -14,7 +14,7 @@ args:
     desc: Default
 ---
 
-Returns the number at the given stack index, or the default number if the value at the stack index is not a number.
+Returns the number at the given stack index, or the default number if the value at the stack index is nil or none. Otherwise, an error is thrown.
 
 ```cpp title="Example" hl_lines="5"
 int approx_equal(lua_State* L) {

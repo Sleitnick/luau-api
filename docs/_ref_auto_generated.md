@@ -612,35 +612,6 @@ printf("%f, %f, %f\n", x, y, z);
 ----
 
 
-### <span class="subsection">`lua_toboolean`</span>
-
-<span class="signature">`int lua_toboolean(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Returns `1` if the Luau value at the given stack index is truthy, otherwise returns `0`.
-
-A "falsey" value in Luau is any value that is either `nil` or `false`. All other values are evaluated as `true`. In other languages, values like `0` or empty strings might be evaluated as `false`. This is _not_ the case in Luau. _Only_ `nil` and `false` are evaluated as `false`; all other values are evaluated as `true`.
-
-```cpp title="Example"
-lua_pushboolean(L, true);
-lua_pushboolean(L, false);
-lua_pushnil(L);
-lua_pushinteger(L, 0);
-
-if (lua_toboolean(L, -4)) {} // true
-if (lua_toboolean(L, -3)) {} // false
-if (lua_toboolean(L, -2)) {} // false (nil is evaluated as false)
-if (lua_toboolean(L, -1)) {} // true (0 is neither nil or false, so it is evaluated as true in Luau)
-```
-
-
-----
-
-
 ### <span class="subsection">`lua_namecallatom`</span>
 
 <span class="signature">`const char* lua_namecallatom(lua_State* L, int* atom)`</span>
@@ -1187,26 +1158,6 @@ lua_setglobal(L, "multiply");
 
 ```luau title="Luau Example"
 print("2 * 5 = " .. multiply(2, 5))
-```
-
-
-----
-
-
-### <span class="subsection">`lua_pushboolean`</span>
-
-<span class="signature">`void lua_pushboolean(lua_State* L, int b)`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `b`: Boolean
-
-
-Pushes boolean `b` to the stack.
-
-```cpp title="Example"
-lua_pushboolean(L, true);
-lua_pushboolean(L, false);
 ```
 
 
@@ -2130,7 +2081,7 @@ int send_message(lua_State* L) {
 - `len`: String length
 
 
-Gets the string at the given stack index. If the value at the given index is not a string, then `def` is returned instead.
+Gets the string at the given stack index. If the value at the given index is nil or none, then `def` is returned instead. Otherwise, an error is thrown.
 
 ```cpp title="Example"
 int send_message(lua_State* L) {
@@ -2482,7 +2433,7 @@ int add_int(lua_State* L) {
 - `def`: Default
 
 
-Returns the number at the given stack index, or the default number if the value at the stack index is not a number.
+Returns the number at the given stack index, or the default number if the value at the stack index is nil or none. Otherwise, an error is thrown.
 
 ```cpp title="Example" hl_lines="5"
 int approx_equal(lua_State* L) {
@@ -2510,7 +2461,7 @@ int approx_equal(lua_State* L) {
 - `def`: Default
 
 
-Returns the number (cast to `int`) at the given stack index, or the default number if the value at the stack index is not a number.
+Returns the number (cast to `int`) at the given stack index, or the default number if the value at the stack index is nil or none. Otherwise, an error is thrown.
 
 
 ----
@@ -2526,7 +2477,112 @@ Returns the number (cast to `int`) at the given stack index, or the default numb
 - `def`: Default
 
 
-Returns the number (cast to `unsigned`) at the given stack index, or the default number if the value at the stack index is not a number.
+Returns the number (cast to `unsigned`) at the given stack index, or the default number if the value at the stack index is nil or none. Otherwise, an error is thrown.
+
+
+----
+
+
+## Boolean Functions
+
+### <span class="subsection">`lua_pushboolean`</span>
+
+<span class="signature">`void lua_pushboolean(lua_State* L, int b)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `b`: Boolean
+
+
+Pushes boolean `b` to the stack.
+
+```cpp title="Example"
+lua_pushboolean(L, true);
+lua_pushboolean(L, false);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_toboolean`</span>
+
+<span class="signature">`int lua_toboolean(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns `1` if the Luau value at the given stack index is truthy, otherwise returns `0`.
+
+A "falsey" value in Luau is any value that is either `nil` or `false`. All other values are evaluated as `true`. In other languages, values like `0` or empty strings might be evaluated as `false`. This is _not_ the case in Luau. _Only_ `nil` and `false` are evaluated as `false`; all other values are evaluated as `true`.
+
+```cpp title="Example"
+lua_pushboolean(L, true);
+lua_pushboolean(L, false);
+lua_pushnil(L);
+lua_pushinteger(L, 0);
+
+if (lua_toboolean(L, -4)) {} // true
+if (lua_toboolean(L, -3)) {} // false
+if (lua_toboolean(L, -2)) {} // false (nil is evaluated as false)
+if (lua_toboolean(L, -1)) {} // true (0 is neither nil or false, so it is evaluated as true in Luau)
+```
+
+
+----
+
+
+### <span class="subsection">`lua_isboolean`</span>
+
+<span class="signature">`int lua_isboolean(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Checks if the value at the given stack index is a boolean.
+
+```cpp title="Example"
+if (lua_isboolean(L, -1)) { /* ... */ }
+```
+
+
+----
+
+
+### <span class="subsection">`luaL_checkboolean`</span>
+
+<span class="signature">`int luaL_checkboolean(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns `1` if the Luau value at the given stack index is true, otherwise returns `0`. Throws an error if the value at the given index is not a boolean.
+
+**Note:** Unlike `lua_toboolean`, this is not a _truthy/falsey_ check. The value at the given index must be a boolean.
+
+
+----
+
+
+### <span class="subsection">`luaL_optboolean`</span>
+
+<span class="signature">`int luaL_optboolean(lua_State* L, int idx, int def)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `def`: Default
+
+
+Returns `1` or `0` for the given boolean value. Returns `def` if the value at the given index is nil or none. Otherwise, an error is thrown.
+
+**Note:** Unlike `lua_toboolean`, this is not a _truthy/falsey_ check. The value at the given index must be a boolean.
 
 
 ----
@@ -4038,25 +4094,6 @@ Checks if the value at the given stack index is nil.
 
 ```cpp title="Example"
 if (lua_isnil(L, -1)) { /* ... */ }
-```
-
-
-----
-
-
-### <span class="subsection">`lua_isboolean`</span>
-
-<span class="signature">`int lua_isboolean(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Checks if the value at the given stack index is a boolean.
-
-```cpp title="Example"
-if (lua_isboolean(L, -1)) { /* ... */ }
 ```
 
 
