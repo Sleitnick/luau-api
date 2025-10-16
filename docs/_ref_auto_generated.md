@@ -3673,3 +3673,223 @@ Checks if the value at the given stack index is none or nil.
 ```cpp title="Example"
 if (lua_isnoneornil(L, -1)) { /* ... */ }
 ```
+
+
+----
+
+
+## Debug Functions
+
+### <span class="subsection">`lua_stackdepth`</span>
+
+<span class="signature">`int lua_stackdepth(lua_State* L)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+
+
+Returns the current stack depth.
+
+
+----
+
+
+### <span class="subsection">`lua_getinfo`</span>
+
+<span class="signature">`int lua_getinfo(lua_State* L, int level, const char* what, lua_Debug* ar)`</span>
+<span class="stack">`[-0, +(0|1), -]`</span>
+
+- `L`: Lua thread
+- `level`: Stack level
+- `what`: Desired information
+- `ar`: Debug info (activation record)
+
+
+Gets debug information for the given stack level. The characters in the `what` string indicate what information is desired.
+
+The `what` string may contain:
+
+- `n`: Fills the `name` field
+- `s`: Fills the `what`, `source`, `short_src`, and `linedefined` fields
+- `l`: Fills the `currentline` field
+- `u`: Fills the `nupvals` field
+- `a`: Fills the `nparams` and `isvararg` fields
+- `f`: Pushes closure to the stack
+
+For example, if `name`, `currentline`, and `short_src` is desired, the `what` string could be set to `"nsl"`.
+
+Returns `0` on failure, otherwise `1`.
+
+```cpp title="Example" hl_lines="10-11"
+lua_State* T = lua_newthread(L);
+// ... setup T to have a function to resume
+
+int status = lua_resume(T, nullptr, 0);
+
+// Use lua_getinfo to create a clearer error message:
+if (status != LUA_OK && status != LUA_YIELD) {
+	std::string error;
+
+	lua_Debug ar;
+	if (lua_getinfo(L, 0, "nsl")) {
+		error += ar.short_src;
+		error += ':';
+		error += std::to_string(ar.currentline);
+		error += ": ";
+	}
+
+	if (const char* str = lua_tostring(T, -1)) {
+		error += str;
+	}
+
+	error += "\nstacktrace:\n";
+	error += lua_debugtrace(T);
+
+	fprintf(stderr, "%s\n", error.c_str());
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_getargument`</span>
+
+<span class="signature">`int lua_getargument(lua_State* L, int level, int n)`</span>
+<span class="stack">`[-0, +(0|1), -]`</span>
+
+- `L`: Lua thread
+- `level`: Stack level
+- `n`: Argument number
+
+
+Gets argument `n` at the given stack level. If found, the value is pushed to the top of the stack and the function returns `1`. Otherwise, the function returns `0` and nothing is pushed to the stack.
+
+
+----
+
+
+### <span class="subsection">`lua_getlocal`</span>
+
+<span class="signature">`int lua_getlocal(lua_State* L, int level, int n)`</span>
+<span class="stack">`[-0, +(0|1), -]`</span>
+
+- `L`: Lua thread
+- `level`: Stack level
+- `n`: Argument number
+
+
+Gets a local variable at the given stack level and pushes the value onto the stack. The name of the local variable is returned, and the value on the stack is popped. If no local is found, `NULL` is returned and nothing is pushed to the stack.
+
+
+----
+
+
+### <span class="subsection">`lua_setlocal`</span>
+
+<span class="signature">`int lua_setlocal(lua_State* L, int level, int n)`</span>
+<span class="stack">`[-(0|1), +0, -]`</span>
+
+- `L`: Lua thread
+- `level`: Stack level
+- `n`: Argument number
+
+
+Sets a local variable at the given stack level to the value at the top of the stack. The name of the local variable is returned, and the value on the stack is popped. If no local is found, `NULL` is returned and nothing is popped from the stack.
+
+
+----
+
+
+### <span class="subsection">`lua_getupvalue`</span>
+
+<span class="signature">`int lua_getupvalue(lua_State* L, int level, int n)`</span>
+<span class="stack">`[-0, +(0|1), -]`</span>
+
+- `L`: Lua thread
+- `level`: Stack level
+- `n`: Argument number
+
+
+Pushes an upvalue to the stack, and returns its name. If not found, returns `NULL` and nothing is pushed to the stack.
+
+
+----
+
+
+### <span class="subsection">`lua_setupvalue`</span>
+
+<span class="signature">`int lua_setupvalue(lua_State* L, int level, int n)`</span>
+<span class="stack">`[-0, +(0|1), -]`</span>
+
+- `L`: Lua thread
+- `level`: Stack level
+- `n`: Argument number
+
+
+Pops a value off the stack and sets the given upvalue with the popped value, and returns its name. If not found, returns `NULL` and nothing is popped from the stack.
+
+
+----
+
+
+### <span class="subsection">`lua_singlestep`</span>
+
+<span class="signature">`int lua_singlestep(lua_State* L, int enabled)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `enabled`: Enabled
+
+
+Enables or disables single-step mode.
+
+
+----
+
+
+### <span class="subsection">`lua_breakpoint`</span>
+
+<span class="signature">`int lua_breakpoint(lua_State* L, int funcindex, int line, int enabled)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `funcindex`: Function index
+- `line`: Line
+- `enabled`: Enabled
+
+
+Enables or disables a breakpoint at the given line within the given function at `funcindex` on the stack.
+
+
+----
+
+
+### <span class="subsection">`lua_getcoverage`</span>
+
+<span class="signature">`void lua_getcoverage(lua_State* L, int funcindex, void* context, lua_Coverage callback)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `funcindex`: Function index
+- `context`: Context
+- `callback`: Coverage callback function
+
+
+Get coverage.
+
+
+----
+
+
+### <span class="subsection">`lua_debugtrace`</span>
+
+<span class="signature">`const char* lua_debugtrace(lua_State* L)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+
+
+Gets a traceback string.
+
+**Note:** Internally, this uses a static string buffer. Thus, this function is not thread-safe, nor is it safe to hold onto the returned value. Create a copy of the returned string if needed.

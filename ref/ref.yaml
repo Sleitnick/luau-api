@@ -168,3 +168,16 @@ sections:
       - type_functions/lua_isbuffer.md
       - type_functions/lua_isnone.md
       - type_functions/lua_isnoneornil.md
+  - name: Debug Functions
+    functions:
+      - debug_functions/lua_stackdepth.md
+      - debug_functions/lua_getinfo.md
+      - debug_functions/lua_getargument.md
+      - debug_functions/lua_getlocal.md
+      - debug_functions/lua_setlocal.md
+      - debug_functions/lua_getupvalue.md
+      - debug_functions/lua_setupvalue.md
+      - debug_functions/lua_singlestep.md
+      - debug_functions/lua_breakpoint.md
+      - debug_functions/lua_getcoverage.md
+      - debug_functions/lua_debugtrace.md
