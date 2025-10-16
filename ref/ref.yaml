@@ -139,6 +139,7 @@ sections:
       - metatable_functions/lua_getuserdatametatable.md
       - metatable_functions/luaL_getmetafield.md
       - metatable_functions/luaL_callmeta.md
+      - metatable_functions/luaL_newmetatable.md
   - name: Load and Call Functions
     functions:
       - load_call_functions/luau_load.md
