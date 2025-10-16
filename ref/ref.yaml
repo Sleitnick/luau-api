@@ -15,6 +15,7 @@ sections:
       - stack_manipulation/lua_absindex.md
       - stack_manipulation/lua_gettop.md
       - stack_manipulation/lua_settop.md
+      - stack_manipulation/lua_pop.md
       - stack_manipulation/lua_pushvalue.md
       - stack_manipulation/lua_remove.md
       - stack_manipulation/lua_insert.md
@@ -36,15 +37,20 @@ sections:
       - access_functions/lua_rawequal.md
       - access_functions/lua_lessthan.md
       - access_functions/lua_tonumberx.md
+      - access_functions/lua_tonumber.md
       - access_functions/lua_tointegerx.md
+      - access_functions/lua_tointeger.md
       - access_functions/lua_tounsignedx.md
+      - access_functions/lua_tounsigned.md
       - access_functions/lua_tovector.md
       - access_functions/lua_toboolean.md
       - access_functions/lua_tolstring.md
+      - access_functions/lua_tostring.md
       - access_functions/lua_tostringatom.md
       - access_functions/lua_tolstringatom.md
       - access_functions/lua_namecallatom.md
       - access_functions/lua_objlen.md
+      - access_functions/lua_strlen.md
       - access_functions/lua_tocfunction.md
       - access_functions/lua_tolightuserdata.md
       - access_functions/lua_tolightuserdatatagged.md
@@ -66,22 +72,29 @@ sections:
       - push_functions/lua_pushstring.md
       - push_functions/lua_pushvfstring.md
       - push_functions/lua_pushfstring.md
+      - push_functions/lua_pushliteral.md
       - push_functions/lua_pushcclosurek.md
+      - push_functions/lua_pushcclosure.md
+      - push_functions/lua_pushcfunction.md
       - push_functions/lua_pushboolean.md
       - push_functions/lua_pushthread.md
       - push_functions/lua_pushlightuserdatatagged.md
+      - push_functions/lua_pushlightuserdata.md
+      - push_functions/lua_newuserdata.md
       - push_functions/lua_newuserdatatagged.md
       - push_functions/lua_newuserdatataggedwithmetatable.md
       - push_functions/lua_newuserdatadtor.md
+      - get_functions/lua_createtable.md
+      - get_functions/lua_newtable.md
       - push_functions/lua_newbuffer.md
   - name: Get Functions
     functions:
       - get_functions/lua_gettable.md
       - get_functions/lua_getfield.md
+      - get_functions/lua_getglobal.md
       - get_functions/lua_rawgetfield.md
       - get_functions/lua_rawget.md
       - get_functions/lua_rawgeti.md
-      - get_functions/lua_createtable.md
       - get_functions/lua_setreadonly.md
       - get_functions/lua_getreadonly.md
       - get_functions/lua_setsafeenv.md
@@ -91,6 +104,7 @@ sections:
     functions:
       - set_functions/lua_settable.md
       - set_functions/lua_setfield.md
+      - set_functions/lua_setglobal.md
       - set_functions/lua_rawsetfield.md
       - set_functions/lua_rawset.md
       - set_functions/lua_rawseti.md
@@ -142,3 +156,15 @@ sections:
       - ref_functions/lua_ref.md
       - ref_functions/lua_unref.md
       - ref_functions/lua_getref.md
+  - name: Type Functions
+    functions:
+      - type_functions/lua_isfunction.md
+      - type_functions/lua_istable.md
+      - type_functions/lua_islightuserdata.md
+      - type_functions/lua_isnil.md
+      - type_functions/lua_isboolean.md
+      - type_functions/lua_isvector.md
+      - type_functions/lua_isthread.md
+      - type_functions/lua_isbuffer.md
+      - type_functions/lua_isnone.md
+      - type_functions/lua_isnoneornil.md

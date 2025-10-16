@@ -1,6 +1,6 @@
 ---
 name: lua_tounsignedx
-ret: int
+ret: unsigned
 stack: "-0, +0, -"
 args:
   - name: L

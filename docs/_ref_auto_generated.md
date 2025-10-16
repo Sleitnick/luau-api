@@ -191,6 +191,35 @@ lua_settop(L, 0); // clear the stack
 ----
 
 
+### <span class="subsection">`lua_pop`</span>
+
+<span class="signature">`void lua_pop(lua_State* L, int n)`</span>
+<span class="stack">`[-n, +0, -]`</span>
+
+- `L`: Lua thread
+- `n`: Number of items to pop
+
+
+Pops `n` values off the top of the stack.
+
+```cpp title="Example" hl_lines="8"
+// Assume lua_gettop(L) == 0 here
+
+lua_pushliteral(L, "Hello");
+lua_pushnumber(L, 85.2);
+lua_pushboolean(L, true);
+printf("Size: %d\n", lua_gettop(L)); // Size: 3
+
+lua_pop(L, 2);
+
+printf("Size: %d\n", lua_gettop(L)); // Size: 1
+printf("Type: %s\n", luaL_typename(L, -1)); // string (top of stack is the "Hello" value now)
+```
+
+
+----
+
+
 ### <span class="subsection">`lua_pushvalue`</span>
 
 <span class="signature">`void lua_pushvalue(lua_State* L, int idx)`</span>
@@ -630,6 +659,21 @@ if (isnum) {
 ----
 
 
+### <span class="subsection">`lua_tonumber`</span>
+
+<span class="signature">`double lua_tonumber(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the number at the given stack index. If the value on the stack is a string, Luau will attempt to convert the string to a number. Identical to [`lua_tonumberx`](#lua_tonumberx), without the last `isnum` argument.
+
+
+----
+
+
 ### <span class="subsection">`lua_tointegerx`</span>
 
 <span class="signature">`int lua_tointegerx(lua_State* L, int idx, int* isnum)`</span>
@@ -675,9 +719,24 @@ if (isnum) {
 ----
 
 
+### <span class="subsection">`lua_tointeger`</span>
+
+<span class="signature">`int lua_tointeger(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the number at the given stack index as an integer. If the value on the stack is a string, Luau will attempt to convert the string to an integer. Numbers in Luau are all doubles, so the returned value is cast to an int. Identical to [`lua_tointegerx`](#lua_tointegerx), without the last `isnum` argument.
+
+
+----
+
+
 ### <span class="subsection">`lua_tounsignedx`</span>
 
-<span class="signature">`int lua_tounsignedx(lua_State* L, int idx, int* isnum)`</span>
+<span class="signature">`unsigned lua_tounsignedx(lua_State* L, int idx, int* isnum)`</span>
 <span class="stack">`[-0, +0, -]`</span>
 
 - `L`: Lua thread
@@ -715,6 +774,21 @@ if (isnum) {
 	printf("n: %d\n", n);
 }
 ```
+
+
+----
+
+
+### <span class="subsection">`lua_tounsigned`</span>
+
+<span class="signature">`unsigned lua_tounsigned(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the number at the given stack index as an unsigned integer. If the value on the stack is a string, Luau will attempt to convert the string to an integer. Numbers in Luau are all doubles, so the returned value is cast to an unsigned int. Identical to [`lua_tounsignedx`](#lua_tounsignedx), without the last `isnum` argument.
 
 
 ----
@@ -812,6 +886,21 @@ const char* msg = lua_tolstring(L, -1, &len);
 
 printf("Type: %s\n", luaL_typename(L, -1)); // Type: string
 ```
+
+
+----
+
+
+### <span class="subsection">`lua_tostring`</span>
+
+<span class="signature">`const char* lua_tostring(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Equivalent to [`lua_tolstring`](#lua_tolstring), without the length argument.
 
 
 ----
@@ -927,6 +1016,21 @@ n = lua_objlen(L, -3); // 12 (size of buffer)
 n = lua_objlen(L, -2); // 15 (size of userdata)
 n = lua_objlen(L, -1); // 0 (integer type is N/A, thus 0 is returned)
 ```
+
+
+----
+
+
+### <span class="subsection">`lua_strlen`</span>
+
+<span class="signature">`int lua_strlen(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Alias for [`lua_objlen`](#lua_objlen).
 
 
 ----
@@ -1447,6 +1551,25 @@ const char* s = lua_pushfstringL(L, "number: %d", 32);
 ----
 
 
+### <span class="subsection">`lua_pushliteral`</span>
+
+<span class="signature">`void lua_pushliteral(lua_State* L, const char* str)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `str`: C-style string
+
+
+Pushes the string literal `str` to the stack with a length of `len`.
+
+```cpp title="Example"
+lua_pushliteral(L, "hello world");
+```
+
+
+----
+
+
 ### <span class="subsection">`lua_pushcclosurek`</span>
 
 <span class="signature">`void lua_pushcclosurek(lua_State* L, lua_CFunction fn, const char* debugname, int nup, lua_Continuation cont)`</span>
@@ -1500,6 +1623,55 @@ do
 	local sum = adder()
 	print(sum)
 until not sum
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushcclosure`</span>
+
+<span class="signature">`void lua_pushcclosure(lua_State* L, lua_CFunction fn, const char* debugname, int nup)`</span>
+<span class="stack">`[-n, +1, -]`</span>
+
+- `L`: Lua thread
+- `fn`: C Function
+- `debugname`: Debug name
+- `nup`: Number of upvalues to capture
+
+
+Equivalent to `lua_pushcclosurek`, but without any continuation function provided.
+
+
+----
+
+
+### <span class="subsection">`lua_pushcfunction`</span>
+
+<span class="signature">`void lua_pushcfunction(lua_State* L, lua_CFunction fn, const char* debugname)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `fn`: C Function
+- `debugname`: Debug name
+
+
+Pushes the C function to the stack.
+
+Equivalent to `lua_pushcclosurek`, but without any upvalues nor any continuation function.
+
+```cpp title="Example" hl_lines="6"
+int multiply(lua_State* L) {
+	lua_pushnumber(L, lua_tonumber(L, 1) * lua_tonumber(L, 2));
+	return 1;
+}
+
+lua_pushcfunction(L, multiply, "multiply");
+lua_setglobal(L, "multiply");
+```
+
+```luau title="Luau Example"
+print("2 * 5 = " .. multiply(2, 5))
 ```
 
 
@@ -1566,6 +1738,56 @@ struct Foo {};
 Foo* foo = new Foo();
 
 lua_pushlightuserdatatagged(L, foo, kFooTag);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushlightuserdata`</span>
+
+<span class="signature">`void lua_pushlightuserdata(lua_State* L, void* p)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `p`: Pointer to arbitrary user-owned data
+
+
+Pushes the tagged lightuserdata to the stack. Identical to `lua_pushlightuserdatatagged` with a tag of `0`.
+
+```cpp title="Example" hl_lines="4"
+struct Foo {};
+Foo* foo = new Foo();
+
+lua_pushlightuserdata(L, foo);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_newuserdata`</span>
+
+<span class="signature">`void* lua_newuserdata(lua_State* L, size_t sz)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `sz`: Size of the data
+
+
+Creates a userdata and pushes it to the stack. A pointer to the newly-constructed data is returned. This is equivalent to `lua_newuserdatatagged` with a tag of `0`.
+
+**Note:** Luau-constructed userdata are not zero-initialized. After construction, assign all fields of the object.
+
+```cpp title="Example" hl_lines="5"
+struct Foo {
+	int n;
+};
+
+Foo* foo = static_cast<Foo*>(lua_newuserdata(L, sizeof(Foo)));
+
+// Before explicit assignment, `n` is garbage, so we should initialize it ourselves:
+foo->n = 0;
 ```
 
 
@@ -1708,6 +1930,43 @@ foo->data = new char[256];
 ----
 
 
+### <span class="subsection">`lua_createtable`</span>
+
+<span class="signature">`void lua_createtable(lua_State* L, int narr, int nrec)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `narr`: Array size
+- `nrec`: Dictionary size
+
+
+Pushes a new table onto the stack, allocating `narr` slots on the array portion and `nrec` slots on the dictionary portion. Use [`lua_newtable`](#lua_newtable) to create a table with zero size allocation, equivalent to `lua_createtable(0, 0)`.
+
+These allocated slots are _not_ filled.
+
+```cpp title="Example"
+lua_createtable(L, 10, 0); // Push a new table onto the stack with 10 array slots allocated
+// 10 slots allocated, but not filled, e.g. lua_objlen(L, -1) == 0
+```
+
+
+----
+
+
+### <span class="subsection">`lua_newtable`</span>
+
+<span class="signature">`void lua_newtable(lua_State* L)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+
+
+Pushes a new table onto the stack. This is equivalent to `lua_createtable(L, 0, 0)`.
+
+
+----
+
+
 ### <span class="subsection">`lua_newbuffer`</span>
 
 <span class="signature">`void* lua_newbuffer(lua_State* L, size_t sz)`</span>
@@ -1787,6 +2046,31 @@ int t = lua_getfield(L, -2, "hello"); // Our key "hello" is at the top of the st
 ----
 
 
+### <span class="subsection">`lua_getglobal`</span>
+
+<span class="signature">`int lua_getglobal(lua_State* L, const char* k)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `k`: Field
+
+
+Pushes a value from the global table onto the stack. Use [`lua_setglobal`](#lua_setglobal) to set a new global value.
+
+Returns the type of the value.
+
+```cpp title="Example" hl_lines="4"
+lua_pushliteral(L, "hello");
+lua_setglobal(L, "message"); // _G.message = "hello"
+
+lua_getglobal(L, "message");
+const char* s = lua_tostring(L, -1); // s == "hello"
+```
+
+
+----
+
+
 ### <span class="subsection">`lua_rawgetfield`</span>
 
 <span class="signature">`int lua_rawgetfield(lua_State* L, int idx, const char* k)`</span>
@@ -1835,29 +2119,6 @@ Pushes the table value at index `n` onto the stack. The table is located on the 
 lua_rawgeti(L, -1, 2); // t[2]
 double n = lua_tonumber(L, -1);
 printf("%f\n", n); // 15
-```
-
-
-----
-
-
-### <span class="subsection">`lua_createtable`</span>
-
-<span class="signature">`void lua_createtable(lua_State* L, int narr, int nrec)`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `narr`: Array size
-- `nrec`: Dictionary size
-
-
-Pushes a new table onto the stack, allocating `narr` slots on the array portion and `nrec` slots on the dictionary portion. Use [`lua_newtable`](#lua_newtable) to create a table with zero size allocation, equivalent to `lua_createtable(0, 0)`.
-
-These allocated slots are _not_ filled.
-
-```cpp title="Example"
-lua_createtable(L, 10, 0); // Push a new table onto the stack with 10 array slots allocated
-// 10 slots allocated, but not filled, e.g. lua_objlen(L, -1) == 0
 ```
 
 
@@ -2003,6 +2264,32 @@ lua_newtable(L);
 
 lua_pushinteger(L, 50);
 lua_setfield(L, -2, "hello"); // t.hello = 50
+```
+
+
+----
+
+
+### <span class="subsection">`lua_setglobal`</span>
+
+<span class="signature">`void lua_setglobal(lua_State* L, const char* k)`</span>
+<span class="stack">`[-1, +0, -]`</span>
+
+- `L`: Lua thread
+- `k`: Field
+
+
+Places the value at the top of the stack into the global table at key `k`. The value is popped from the stack. Use [`lua_getglobal`](#lua_getglobal) to retrieve the value.
+
+As implied by the name, globals are globally-accessible to Luau.
+
+```cpp title="Example"
+lua_pushliteral(L, "hello");
+lua_setglobal(L, "message"); // _G.message = "hello"
+```
+
+```luau title="Luau Example"
+print(message) -- "hello"
 ```
 
 
@@ -3193,4 +3480,196 @@ int table_ref = lua_ref(L, -1);
 // Sometime later:
 lua_getref(L, table_ref);
 // Top of stack is now the table from the reference
+```
+
+
+----
+
+
+## Type Functions
+
+### <span class="subsection">`lua_isfunction`</span>
+
+<span class="signature">`int lua_isfunction(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Checks if the value at the given stack index is a function.
+
+```cpp title="Example"
+if (lua_isfunction(L, -1)) { /* ... */ }
+```
+
+
+----
+
+
+### <span class="subsection">`lua_istable`</span>
+
+<span class="signature">`int lua_istable(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Checks if the value at the given stack index is a table.
+
+```cpp title="Example"
+if (lua_istable(L, -1)) { /* ... */ }
+```
+
+
+----
+
+
+### <span class="subsection">`lua_islightuserdata`</span>
+
+<span class="signature">`int lua_islightuserdata(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Checks if the value at the given stack index is a lightuserdata.
+
+```cpp title="Example"
+if (lua_islightuserdata(L, -1)) { /* ... */ }
+```
+
+
+----
+
+
+### <span class="subsection">`lua_isnil`</span>
+
+<span class="signature">`int lua_isnil(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Checks if the value at the given stack index is nil.
+
+```cpp title="Example"
+if (lua_isnil(L, -1)) { /* ... */ }
+```
+
+
+----
+
+
+### <span class="subsection">`lua_isboolean`</span>
+
+<span class="signature">`int lua_isboolean(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Checks if the value at the given stack index is a boolean.
+
+```cpp title="Example"
+if (lua_isboolean(L, -1)) { /* ... */ }
+```
+
+
+----
+
+
+### <span class="subsection">`lua_isvector`</span>
+
+<span class="signature">`int lua_isvector(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Checks if the value at the given stack index is a vector.
+
+```cpp title="Example"
+if (lua_isvector(L, -1)) { /* ... */ }
+```
+
+
+----
+
+
+### <span class="subsection">`lua_isthread`</span>
+
+<span class="signature">`int lua_isthread(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Checks if the value at the given stack index is a thread.
+
+```cpp title="Example"
+if (lua_isthread(L, -1)) { /* ... */ }
+```
+
+
+----
+
+
+### <span class="subsection">`lua_isbuffer`</span>
+
+<span class="signature">`int lua_isbuffer(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Checks if the value at the given stack index is a buffer.
+
+```cpp title="Example"
+if (lua_isbuffer(L, -1)) { /* ... */ }
+```
+
+
+----
+
+
+### <span class="subsection">`lua_isnone`</span>
+
+<span class="signature">`int lua_isnone(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Checks if the value at the given stack index is none.
+
+```cpp title="Example"
+if (lua_isnone(L, -1)) { /* ... */ }
+```
+
+
+----
+
+
+### <span class="subsection">`lua_isnoneornil`</span>
+
+<span class="signature">`int lua_isnoneornil(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Checks if the value at the given stack index is none or nil.
+
+```cpp title="Example"
+if (lua_isnoneornil(L, -1)) { /* ... */ }
 ```
