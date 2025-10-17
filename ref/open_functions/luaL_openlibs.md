@@ -1,7 +1,7 @@
 ---
 name: luaL_openlibs
 ret: int
-stack: "-0, +1, -"
+stack: "-0, +0, -"
 args:
   - name: L
     type: lua_State*

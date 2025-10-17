@@ -131,12 +131,72 @@ Checks if the Lua thread is reset.
 ----
 
 
+### <span class="subsection">`luaL_sandbox`</span>
+
+<span class="signature">`lua_State* luaL_sandbox(lua_State* L)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Parent thread
+
+
+Sandboxes the Luau state. All libraries, built-in metatables, and globals are set to read-only. This also activates "safeenv" (`lua_setsafeenv`) on the global table.
+
+```cpp title="Example"
+lua_State* L = luaL_newstate();
+luaL_openlibs(L);
+
+// Sandboxing AFTER libraries are open:
+luaL_sandbox(L);
+```
+
+
+----
+
+
+### <span class="subsection">`luaL_sandboxthread`</span>
+
+<span class="signature">`lua_State* luaL_sandboxthread(lua_State* L)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Parent thread
+
+
+Sandboxes the given thread by creating a new global table that proxies the original global table.
+
+This is useful to set per "script" rather than every single thread that is created (i.e. it's best to _not_ call `luaL_sandboxthread` within the `userthread` callback, as that can cause long metafield index chains, which will also throw errors at a certain depth).
+
+```cpp title="Example" hl_lines="15"
+// Load and run a script:
+int run_script(const std::string& name, const std::string& bytecode) {
+	int load_res = luau_load(L, (std::string("=") + name).c_str(), bytecode.data(), bytecode.length(), 0);
+
+	if (load_res != 0) {
+		// ...handle error
+		return load_res;
+	}
+
+	lua_State* script = lua_newthread(L);
+	lua_pushvalue(L, -2);
+	lua_remove(L, -3);
+	lua_xmove(L, script, 1);
+
+	lua_sandboxthread(script);
+
+	int status = lua_resume(script, nullptr, 0);
+	// ...handle status
+}
+```
+
+
+----
+
+
 ## Open Library Functions
 
 ### <span class="subsection">`luaL_openlibs`</span>
 
 <span class="signature">`int luaL_openlibs(lua_State* L)`</span>
-<span class="stack">`[-0, +1, -]`</span>
+<span class="stack">`[-0, +0, -]`</span>
 
 - `L`: Lua thread
 

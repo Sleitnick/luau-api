@@ -10,6 +10,8 @@ sections:
       - state_manipulation/lua_mainthread.md
       - state_manipulation/lua_resetthread.md
       - state_manipulation/lua_isthreadreset.md
+      - state_manipulation/luaL_sandbox.md
+      - state_manipulation/luaL_sandboxthread.md
   - name: Open Library Functions
     functions:
       - open_functions/luaL_openlibs.md
