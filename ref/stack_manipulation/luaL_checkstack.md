@@ -1,5 +1,5 @@
 ---
-name: lua_checkstack
+name: luaL_checkstack
 ret: void
 stack: "-0, +0, m"
 args:
