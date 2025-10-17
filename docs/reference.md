@@ -131,6 +131,184 @@ Checks if the Lua thread is reset.
 ----
 
 
+## Open Library Functions
+
+### <span class="subsection">`luaL_openlibs`</span>
+
+<span class="signature">`int luaL_openlibs(lua_State* L)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+
+
+Opens all built-in Luau libraries.
+
+```cpp title="Example"
+lua_State* L = luaL_newstate();
+luaL_openlibs(L);
+// ...
+```
+
+
+----
+
+
+### <span class="subsection">`luaopen_base`</span>
+
+<span class="signature">`int luaopen_base(lua_State* L)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+
+
+Opens the base global library functions, e.g. `print`, `error`, `tostring`, etc.
+
+Use [`luaL_openlibs`](#lual_openlibs) to open all built-in Luau libraries, including this one.
+
+
+----
+
+
+### <span class="subsection">`luaopen_coroutine`</span>
+
+<span class="signature">`int luaopen_coroutine(lua_State* L)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+
+
+Opens the coroutine library. Use [`luaL_openlibs`](#lual_openlibs) to open all built-in Luau libraries, including this one.
+
+
+----
+
+
+### <span class="subsection">`luaopen_table`</span>
+
+<span class="signature">`int luaopen_table(lua_State* L)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+
+
+Opens the table library. Use [`luaL_openlibs`](#lual_openlibs) to open all built-in Luau libraries, including this one.
+
+
+----
+
+
+### <span class="subsection">`luaopen_os`</span>
+
+<span class="signature">`int luaopen_os(lua_State* L)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+
+
+Opens the OS library. Use [`luaL_openlibs`](#lual_openlibs) to open all built-in Luau libraries, including this one.
+
+
+----
+
+
+### <span class="subsection">`luaopen_string`</span>
+
+<span class="signature">`int luaopen_string(lua_State* L)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+
+
+Opens the string library. Use [`luaL_openlibs`](#lual_openlibs) to open all built-in Luau libraries, including this one.
+
+
+----
+
+
+### <span class="subsection">`luaopen_bit32`</span>
+
+<span class="signature">`int luaopen_bit32(lua_State* L)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+
+
+Opens the bit32 library. Use [`luaL_openlibs`](#lual_openlibs) to open all built-in Luau libraries, including this one.
+
+
+----
+
+
+### <span class="subsection">`luaopen_buffer`</span>
+
+<span class="signature">`int luaopen_buffer(lua_State* L)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+
+
+Opens the buffer library. Use [`luaL_openlibs`](#lual_openlibs) to open all built-in Luau libraries, including this one.
+
+
+----
+
+
+### <span class="subsection">`luaopen_utf8`</span>
+
+<span class="signature">`int luaopen_utf8(lua_State* L)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+
+
+Opens the UTF-8 library. Use [`luaL_openlibs`](#lual_openlibs) to open all built-in Luau libraries, including this one.
+
+
+----
+
+
+### <span class="subsection">`luaopen_math`</span>
+
+<span class="signature">`int luaopen_math(lua_State* L)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+
+
+Opens the math library. Use [`luaL_openlibs`](#lual_openlibs) to open all built-in Luau libraries, including this one.
+
+
+----
+
+
+### <span class="subsection">`luaopen_debug`</span>
+
+<span class="signature">`int luaopen_debug(lua_State* L)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+
+
+Opens the debug library. Use [`luaL_openlibs`](#lual_openlibs) to open all built-in Luau libraries, including this one.
+
+
+----
+
+
+### <span class="subsection">`luaopen_vector`</span>
+
+<span class="signature">`int luaopen_vector(lua_State* L)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+
+
+Opens the vector library. Use [`luaL_openlibs`](#lual_openlibs) to open all built-in Luau libraries, including this one.
+
+
+----
+
+
 ## Basic Stack Manipulation
 
 ### <span class="subsection">`lua_absindex`</span>
@@ -1570,6 +1748,21 @@ int send_message(lua_State* L) {
 ----
 
 
+### <span class="subsection">`luaL_checkstring`</span>
+
+<span class="signature">`const char* luaL_checkstring(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Equivalent to [`luaL_checklstring(L, idx, nullptr)`](#lual_checklstring).
+
+
+----
+
+
 ### <span class="subsection">`luaL_optlstring`</span>
 
 <span class="signature">`const char* luaL_optlstring(lua_State* L, int idx, const char* def, size_t len)`</span>
@@ -1589,6 +1782,22 @@ int send_message(lua_State* L) {
 	const char* message = luaL_optlstring(L, 1, "Default message", &message_len);
 }
 ```
+
+
+----
+
+
+### <span class="subsection">`luaL_optstring`</span>
+
+<span class="signature">`const char* luaL_optstring(lua_State* L, int idx, const char* def)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `def`: Default string
+
+
+Equivalent to [`luaL_optlstring(L, idx, def, nullptr)`](#lual_optlstring).
 
 
 ----
@@ -2453,6 +2662,41 @@ if (luaL_newmetatable(L, "Foo")) {
 	lua_rawsetfield(L, -2, "__type");
 }
 lua_setmetatable(L, -2);
+```
+
+
+----
+
+
+### <span class="subsection">`luaL_getmetatable`</span>
+
+<span class="signature">`int luaL_getmetatable(lua_State* L, const char* name)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `name`: Name
+
+
+Attempts to get a metatable from the registry with the given name and pushes it to the stack. If no metatable is found, `nil` will be pushed to the stack. See [`luaL_newmetatable`](#lual_newmetatable).
+
+```cpp title="Example" hl_lines="16-17"
+struct Foo {};
+
+Foo* new_Foo() {
+	Foo* foo = static_cast<Foo*>(lua_newuserdata(L, sizeof(Foo)));
+	if (luaL_newmetatable(L, "Foo")) {
+		// Build metatable:
+		lua_pushliteral(L, "Foo");
+		lua_rawsetfield(L, -2, "__type");
+	}
+	lua_setmetatable(L, -2);
+	return foo;
+}
+
+// ...
+
+// Get the metatable created with `luaL_newmetatable`:
+luaL_getmetatable(L, "Foo");
 ```
 
 
@@ -4488,6 +4732,187 @@ Returns the name of the type at the given index.
 lua_pushvector(L, 10, 20, 30);
 const char* t_name = luaL_typename(L, -1);
 printf("Type: %s\n", t_name); // "Type: vector"
+```
+
+
+----
+
+
+## String Buffer Functions
+
+### <span class="subsection">`luaL_buffinit`</span>
+
+<span class="signature">`void luaL_buffinit(lua_State* L, luaL_Buffer* B)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `B`: Lua string buffer
+
+
+Initializes a string buffer.
+
+```cpp title="Example"
+luaL_Strbuf b;
+luaL_buffinit(L, &b);
+```
+
+
+----
+
+
+### <span class="subsection">`luaL_buffinitsize`</span>
+
+<span class="signature">`char* luaL_buffinitsize(lua_State* L, luaL_Buffer* B, size_t size)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `B`: Lua string buffer
+- `size`: Preallocated size
+
+
+Initializes a string buffer with an initial allocated size. A pointer to the start of the buffer is returned.
+
+```cpp title="Example"
+luaL_Strbuf b;
+char* buf = luaL_buffinitsize(L, &b, 512);
+```
+
+
+----
+
+
+### <span class="subsection">`luaL_prepbuffsize`</span>
+
+<span class="signature">`char* luaL_prepbuffsize(luaL_Buffer* B, size_t size)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `B`: Lua string buffer
+- `size`: Size extension
+
+
+Ensure the string buffer has at least `size` capacity available. For instance, if 10 characters need to be added to an existing string buffer, it may be more optimal to call `luaL_prepbuffsize(&b, 10)` before adding each character.
+
+
+----
+
+
+### <span class="subsection">`luaL_addchar`</span>
+
+<span class="signature">`void luaL_addchar(luaL_Buffer* B, char c)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `B`: Lua string buffer
+- `c`: Character
+
+
+Adds a character to a string buffer.
+
+
+----
+
+
+### <span class="subsection">`luaL_addlstring`</span>
+
+<span class="signature">`void luaL_addlstring(luaL_Buffer* B, const char* s, size_t l)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `B`: Lua string buffer
+- `s`: String
+- `l`: String length
+
+
+Adds a string to a string buffer.
+
+
+----
+
+
+### <span class="subsection">`luaL_addstring`</span>
+
+<span class="signature">`void luaL_addstring(luaL_Buffer* B, const char* s)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `B`: Lua string buffer
+- `s`: String
+
+
+Adds a string to a string buffer. If the length of the string is known, use `luaL_addlstring` instead.
+
+
+----
+
+
+### <span class="subsection">`luaL_addvalue`</span>
+
+<span class="signature">`void luaL_addvalue(luaL_Buffer* B)`</span>
+<span class="stack">`[-1, +0, -]`</span>
+
+- `B`: Lua string buffer
+
+
+Pops a value from the top of the stack and adds it to the buffer.
+
+
+----
+
+
+### <span class="subsection">`luaL_addvalueany`</span>
+
+<span class="signature">`void luaL_addvalueany(luaL_Buffer* B, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `B`: Lua string buffer
+- `idx`: Stack index
+
+
+Adds the value at the given stack index into the buffer. Unlike `luaL_addvalue`, this does _not_ pop the item from the stack.
+
+
+----
+
+
+### <span class="subsection">`luaL_pushresult`</span>
+
+<span class="signature">`void luaL_pushresult(luaL_Buffer* B)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `B`: Lua string buffer
+
+
+Pushes the result of the string buffer onto the stack.
+
+
+----
+
+
+### <span class="subsection">`luaL_pushresultsize`</span>
+
+<span class="signature">`void luaL_pushresultsize(luaL_Buffer* B, size_t size)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `B`: Lua string buffer
+- `size`: Size
+
+
+Pushes the result of the string buffer onto the stack, assuming `size` extra length on the buffer. This is only used if the buffer is being directly written rather than going through other string buffer functions that track the size.
+
+```cpp title="Example" hl_lines="9"
+// Copied from luau/VM/src/lstrlib.cpp
+
+// Note how the buffer is initialized to the correct size, but
+// the buffer is being written to directly, rather than going
+// through the `luaL_addchar` function.
+static int str_lower(lua_State* L) {
+	size_t l;
+	const char* s = luaL_checklstring(L, 1, &l);
+	luaL_Strbuf b;
+	char* ptr = luaL_buffinitsize(L, &b, l); // buffer initialized
+	for (size_t i = 0; i < l; i++) {
+		*ptr++ = tolower(uchar(s[i])); // direct write
+	}
+	luaL_pushresultsize(&b, l); // push result
+	return 1;
+}
 ```
 
 

@@ -10,6 +10,20 @@ sections:
       - state_manipulation/lua_mainthread.md
       - state_manipulation/lua_resetthread.md
       - state_manipulation/lua_isthreadreset.md
+  - name: Open Library Functions
+    functions:
+      - open_functions/luaL_openlibs.md
+      - open_functions/luaopen_base.md
+      - open_functions/luaopen_coroutine.md
+      - open_functions/luaopen_table.md
+      - open_functions/luaopen_os.md
+      - open_functions/luaopen_string.md
+      - open_functions/luaopen_bit32.md
+      - open_functions/luaopen_buffer.md
+      - open_functions/luaopen_utf8.md
+      - open_functions/luaopen_math.md
+      - open_functions/luaopen_debug.md
+      - open_functions/luaopen_vector.md
   - name: Basic Stack Manipulation
     functions:
       - stack_manipulation/lua_absindex.md
@@ -84,7 +98,9 @@ sections:
       - string_functions/lua_isstring.md
       - string_functions/luaL_tolstring.md
       - string_functions/luaL_checklstring.md
+      - string_functions/luaL_checkstring.md
       - string_functions/luaL_optlstring.md
+      - string_functions/luaL_optstring.md
   - name: Number Functions
     functions:
       - number_functions/lua_pushnumber.md
@@ -132,6 +148,7 @@ sections:
       - metatable_functions/luaL_getmetafield.md
       - metatable_functions/luaL_callmeta.md
       - metatable_functions/luaL_newmetatable.md
+      - metatable_functions/luaL_getmetatable.md
   - name: Userdata Functions
     functions:
       - userdata_functions/lua_newuserdata.md
@@ -218,6 +235,18 @@ sections:
       - type_functions/lua_isnone.md
       - type_functions/lua_isnoneornil.md
       - type_functions/luaL_typename.md
+  - name: String Buffer Functions
+    functions:
+      - stringbuf_functions/luaL_buffinit.md
+      - stringbuf_functions/luaL_buffinitsize.md
+      - stringbuf_functions/luaL_prepbuffsize.md
+      - stringbuf_functions/luaL_addchar.md
+      - stringbuf_functions/luaL_addlstring.md
+      - stringbuf_functions/luaL_addstring.md
+      - stringbuf_functions/luaL_addvalue.md
+      - stringbuf_functions/luaL_addvalueany.md
+      - stringbuf_functions/luaL_pushresult.md
+      - stringbuf_functions/luaL_pushresultsize.md
   - name: Debug Functions
     functions:
       - debug_functions/lua_stackdepth.md
