@@ -35,7 +35,7 @@ extra_css:
 
 nav:
   - Home: index.md
-  - Reference: _ref_auto_generated.md
+  - Reference: reference.md
   - Guide:
       - Setup: guide/setup.md
       - Atoms: guide/atoms.md

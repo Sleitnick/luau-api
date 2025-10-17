@@ -179,7 +179,7 @@ def gen():
 					)
 				builder.append(meta.markdown)
 
-	builder.write("docs/_ref_auto_generated.md")
+	builder.write("docs/reference.md")
 
 	print("Generated")
 

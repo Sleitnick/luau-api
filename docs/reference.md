@@ -487,21 +487,6 @@ Returns `1` if the value at the given stack index is a Luau function. Otherwise,
 ----
 
 
-### <span class="subsection">`lua_isuserdata`</span>
-
-<span class="signature">`int lua_isuserdata(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Returns `1` if the value at the given stack index is a userdata object. Otherwise, returns `0`.
-
-
-----
-
-
 ### <span class="subsection">`lua_type`</span>
 
 <span class="signature">`int lua_type(lua_State* L, int idx)`</span>
@@ -713,205 +698,6 @@ lua_CFunction f = lua_tocfunction(L, -1);
 if (f) {
   f(); // hello
 }
-```
-
-
-----
-
-
-### <span class="subsection">`lua_tolightuserdata`</span>
-
-<span class="signature">`void* lua_tolightuserdata(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Returns a pointer to a lightuserdata on the stack. Returns `NULL` if the value is not a lightuserdata.
-
-```cpp title="Example" hl_lines="10"
-struct Foo {
-	int n;
-};
-
-Foo* foo = new Foo();
-foo->n = 32;
-
-lua_pushlightuserdata(L, foo);
-
-Foo* f = static_cast<Foo*>(lua_tolightuserdata(L, -1));
-printf("foo->n = %d\n", foo->n); // foo->n = 32
-
-// ...pop lightuserdata and delete allocation
-```
-
-
-----
-
-
-### <span class="subsection">`lua_tolightuserdatatagged`</span>
-
-<span class="signature">`void* lua_tolightuserdatatagged(lua_State* L, int idx, int tag)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-- `tag`: Tag
-
-
-Returns a pointer to a lightuserdata on the stack. Returns `NULL` if the value is not a lightuserdata _or_ if the attached tag does not equal the provided `tag` argument. For more info on tags, see the [Tags](guide/tags.md) page.
-
-```cpp title="Example" hl_lines="12"
-constexpr int kFooTag = 1;
-
-struct Foo {
-	int n;
-};
-
-Foo* foo = new Foo();
-foo->n = 32;
-
-lua_pushlightuserdatatagged(L, foo, kFooTag);
-
-Foo* f = static_cast<Foo*>(lua_tolightuserdatatagged(L, -1, kFooTag));
-printf("foo->n = %d\n", foo->n); // foo->n = 32
-
-// ...pop lightuserdata and delete allocation
-```
-
-
-----
-
-
-### <span class="subsection">`lua_touserdata`</span>
-
-<span class="signature">`void* lua_touserdata(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Returns a pointer to a userdata on the stack. Returns `NULL` if the value is not a userdata.
-
-If it is preferred to throw an error if the value is not a userdata, use the `luaL_checkuserdata` function instead.
-
-**Note:** It may be unsafe to hang onto a pointer to a userdata value. The Luau GC owns the userdata memory, and may free it. See the page on [pinning](guide/pinning.md) for tips on keeping a value from being GC'd, or consider using [light userdata](guide/light-userdata.md) instead.
-
-```cpp title="Example" hl_lines="8"
-struct Foo {
-	int n;
-};
-
-Foo* foo = static_cast<Foo*>(lua_newuserdata(L, sizeof(Foo)));
-foo->n = 32;
-
-Foo* f = static_cast<Foo*>(lua_touserdata(L, -1));
-printf("foo->n = %d\n", foo->n); // foo->n = 32
-```
-
-
-----
-
-
-### <span class="subsection">`lua_touserdatatagged`</span>
-
-<span class="signature">`void* lua_touserdatatagged(lua_State* L, int idx, int tag)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-- `tag`: Tag
-
-
-Returns a pointer to a tagged userdata on the stack. Returns `NULL` if the value is not a userdata _or_ the userdata's tag does not match the provided `tag` argument. For more info on tags, see the [Tags](guide/tags.md) page.
-
-**Note:** It may be unsafe to hang onto a pointer to a userdata value. The Luau GC owns the userdata memory, and may free it. See the page on [pinning](guide/pinning.md) for tips on keeping a value from being GC'd, or consider using [light userdata](guide/light-userdata.md) instead.
-
-```cpp title="Example" hl_lines="10"
-constexpr int kFooTag = 1;
-
-struct Foo {
-	int n;
-};
-
-Foo* foo = static_cast<Foo*>(lua_newuserdatatagged(L, sizeof(Foo), kFooTag));
-foo->n = 32;
-
-Foo* f = static_cast<Foo*>(lua_touserdatatagged(L, -1, kFooTag));
-printf("foo->n = %d\n", foo->n); // foo->n = 32
-```
-
-
-----
-
-
-### <span class="subsection">`lua_userdatatag`</span>
-
-<span class="signature">`int lua_userdatatag(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Returns the tag for the userdata at the given stack position. For non-userdata values, this function returns `-1`. If the userdata value was not assigned a tag, the tag will be set to the default of `0`, and thus this function will return `0`.
-
-```cpp title="Example" hl_lines="12-14"
-constexpr int kFooTag = 10;
-constexpr int kBarTag = 20;
-
-struct Foo {};
-struct Bar {};
-struct Baz {};
-
-lua_pushuserdatatagged(L, sizeof(Foo), kFooTag);
-lua_pushuserdatatagged(L, sizeof(Bar), kBarTag);
-lua_pushuserdata(L, sizeof(Baz));
-
-int foo_tag = lua_userdatatag(L, -3); // 10
-int bar_tag = lua_userdatatag(L, -2); // 20
-int baz_tag = lua_userdatatag(L, -1); // 0
-```
-
-
-----
-
-
-### <span class="subsection">`lua_lightuserdatatag`</span>
-
-<span class="signature">`int lua_lightuserdatatag(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Returns the tag for the lightuserdata at the given stack position. For non-lightuserdata values, this function returns `-1`. If the lightuserdata value was not assigned a tag, the tag will be set to the default of `0`, and thus this function will return `0`.
-
-```cpp title="Example" hl_lines="17-19"
-constexpr int kFooTag = 10;
-constexpr int kBarTag = 20;
-
-struct Foo {};
-struct Bar {};
-struct Baz {};
-
-Foo* foo = new Foo();
-lua_pushlightuserdatatagged(L, foo, kFooTag);
-
-Bar* bar = new Bar();
-lua_pushlightuserdatatagged(L, bar, kBarTag);
-
-Baz* baz = new Baz();
-lua_pushlightuserdata(L, baz);
-
-int foo_tag = lua_lightuserdatatag(L, -3); // 10
-int bar_tag = lua_lightuserdatatag(L, -2); // 20
-int baz_tag = lua_lightuserdatatag(L, -1); // 0
-
-// ...pop lightuserdata and delete allocations
 ```
 
 
@@ -1132,217 +918,6 @@ lua_pushthread(L);
 
 lua_State* T = lua_tothread(L, -1);
 // T == L
-```
-
-
-----
-
-
-### <span class="subsection">`lua_pushlightuserdatatagged`</span>
-
-<span class="signature">`void lua_pushlightuserdatatagged(lua_State* L, void* p, int tag)`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `p`: Pointer to arbitrary user-owned data
-- `tag`: Tag
-
-
-Pushes the tagged lightuserdata to the stack. Use [`lua_tolightuserdatatagged`](#lua_tolightuserdatatagged) to retrieve the value. For more info on tags, see the [Tags](guide/tags.md) page.
-
-```cpp title="Example" hl_lines="6"
-constexpr int kFooTag = 1;
-struct Foo {};
-
-Foo* foo = new Foo();
-
-lua_pushlightuserdatatagged(L, foo, kFooTag);
-```
-
-
-----
-
-
-### <span class="subsection">`lua_pushlightuserdata`</span>
-
-<span class="signature">`void lua_pushlightuserdata(lua_State* L, void* p)`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `p`: Pointer to arbitrary user-owned data
-
-
-Pushes the tagged lightuserdata to the stack. Identical to `lua_pushlightuserdatatagged` with a tag of `0`.
-
-```cpp title="Example" hl_lines="4"
-struct Foo {};
-Foo* foo = new Foo();
-
-lua_pushlightuserdata(L, foo);
-```
-
-
-----
-
-
-### <span class="subsection">`lua_newuserdata`</span>
-
-<span class="signature">`void* lua_newuserdata(lua_State* L, size_t sz)`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `sz`: Size of the data
-
-
-Creates a userdata and pushes it to the stack. A pointer to the newly-constructed data is returned. This is equivalent to `lua_newuserdatatagged` with a tag of `0`.
-
-**Note:** Luau-constructed userdata are not zero-initialized. After construction, assign all fields of the object.
-
-```cpp title="Example" hl_lines="5"
-struct Foo {
-	int n;
-};
-
-Foo* foo = static_cast<Foo*>(lua_newuserdata(L, sizeof(Foo)));
-
-// Before explicit assignment, `n` is garbage, so we should initialize it ourselves:
-foo->n = 0;
-```
-
-
-----
-
-
-### <span class="subsection">`lua_newuserdatatagged`</span>
-
-<span class="signature">`void* lua_newuserdatatagged(lua_State* L, size_t sz, int tag)`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `sz`: Size of the data
-- `tag`: Tag
-
-
-Creates the tagged userdata and pushes it to the stack. A pointer to the newly-constructed data is returned. Use [`lua_touserdatatagged`](#lua_touserdatatagged) to retrieve the value. For more info on tags, see the [Tags](guide/tags.md) page.
-
-**Note:** Luau-constructed userdata are not zero-initialized. After construction, assign all fields of the object.
-
-```cpp title="Example" hl_lines="6"
-constexpr int kFooTag = 1;
-struct Foo {
-	int n;
-};
-
-Foo* foo = static_cast<Foo*>(lua_newuserdatatagged(L, sizeof(Foo), kFooTag));
-
-// Before explicit assignment, `n` is garbage, so we should initialize it ourselves:
-foo->n = 0;
-```
-
-
-----
-
-
-### <span class="subsection">`lua_newuserdatataggedwithmetatable`</span>
-
-<span class="signature">`void* lua_newuserdatataggedwithmetatable(lua_State* L, size_t sz, int tag)`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `sz`: Size of the data
-- `tag`: Tag
-
-
-Creates the tagged userdata with a pre-defined metatable and pushes it to the stack. A pointer to the newly-constructed data is returned. Use [`lua_touserdatatagged`](#lua_touserdatatagged) to retrieve the value. For more info on tags, see the [Tags](guide/tags.md) page.
-
-Using this method is faster than attempting to assign a metatable to new userdata every construction, e.g. using `luaL_newmetatable`. Instead, the metatable is created ahead of time using `lua_setuserdatametatable`, linked to the userdata's tag.
-
-```cpp title="Example" hl_lines="35"
-constexpr int kFooTag = 1;
-
-struct Foo {
-	int n;
-};
-
-int Foo_index(lua_State* L) {
-	Foo* foo = static_cast<Foo*>(luaL_touserdatatagged(L, 1, kFooTag));
-	const char* property = lua_tostring(L, 2);
-	if (property && strcmp(property, "n") == 0) {
-		lua_pushinteger(L, foo->n);
-		return 1;
-	}
-	luaL_error(L, "unknown property");
-}
-
-int Foo_newindex(lua_State* L) {
-	Foo* foo = static_cast<Foo*>(luaL_touserdatatagged(L, 1, kFooTag));
-	const char* property = lua_tostring(L, 2);
-	if (property && strcmp(property, "n") == 0) {
-		int new_n = luaL_checkinteger(L, 3);
-		foo->n = new_n;
-		return 0;
-	}
-	luaL_error(L, "unknown property");
-}
-
-const luaL_Reg Foo_metatable[] = {
-	{"__index", Foo_index},
-	{"__newindex", Foo_newindex},
-	{nullptr, nullptr},
-};
-
-int push_Foo() {
-	Foo* foo = static_cast<Foo*>(lua_newuserdatataggedwithmetatable(L, sizeof(Foo), kFooTag));
-	foo->n = 0;
-	return 1;
-}
-
-// Called during some initialization period
-void setup() {
-	luaL_newmetatable(L, "Foo");
-	luaL_register(L, nullptr, Foo_metatable);
-	lua_setuserdatametatable(L, kFooTag);
-
-	lua_setglobal("new_foo", push_Foo);
-}
-```
-
-```lua
-local foo = new_foo()
-foo.n = 55
-print(foo.n) -- 55
-```
-
-
-----
-
-
-### <span class="subsection">`lua_newuserdatadtor`</span>
-
-<span class="signature">`void* lua_newuserdatadtor(lua_State* L, size_t sz, void (*dtor)(void*))`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `sz`: Size of the data
-- `dtor`: Destructor
-
-
-Creates a new userdata with an assigned destructor. Destructors are called when Luau is freeing up the userdata memory.
-
-To assign a destructor for all userdata of a given tag, use [`lua_setuserdatadtor`](#lua_setuserdatadtor).
-
-```cpp title="Example" hl_lines="5-9"
-struct Foo {
-	char* data;
-};
-
-Foo* foo = static_cast<Foo*>(lua_newuserdatadtor(L, sizeof(Foo), [](void* ptr) {
-	// This function is called when Foo is being GC'd. Free up any user-managed resources now.
-	Foo* f = static_cast<Foo*>(ptr);
-	delete[] f->data;
-}));
-
-foo->data = new char[256];
 ```
 
 
@@ -2825,6 +2400,607 @@ lua_setmetatable(L, -2);
 ----
 
 
+## Userdata Functions
+
+### <span class="subsection">`lua_newuserdata`</span>
+
+<span class="signature">`void* lua_newuserdata(lua_State* L, size_t sz)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `sz`: Size of the data
+
+
+Creates a userdata and pushes it to the stack. A pointer to the newly-constructed data is returned. This is equivalent to `lua_newuserdatatagged` with a tag of `0`.
+
+**Note:** Luau-constructed userdata are not zero-initialized. After construction, assign all fields of the object.
+
+```cpp title="Example" hl_lines="5"
+struct Foo {
+	int n;
+};
+
+Foo* foo = static_cast<Foo*>(lua_newuserdata(L, sizeof(Foo)));
+
+// Before explicit assignment, `n` is garbage, so we should initialize it ourselves:
+foo->n = 0;
+```
+
+
+----
+
+
+### <span class="subsection">`lua_newuserdatadtor`</span>
+
+<span class="signature">`void* lua_newuserdatadtor(lua_State* L, size_t sz, void (*dtor)(void*))`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `sz`: Size of the data
+- `dtor`: Destructor
+
+
+Creates a new userdata with an assigned destructor. Destructors are called when Luau is freeing up the userdata memory.
+
+To assign a destructor for all userdata of a given tag, use [`lua_setuserdatadtor`](#lua_setuserdatadtor).
+
+```cpp title="Example" hl_lines="5-9"
+struct Foo {
+	char* data;
+};
+
+Foo* foo = static_cast<Foo*>(lua_newuserdatadtor(L, sizeof(Foo), [](void* ptr) {
+	// This function is called when Foo is being GC'd. Free up any user-managed resources now.
+	Foo* f = static_cast<Foo*>(ptr);
+	delete[] f->data;
+}));
+
+foo->data = new char[256];
+```
+
+
+----
+
+
+### <span class="subsection">`lua_newuserdatatagged`</span>
+
+<span class="signature">`void* lua_newuserdatatagged(lua_State* L, size_t sz, int tag)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `sz`: Size of the data
+- `tag`: Tag
+
+
+Creates the tagged userdata and pushes it to the stack. A pointer to the newly-constructed data is returned. Use [`lua_touserdatatagged`](#lua_touserdatatagged) to retrieve the value. For more info on tags, see the [Tags](guide/tags.md) page.
+
+**Note:** Luau-constructed userdata are not zero-initialized. After construction, assign all fields of the object.
+
+```cpp title="Example" hl_lines="6"
+constexpr int kFooTag = 1;
+struct Foo {
+	int n;
+};
+
+Foo* foo = static_cast<Foo*>(lua_newuserdatatagged(L, sizeof(Foo), kFooTag));
+
+// Before explicit assignment, `n` is garbage, so we should initialize it ourselves:
+foo->n = 0;
+```
+
+
+----
+
+
+### <span class="subsection">`lua_newuserdatataggedwithmetatable`</span>
+
+<span class="signature">`void* lua_newuserdatataggedwithmetatable(lua_State* L, size_t sz, int tag)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `sz`: Size of the data
+- `tag`: Tag
+
+
+Creates the tagged userdata with a pre-defined metatable and pushes it to the stack. A pointer to the newly-constructed data is returned. Use [`lua_touserdatatagged`](#lua_touserdatatagged) to retrieve the value. For more info on tags, see the [Tags](guide/tags.md) page.
+
+Using this method is faster than attempting to assign a metatable to new userdata every construction, e.g. using `luaL_newmetatable`. Instead, the metatable is created ahead of time using `lua_setuserdatametatable`, linked to the userdata's tag.
+
+```cpp title="Example" hl_lines="35"
+constexpr int kFooTag = 1;
+
+struct Foo {
+	int n;
+};
+
+int Foo_index(lua_State* L) {
+	Foo* foo = static_cast<Foo*>(luaL_touserdatatagged(L, 1, kFooTag));
+	const char* property = lua_tostring(L, 2);
+	if (property && strcmp(property, "n") == 0) {
+		lua_pushinteger(L, foo->n);
+		return 1;
+	}
+	luaL_error(L, "unknown property");
+}
+
+int Foo_newindex(lua_State* L) {
+	Foo* foo = static_cast<Foo*>(luaL_touserdatatagged(L, 1, kFooTag));
+	const char* property = lua_tostring(L, 2);
+	if (property && strcmp(property, "n") == 0) {
+		int new_n = luaL_checkinteger(L, 3);
+		foo->n = new_n;
+		return 0;
+	}
+	luaL_error(L, "unknown property");
+}
+
+const luaL_Reg Foo_metatable[] = {
+	{"__index", Foo_index},
+	{"__newindex", Foo_newindex},
+	{nullptr, nullptr},
+};
+
+int push_Foo() {
+	Foo* foo = static_cast<Foo*>(lua_newuserdatataggedwithmetatable(L, sizeof(Foo), kFooTag));
+	foo->n = 0;
+	return 1;
+}
+
+// Called during some initialization period
+void setup() {
+	luaL_newmetatable(L, "Foo");
+	luaL_register(L, nullptr, Foo_metatable);
+	lua_setuserdatametatable(L, kFooTag);
+
+	lua_setglobal("new_foo", push_Foo);
+}
+```
+
+```lua
+local foo = new_foo()
+foo.n = 55
+print(foo.n) -- 55
+```
+
+
+----
+
+
+### <span class="subsection">`lua_touserdata`</span>
+
+<span class="signature">`void* lua_touserdata(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns a pointer to a userdata on the stack. Returns `NULL` if the value is not a userdata.
+
+If it is preferred to throw an error if the value is not a userdata, use the `luaL_checkuserdata` function instead.
+
+**Note:** It may be unsafe to hang onto a pointer to a userdata value. The Luau GC owns the userdata memory, and may free it. See the page on [pinning](guide/pinning.md) for tips on keeping a value from being GC'd, or consider using [light userdata](guide/light-userdata.md) instead.
+
+```cpp title="Example" hl_lines="8"
+struct Foo {
+	int n;
+};
+
+Foo* foo = static_cast<Foo*>(lua_newuserdata(L, sizeof(Foo)));
+foo->n = 32;
+
+Foo* f = static_cast<Foo*>(lua_touserdata(L, -1));
+printf("foo->n = %d\n", foo->n); // foo->n = 32
+```
+
+
+----
+
+
+### <span class="subsection">`lua_touserdatatagged`</span>
+
+<span class="signature">`void* lua_touserdatatagged(lua_State* L, int idx, int tag)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `tag`: Tag
+
+
+Returns a pointer to a tagged userdata on the stack. Returns `NULL` if the value is not a userdata _or_ the userdata's tag does not match the provided `tag` argument. For more info on tags, see the [Tags](guide/tags.md) page.
+
+**Note:** It may be unsafe to hang onto a pointer to a userdata value. The Luau GC owns the userdata memory, and may free it. See the page on [pinning](guide/pinning.md) for tips on keeping a value from being GC'd, or consider using [light userdata](guide/light-userdata.md) instead.
+
+```cpp title="Example" hl_lines="10"
+constexpr int kFooTag = 1;
+
+struct Foo {
+	int n;
+};
+
+Foo* foo = static_cast<Foo*>(lua_newuserdatatagged(L, sizeof(Foo), kFooTag));
+foo->n = 32;
+
+Foo* f = static_cast<Foo*>(lua_touserdatatagged(L, -1, kFooTag));
+printf("foo->n = %d\n", foo->n); // foo->n = 32
+```
+
+
+----
+
+
+### <span class="subsection">`lua_setuserdatatag`</span>
+
+<span class="signature">`int lua_setuserdatatag(lua_State* L, int idx, int tag)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `tag`: Tag
+
+
+Sets the tag for userdata at stack index `idx`. Alternatively, the [`lua_newuserdatatagged`](#lua_newuserdatatagged) and [`lua_newuserdatataggedwithmetatable`](#lua_newuserdatataggedwithmetatable) functions can be used to assign the tag on userdata creation.
+
+
+----
+
+
+### <span class="subsection">`lua_userdatatag`</span>
+
+<span class="signature">`int lua_userdatatag(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the tag for the userdata at the given stack position. For non-userdata values, this function returns `-1`. If the userdata value was not assigned a tag, the tag will be set to the default of `0`, and thus this function will return `0`.
+
+```cpp title="Example" hl_lines="12-14"
+constexpr int kFooTag = 10;
+constexpr int kBarTag = 20;
+
+struct Foo {};
+struct Bar {};
+struct Baz {};
+
+lua_pushuserdatatagged(L, sizeof(Foo), kFooTag);
+lua_pushuserdatatagged(L, sizeof(Bar), kBarTag);
+lua_pushuserdata(L, sizeof(Baz));
+
+int foo_tag = lua_userdatatag(L, -3); // 10
+int bar_tag = lua_userdatatag(L, -2); // 20
+int baz_tag = lua_userdatatag(L, -1); // 0
+```
+
+
+----
+
+
+### <span class="subsection">`lua_setuserdatadtor`</span>
+
+<span class="signature">`int lua_setuserdatadtor(lua_State* L, int tag, lua_Destructor dtor)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `tag`: Tag
+- `dtor`: Tag
+
+
+Assigns the destructor function for a given userdata tag. All userdata with the given tag will utilize this destructor during GC.
+
+```cpp title="Example" hl_lines="17"
+constexpr int kFooTag = 10;
+
+struct Foo {
+	char* some_allocated_data;
+};
+
+static void Foo_destructor(lua_State* L, void* data) {
+	Foo* foo = static_cast<Foo*>(data);
+	delete foo->some_allocated_data;
+}
+
+void setup_Foo(lua_State* L) {
+	luaL_newmetatable(L, "Foo");
+	// ...build metatable
+	lua_setuserdatametatable(L, kFooTag);
+
+	lua_setuserdatadtor(L, kFooTag, Foo_destructor);
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_getuserdatadtor`</span>
+
+<span class="signature">`lua_Destructor lua_getuserdatadtor(lua_State* L, int tag)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `tag`: Tag
+
+
+Returns the destructor function assigned to the userdata tag.
+
+```cpp title="Example" hl_lines="7 11"
+constexpr int kFooTag = 10;
+struct Foo {};
+static void Foo_destructor(lua_State* L, void* data) {}
+
+void setup_Foo(lua_State* L) {
+	// ...
+	auto dtor_before = lua_getuserdatadtor(L, kFooTag); // dtor_before == nullptr
+
+	lua_setuserdatadtor(L, kFooTag, Foo_destructor);
+
+	auto dtor_after = lua_getuserdatadtor(L, kFooTag); // dtor_after == Foo_destructor
+}
+```
+
+
+----
+
+
+### <span class="subsection">`lua_isuserdata`</span>
+
+<span class="signature">`int lua_isuserdata(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns `1` if the value at the given stack index is a userdata object. Otherwise, returns `0`.
+
+
+----
+
+
+### <span class="subsection">`luaL_checkudata`</span>
+
+<span class="signature">`void* luaL_checkudata(lua_State* L, int ud, const char* name)`</span>
+<span class="stack">`[0, +0, -]`</span>
+
+- `L`: Lua thread
+- `ud`: Userdata index
+- `name`: Name
+
+
+Asserts that a value on the stack is a userdata with a matching metatable to `name` (created with [`luaL_newmetatable`](#lual_newmetatable)).
+
+```cpp title="Example" hl_lines="6"
+constexpr const char* kFoo = "Foo";
+
+struct Foo { /* ... */ };
+
+Foo* check_Foo(lua_State* L, int idx) {
+	return static_cast<Foo*>(luaL_checkudata(L, kFoo));
+}
+```
+
+
+----
+
+
+## Light Userdata Functions
+
+### <span class="subsection">`lua_pushlightuserdata`</span>
+
+<span class="signature">`void lua_pushlightuserdata(lua_State* L, void* p)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `p`: Pointer to arbitrary user-owned data
+
+
+Pushes the tagged lightuserdata to the stack. Identical to `lua_pushlightuserdatatagged` with a tag of `0`.
+
+```cpp title="Example" hl_lines="4"
+struct Foo {};
+Foo* foo = new Foo();
+
+lua_pushlightuserdata(L, foo);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_pushlightuserdatatagged`</span>
+
+<span class="signature">`void lua_pushlightuserdatatagged(lua_State* L, void* p, int tag)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `p`: Pointer to arbitrary user-owned data
+- `tag`: Tag
+
+
+Pushes the tagged lightuserdata to the stack. Use [`lua_tolightuserdatatagged`](#lua_tolightuserdatatagged) to retrieve the value. For more info on tags, see the [Tags](guide/tags.md) page.
+
+```cpp title="Example" hl_lines="6"
+constexpr int kFooTag = 1;
+struct Foo {};
+
+Foo* foo = new Foo();
+
+lua_pushlightuserdatatagged(L, foo, kFooTag);
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tolightuserdata`</span>
+
+<span class="signature">`void* lua_tolightuserdata(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns a pointer to a lightuserdata on the stack. Returns `NULL` if the value is not a lightuserdata.
+
+```cpp title="Example" hl_lines="10"
+struct Foo {
+	int n;
+};
+
+Foo* foo = new Foo();
+foo->n = 32;
+
+lua_pushlightuserdata(L, foo);
+
+Foo* f = static_cast<Foo*>(lua_tolightuserdata(L, -1));
+printf("foo->n = %d\n", foo->n); // foo->n = 32
+
+// ...pop lightuserdata and delete allocation
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tolightuserdatatagged`</span>
+
+<span class="signature">`void* lua_tolightuserdatatagged(lua_State* L, int idx, int tag)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `tag`: Tag
+
+
+Returns a pointer to a lightuserdata on the stack. Returns `NULL` if the value is not a lightuserdata _or_ if the attached tag does not equal the provided `tag` argument. For more info on tags, see the [Tags](guide/tags.md) page.
+
+```cpp title="Example" hl_lines="12"
+constexpr int kFooTag = 1;
+
+struct Foo {
+	int n;
+};
+
+Foo* foo = new Foo();
+foo->n = 32;
+
+lua_pushlightuserdatatagged(L, foo, kFooTag);
+
+Foo* f = static_cast<Foo*>(lua_tolightuserdatatagged(L, -1, kFooTag));
+printf("foo->n = %d\n", foo->n); // foo->n = 32
+
+// ...pop lightuserdata and delete allocation
+```
+
+
+----
+
+
+### <span class="subsection">`lua_islightuserdata`</span>
+
+<span class="signature">`int lua_islightuserdata(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Checks if the value at the given stack index is a lightuserdata.
+
+```cpp title="Example"
+if (lua_islightuserdata(L, -1)) { /* ... */ }
+```
+
+
+----
+
+
+### <span class="subsection">`lua_lightuserdatatag`</span>
+
+<span class="signature">`int lua_lightuserdatatag(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the tag for the lightuserdata at the given stack position. For non-lightuserdata values, this function returns `-1`. If the lightuserdata value was not assigned a tag, the tag will be set to the default of `0`, and thus this function will return `0`.
+
+```cpp title="Example" hl_lines="17-19"
+constexpr int kFooTag = 10;
+constexpr int kBarTag = 20;
+
+struct Foo {};
+struct Bar {};
+struct Baz {};
+
+Foo* foo = new Foo();
+lua_pushlightuserdatatagged(L, foo, kFooTag);
+
+Bar* bar = new Bar();
+lua_pushlightuserdatatagged(L, bar, kBarTag);
+
+Baz* baz = new Baz();
+lua_pushlightuserdata(L, baz);
+
+int foo_tag = lua_lightuserdatatag(L, -3); // 10
+int bar_tag = lua_lightuserdatatag(L, -2); // 20
+int baz_tag = lua_lightuserdatatag(L, -1); // 0
+
+// ...pop lightuserdata and delete allocations
+```
+
+
+----
+
+
+### <span class="subsection">`lua_setlightuserdataname`</span>
+
+<span class="signature">`void lua_setlightuserdataname(lua_State* L, int tag, const char* name)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `tag`: Tag
+- `name`: Name
+
+
+Sets the name for the tagged lightuserdata. The string is copied, so the provided name argument is safe to dispose.
+
+Calling this function more than once for the same tag will throw an error.
+
+```cpp title="Example"
+constexpr int kMyDataTag = 10;
+lua_setlightuserdataname(L, kMyDataTag, "MyData");
+```
+
+
+----
+
+
+### <span class="subsection">`lua_getlightuserdataname`</span>
+
+<span class="signature">`const char* lua_getlightuserdataname(lua_State* L, int tag)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `tag`: Tag
+
+
+Returns the name for the tagged lightuserdata (or `nullptr` if no name is assigned).
+
+```cpp title="Example" hl_lines="3"
+constexpr int kMyDataTag = 10;
+lua_setlightuserdataname(L, kMyDataTag, "MyData");
+const char* name = lua_getlightuserdataname(L, kMyDataTag); // name == "MyData"
+```
+
+
+----
+
+
 ## Load and Call Functions
 
 ### <span class="subsection">`luau_load`</span>
@@ -3719,133 +3895,6 @@ static int os_clock(lua_State* L) {
 ----
 
 
-### <span class="subsection">`lua_setuserdatatag`</span>
-
-<span class="signature">`int lua_setuserdatatag(lua_State* L, int idx, int tag)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-- `tag`: Tag
-
-
-Sets the tag for userdata at stack index `idx`. Alternatively, the [`lua_newuserdatatagged`](#lua_newuserdatatagged) and [`lua_newuserdatataggedwithmetatable`](#lua_newuserdatataggedwithmetatable) functions can be used to assign the tag on userdata creation.
-
-
-----
-
-
-### <span class="subsection">`lua_setuserdatadtor`</span>
-
-<span class="signature">`int lua_setuserdatadtor(lua_State* L, int tag, lua_Destructor dtor)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `tag`: Tag
-- `dtor`: Tag
-
-
-Assigns the destructor function for a given userdata tag. All userdata with the given tag will utilize this destructor during GC.
-
-```cpp title="Example" hl_lines="17"
-constexpr int kFooTag = 10;
-
-struct Foo {
-	char* some_allocated_data;
-};
-
-static void Foo_destructor(lua_State* L, void* data) {
-	Foo* foo = static_cast<Foo*>(data);
-	delete foo->some_allocated_data;
-}
-
-void setup_Foo(lua_State* L) {
-	luaL_newmetatable(L, "Foo");
-	// ...build metatable
-	lua_setuserdatametatable(L, kFooTag);
-
-	lua_setuserdatadtor(L, kFooTag, Foo_destructor);
-}
-```
-
-
-----
-
-
-### <span class="subsection">`lua_getuserdatadtor`</span>
-
-<span class="signature">`lua_Destructor lua_getuserdatadtor(lua_State* L, int tag)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `tag`: Tag
-
-
-Returns the destructor function assigned to the userdata tag.
-
-```cpp title="Example" hl_lines="7 11"
-constexpr int kFooTag = 10;
-struct Foo {};
-static void Foo_destructor(lua_State* L, void* data) {}
-
-void setup_Foo(lua_State* L) {
-	// ...
-	auto dtor_before = lua_getuserdatadtor(L, kFooTag); // dtor_before == nullptr
-
-	lua_setuserdatadtor(L, kFooTag, Foo_destructor);
-
-	auto dtor_after = lua_getuserdatadtor(L, kFooTag); // dtor_after == Foo_destructor
-}
-```
-
-
-----
-
-
-### <span class="subsection">`lua_setlightuserdataname`</span>
-
-<span class="signature">`void lua_setlightuserdataname(lua_State* L, int tag, const char* name)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `tag`: Tag
-- `name`: Name
-
-
-Sets the name for the tagged lightuserdata. The string is copied, so the provided name argument is safe to dispose.
-
-Calling this function more than once for the same tag will throw an error.
-
-```cpp title="Example"
-constexpr int kMyDataTag = 10;
-lua_setlightuserdataname(L, kMyDataTag, "MyData");
-```
-
-
-----
-
-
-### <span class="subsection">`lua_getlightuserdataname`</span>
-
-<span class="signature">`const char* lua_getlightuserdataname(lua_State* L, int tag)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `tag`: Tag
-
-
-Returns the name for the tagged lightuserdata (or `nullptr` if no name is assigned).
-
-```cpp title="Example" hl_lines="3"
-constexpr int kMyDataTag = 10;
-lua_setlightuserdataname(L, kMyDataTag, "MyData");
-const char* name = lua_getlightuserdataname(L, kMyDataTag); // name == "MyData"
-```
-
-
-----
-
-
 ### <span class="subsection">`lua_clonefunction`</span>
 
 <span class="signature">`void lua_clonefunction(lua_State* L, int idx)`</span>
@@ -4198,25 +4247,6 @@ Checks if the value at the given stack index is a table.
 
 ```cpp title="Example"
 if (lua_istable(L, -1)) { /* ... */ }
-```
-
-
-----
-
-
-### <span class="subsection">`lua_islightuserdata`</span>
-
-<span class="signature">`int lua_islightuserdata(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Checks if the value at the given stack index is a lightuserdata.
-
-```cpp title="Example"
-if (lua_islightuserdata(L, -1)) { /* ... */ }
 ```
 
 
