@@ -2,11 +2,9 @@
 
 ## The Problem
 
-Consider that you load untrusted Luau code into your codebase. By default, all code will share the same global environment. If a malicious script decides to modify the global environment, this will affect all other scripts. Consider the following example:
+Consider loading untrusted Luau code. By default, all code will share the same global environment. If a malicious script decides to modify the global environment, this will affect all other scripts. Consider the following example:
 
-```luau title="Malicous Script"
--- Malicious script
-
+```luau title="Malicious Script"
 local p = _G.print
 _G.print = function(...)
 	-- Still log things out so it appears as if all is normal:
@@ -18,10 +16,8 @@ end
 ```
 
 ```luau title="Victim Script"
--- Another script that runs after the malicous script
-
--- This seems to work, but the malicous script has intercepted
--- the message and sent it off to some malicous website.
+-- This seems to work, but the previous script has intercepted
+-- the message and sent it off to some malicious website.
 print("Hello!")
 ```
 
@@ -55,9 +51,9 @@ end
 
 This would _also_ throw the same error: `"attempt to modify a readonly table"`. In this particular example, writing `local function add(a, b)` would solve the issue. But this is enough friction to become problematic, especially for existing code. Thus, sandboxing our Luau state is not the final step. We need to do one more thing.
 
-## Sandboxing Threads
+## Sandboxing Scripts
 
-If we want our previous Luau code to work, we need to sandbox the _thread_ of our code too. We can do this with the `luaL_sandboxthread` function. This function will create a proxy to our global `_G`. This is done by creating a new table for `_G`, and then assigning a metatable which has an `__index` field pointing to the original `_G` table.
+If we want our previous Luau code to work, we need to sandbox the _script_ thread too. We can do this with the `luaL_sandboxthread` function. This function will create a proxy to our global `_G`. This is done by creating a new table for `_G`, and then assigning a metatable which has an `__index` field pointing to the original `_G` table.
 
 We want to do this _along_ with sandboxing our top-level state. Sandbox the Luau state with `luaL_sandbox`, and then sandbox each script execution with `luaL_sandboxthread`.
 
