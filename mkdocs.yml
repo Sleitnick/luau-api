@@ -53,7 +53,7 @@ nav:
       - Userdata: guide/userdata.md
       - Light Userdata: guide/light-userdata.md
       - Tables: guide/tables.md
-      - Pinning: guide/pinning.md
+      - Pinning and References: guide/pinning.md
       - Coroutine Threads: guide/threads.md
       - Error Handling: guide/error-handling.md
 
