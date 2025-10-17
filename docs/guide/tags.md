@@ -34,7 +34,7 @@ local foo = newFoo()
 local bar = newBar()
 ```
 
-Now, let's add a function into the mix. This function wants to take an instance of "Foo" and print out its "data_len" property. However, how can we check if the value is actually Foo? We can at least verify its a userdata, but nothing much more yet:
+Now, let's add a function into the mix. This function wants to take an instance of "Foo" and print out its "data_len" property. However, how can we check if the value is actually Foo? We can at least verify it's a userdata, but nothing much more yet:
 ```cpp title="Print Foo Data Length"
 int print_foo_data_len(lua_State* L) {
 	luaL_argexpected(L, lua_isuserdata(L, 1), 1, "userdata");
@@ -135,7 +135,7 @@ void setup_foo(lua_State* L) {
 Now we can change our constructor functions to automatically set our tag and metatable:
 ```cpp
 int new_foo(lua_State* L) {
-	void* foo = lua_newuserdatataggedwithmetatable(L, sizeof(Foo), kFooTag);
+	Foo* foo = static_cast<Foo*>(lua_newuserdatataggedwithmetatable(L, sizeof(Foo), kFooTag));
 	foo->data = nullptr;
 	foo->data_len = 0;
 	// Note how we no longer have to put code here to create and bind the metatable (it's already done!)
@@ -162,5 +162,26 @@ int print_foo_data_len(lua_State* L) {
 
 By using tags, we:
 
-1. Speed up construction of userdata, since we assign the metatable once ahead of time
-2. Speed up checking the userdata type, since we only need to compare numeric tags rather than fetch and compare metatables
+1. Ensure that we are casting userdata to the correct type
+1. Speed up construction of userdata, since we assign the metatable and destructor ahead of time
+1. Speed up checking the userdata type, since we only need to compare numeric tags rather than fetch and compare metatables
+
+## Final Notes
+
+### Max Tags
+
+As of writing this, Luau has a tag limit of 128 (including 0, so starting at 127). This is defined by the `LUA_UTAG_LIMIT` preprocessor value.
+
+### Sharing Tags
+
+An easy way to keep your tags organized is by creating a single header file that defines each tag. And as a simple reminder of the limit, it is nice to start at the max tag number and count down.
+
+```cpp
+// userdata_tags.h
+#pragma once
+
+constexpr int kFooTag = 127;
+constexpr int kBarTag = 126;
+constexpr int kBazTag = 125;
+// ...
+```
