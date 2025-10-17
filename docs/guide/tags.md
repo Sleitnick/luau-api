@@ -34,7 +34,7 @@ local foo = newFoo()
 local bar = newBar()
 ```
 
-Now, let's add a function into the mix. This function wants to take an instance of "Foo" and print out its "n" property. However, how can we check if the value is actually Foo? We can at least verify its a userdata, but nothing much more yet:
+Now, let's add a function into the mix. This function wants to take an instance of "Foo" and print out its "data_len" property. However, how can we check if the value is actually Foo? We can at least verify its a userdata, but nothing much more yet:
 ```cpp title="Print Foo Data Length"
 int print_foo_data_len(lua_State* L) {
 	luaL_argexpected(L, lua_isuserdata(L, 1), 1, "userdata");
