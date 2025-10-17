@@ -1637,7 +1637,7 @@ format_something(L, "number: %d", 32);
 Pushes a string to the stack, where the string is `fmt` formatted against the arguments. The formatted string is also returned.
 
 ```cpp title="Example"
-const char* s = lua_pushfstringL(L, "number: %d", 32);
+const char* s = lua_pushfstring(L, "number: %d", 32);
 ```
 
 
