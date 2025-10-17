@@ -1524,6 +1524,29 @@ Returns `1` if the value at the given stack index is a string _or_ a number (all
 ----
 
 
+### <span class="subsection">`luaL_tolstring`</span>
+
+<span class="signature">`const char* luaL_tolstring(lua_State* L, int idx, size_t len)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `len`: String length
+
+
+Converts the value at the given index into a string. This string is both pushed onto the stack and returned. Unlike `lua_tolstring` and `lua_tostring`, this function does _not_ modify the value at the given stack index.
+
+```cpp title="Example" hl_lines="2"
+lua_pushvector(L, 10, 20, 30);
+const char* vstr = lua_tolstring(L, -1, nullptr);
+lua_pop(L, 1); // pop vstr from the stack
+printf("vector: %s\n", vstr); // "vector: 10, 20, 30"
+```
+
+
+----
+
+
 ### <span class="subsection">`luaL_checklstring`</span>
 
 <span class="signature">`const char* luaL_checklstring(lua_State* L, int idx, size_t len)`</span>
@@ -3218,6 +3241,24 @@ if (status == LUA_OK) {
 ----
 
 
+### <span class="subsection">`luaL_callyieldable`</span>
+
+<span class="signature">`int luaL_callyieldable(lua_State* L, int nargs, int nresults)`</span>
+<span class="stack">`[-(nargs + 1), +nresults, -]`</span>
+
+- `L`: Lua thread
+- `nargs`: Number of arguments
+- `nresults`: Number of returned values
+
+
+Similar to `lua_call`, except this function can call yieldable C functions.
+
+Returns the status of the call. If the call was a C function and the C function yielded, this will be `-1`.
+
+
+----
+
+
 ## Load and Call Functions
 
 ### <span class="subsection">`lua_yield`</span>
@@ -4066,6 +4107,46 @@ lua_callbacks(L)->userthread = handle_user_thread;
 ----
 
 
+### <span class="subsection">`luaL_findtable`</span>
+
+<span class="signature">`const char* luaL_findtable(lua_State* L, int idx, const char* fname, int szhint)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `fname`: Name
+- `szhint`: Size hint
+
+
+Attempts to find or create a table within the table at `idx`. Using dot-notation within `fname`, this can be a nested table. The `szhint` argument indicates how many slots should be allocated in the dictionary portion of the table (if a new table is created).
+
+If there is a name conflict (i.e. a value exists with the provided name, but it isn't a table), then said name is returned. Otherwise, `NULL` is returned.
+
+```cpp title="Example"
+// Pushes the table "my_data" under the Luau registry to the stack.
+// If the table doesn't exist yet, it is created.
+luaL_findtable(L, LUA_REGISTRYINDEX, "my_data", 1);
+
+// Finds table "another" within the hierarchy (and creates each parent table as needed)
+luaL_findtable(L, LUA_REGISTRYINDEX, "mydata.subtable.another", 1);
+
+// Same as above, except "my_data" is sourced from the new table provided.
+lua_newtable(L);
+luaL_findtable(L, -1, "my_data", 1);
+lua_pushliteral(L, "hello");
+lua_rawsetfield(L, "message", -2); // mydata.message = "hello"
+
+// Conflicts are returned ("hello" exists within "my_data" but isn't a table):
+const char* conflict = luaL_findtable(L, -1, "my_data.hello.nested");
+if (conflict) {
+	printf("name conflict: %s\n", conflict) // "name conflict: hello"
+}
+```
+
+
+----
+
+
 ### <span class="subsection">`luaL_checktype`</span>
 
 <span class="signature">`void luaL_checktype(lua_State* L, int narg, int t)`</span>
@@ -4082,6 +4163,33 @@ Asserts the type at the given index.
 int do_something(lua_State* L) {
 	// Assert that the first argument is a table:
 	luaL_checktype(L, 1, LUA_TTABLE);
+}
+```
+
+
+----
+
+
+### <span class="subsection">`luaL_checkoption`</span>
+
+<span class="signature">`int luaL_checkoption(lua_State* L, int idx, const char* def, const char* const lst[])`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `def`: Default option
+- `lst[]`: Options list
+
+
+Asserts the value at the given index is a string within the given options list `lst`. If `def` is provided (non-null), then `def` will be used as the default option if the value at the given stack index is nil or none. If the assertion passes, the index to the item in the list is returned.
+
+```cpp title="Example"
+int set_mode(lua_State* L) {
+	static const char* const options[] = {"follow", "defend", "attack", "flee", nullptr};
+
+	int i = luaL_checkoption(L, 1, options[0], options);
+	const char* option = options[i];
+	// ...
 }
 ```
 
@@ -4365,6 +4473,27 @@ if (lua_isnoneornil(L, -1)) { /* ... */ }
 ----
 
 
+### <span class="subsection">`luaL_typename`</span>
+
+<span class="signature">`const char* luaL_typename(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the name of the type at the given index.
+
+```cpp title="Example"
+lua_pushvector(L, 10, 20, 30);
+const char* t_name = luaL_typename(L, -1);
+printf("Type: %s\n", t_name); // "Type: vector"
+```
+
+
+----
+
+
 ## Debug Functions
 
 ### <span class="subsection">`lua_stackdepth`</span>
@@ -4580,3 +4709,18 @@ Get coverage.
 Gets a traceback string.
 
 **Note:** Internally, this uses a static string buffer. Thus, this function is not thread-safe, nor is it safe to hold onto the returned value. Create a copy of the returned string if needed.
+
+
+----
+
+
+### <span class="subsection">`luaL_where`</span>
+
+<span class="signature">`void luaL_where(lua_State* L, int level)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `level`: Stack level
+
+
+Pushes a string onto the stack containing the short source and current line, e.g. `"some/script.luau:10: "`. This is often used as a prefix for other debug logging information.

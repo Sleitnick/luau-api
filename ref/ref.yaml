@@ -82,6 +82,7 @@ sections:
       - string_functions/lua_tolstringatom.md
       - string_functions/lua_strlen.md
       - string_functions/lua_isstring.md
+      - string_functions/luaL_tolstring.md
       - string_functions/luaL_checklstring.md
       - string_functions/luaL_optlstring.md
   - name: Number Functions
@@ -161,6 +162,7 @@ sections:
       - load_call_functions/lua_call.md
       - load_call_functions/lua_pcall.md
       - load_call_functions/lua_cpcall.md
+      - load_call_functions/luaL_callyieldable.md
   - name: Load and Call Functions
     functions:
       - coroutine_functions/lua_yield.md
@@ -197,7 +199,9 @@ sections:
       - misc_functions/lua_clonetable.md
       - misc_functions/lua_getallocf.md
       - misc_functions/lua_callbacks.md
+      - misc_functions/luaL_findtable.md
       - misc_functions/luaL_checktype.md
+      - misc_functions/luaL_checkoption.md
       - misc_functions/luaL_checkany.md
       - misc_functions/luaL_register.md
   - name: Ref Functions
@@ -213,6 +217,7 @@ sections:
       - type_functions/lua_isthread.md
       - type_functions/lua_isnone.md
       - type_functions/lua_isnoneornil.md
+      - type_functions/luaL_typename.md
   - name: Debug Functions
     functions:
       - debug_functions/lua_stackdepth.md
@@ -226,3 +231,4 @@ sections:
       - debug_functions/lua_breakpoint.md
       - debug_functions/lua_getcoverage.md
       - debug_functions/lua_debugtrace.md
+      - debug_functions/luaL_where.md
