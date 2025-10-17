@@ -48,6 +48,7 @@ nav:
   - Reference: reference.md
   - Guide:
       - Setup: guide/setup.md
+      - Sandboxing: guide/sandboxing.md
       - Atoms: guide/atoms.md
       - Tags: guide/tags.md
       - Userdata: guide/userdata.md
