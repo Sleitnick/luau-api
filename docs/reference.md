@@ -725,30 +725,6 @@ lua_State* thread = lua_tothread(L, -1); // retrieve T from L's stack
 ----
 
 
-### <span class="subsection">`lua_tobuffer`</span>
-
-<span class="signature">`void* lua_tobuffer(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Returns the buffer at the given stack index, or `NULL` if the value is not a buffer.
-
-```cpp title="Example" hl_lines="4"
-void* buf = lua_newbuffer(L, 10);
-
-size_t len;
-void* b = lua_tobuffer(L, -1, &len);
-// b == buf
-// len == 10
-```
-
-
-----
-
-
 ### <span class="subsection">`lua_topointer`</span>
 
 <span class="signature">`void* lua_topointer(lua_State* L, int idx)`</span>
@@ -956,33 +932,6 @@ lua_createtable(L, 10, 0); // Push a new table onto the stack with 10 array slot
 
 
 Pushes a new table onto the stack. This is equivalent to `lua_createtable(L, 0, 0)`.
-
-
-----
-
-
-### <span class="subsection">`lua_newbuffer`</span>
-
-<span class="signature">`void* lua_newbuffer(lua_State* L, size_t sz)`</span>
-<span class="stack">`[-0, +1, -]`</span>
-
-- `L`: Lua thread
-- `sz`: Size
-
-
-Pushes a new buffer to the stack and returns a pointer to the buffer. Buffers are just arbitrary data. Luau can create and interact with buffers through the [`buffer` library](https://luau.org/library#buffer-library). Use the [`lua_tobuffer`](#lua_tobuffer) function to retrieve a buffer from the stack.
-
-```cpp title="Example" hl_lines="8"
-struct Foo {
-	int n;
-}
-
-// As an example, write 'Foo' to a buffer:
-Foo foo{};
-foo.n = 10;
-void* buf = lua_newbuffer(L, sizeof(Foo));
-memcpy(buf, &foo, sizeof(Foo));
-```
 
 
 ----
@@ -2234,6 +2183,93 @@ Returns the vector at the given Luau index. If the value at the given index is n
 
 
 Returns the vector at the given Luau index. If the value at the given index is nil or none, then `def` is returned. Otherwise, an error is thrown.
+
+
+----
+
+
+## Buffer Functions
+
+### <span class="subsection">`lua_newbuffer`</span>
+
+<span class="signature">`void* lua_newbuffer(lua_State* L, size_t sz)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `sz`: Size
+
+
+Pushes a new buffer to the stack and returns a pointer to the buffer. Buffers are just arbitrary data. Luau can create and interact with buffers through the [`buffer` library](https://luau.org/library#buffer-library). Use the [`lua_tobuffer`](#lua_tobuffer) function to retrieve a buffer from the stack.
+
+```cpp title="Example" hl_lines="8"
+struct Foo {
+	int n;
+}
+
+// As an example, write 'Foo' to a buffer:
+Foo foo{};
+foo.n = 10;
+void* buf = lua_newbuffer(L, sizeof(Foo));
+memcpy(buf, &foo, sizeof(Foo));
+```
+
+
+----
+
+
+### <span class="subsection">`lua_tobuffer`</span>
+
+<span class="signature">`void* lua_tobuffer(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the buffer at the given stack index, or `NULL` if the value is not a buffer.
+
+```cpp title="Example" hl_lines="4"
+void* buf = lua_newbuffer(L, 10);
+
+size_t len;
+void* b = lua_tobuffer(L, -1, &len);
+// b == buf
+// len == 10
+```
+
+
+----
+
+
+### <span class="subsection">`lua_isbuffer`</span>
+
+<span class="signature">`int lua_isbuffer(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Checks if the value at the given stack index is a buffer.
+
+```cpp title="Example"
+if (lua_isbuffer(L, -1)) { /* ... */ }
+```
+
+
+----
+
+
+### <span class="subsection">`luaL_checkbuffer`</span>
+
+<span class="signature">`void* luaL_checkbuffer(lua_State* L, int idx)`</span>
+<span class="stack">`[-0, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+
+
+Returns the buffer at the given stack index. If the value retrieved is not a buffer, an error is thrown.
 
 
 ----
@@ -4285,25 +4321,6 @@ Checks if the value at the given stack index is a thread.
 
 ```cpp title="Example"
 if (lua_isthread(L, -1)) { /* ... */ }
-```
-
-
-----
-
-
-### <span class="subsection">`lua_isbuffer`</span>
-
-<span class="signature">`int lua_isbuffer(lua_State* L, int idx)`</span>
-<span class="stack">`[-0, +0, -]`</span>
-
-- `L`: Lua thread
-- `idx`: Stack index
-
-
-Checks if the value at the given stack index is a buffer.
-
-```cpp title="Example"
-if (lua_isbuffer(L, -1)) { /* ... */ }
 ```
 
 

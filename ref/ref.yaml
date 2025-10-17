@@ -38,7 +38,6 @@ sections:
       - access_functions/lua_objlen.md
       - access_functions/lua_tocfunction.md
       - access_functions/lua_tothread.md
-      - access_functions/lua_tobuffer.md
       - access_functions/lua_topointer.md
   - name: Push Functions
     functions:
@@ -49,7 +48,6 @@ sections:
       - push_functions/lua_pushthread.md
       - get_functions/lua_createtable.md
       - get_functions/lua_newtable.md
-      - push_functions/lua_newbuffer.md
   - name: Get Functions
     functions:
       - get_functions/lua_gettable.md
@@ -118,6 +116,12 @@ sections:
       - vector_functions/lua_isvector.md
       - vector_functions/luaL_checkvector.md
       - vector_functions/luaL_optvector.md
+  - name: Buffer Functions
+    functions:
+      - buffer_functions/lua_newbuffer.md
+      - buffer_functions/lua_tobuffer.md
+      - buffer_functions/lua_isbuffer.md
+      - buffer_functions/luaL_checkbuffer.md
   - name: Metatable Functions
     functions:
       - metatable_functions/lua_setmetatable.md
@@ -207,7 +211,6 @@ sections:
       - type_functions/lua_istable.md
       - type_functions/lua_isnil.md
       - type_functions/lua_isthread.md
-      - type_functions/lua_isbuffer.md
       - type_functions/lua_isnone.md
       - type_functions/lua_isnoneornil.md
   - name: Debug Functions
