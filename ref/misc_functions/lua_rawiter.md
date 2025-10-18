@@ -1,7 +1,7 @@
 ---
 name: lua_rawiter
 ret: int
-stack: "-0, +2, -"
+stack: "-0, +(0|2), -"
 args:
   - name: L
     type: lua_State*
