@@ -59,6 +59,7 @@ nav:
       - Pinning and References: guide/pinning.md
       - Coroutine Threads: guide/threads.md
       - Error Handling: guide/error-handling.md
+      - Native Code Gen: guide/native.md
 
 markdown_extensions:
   - attr_list

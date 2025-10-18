@@ -99,3 +99,5 @@ static void example() {
 ```
 
 With this example, we can run multiple different scripts with `run_script`. Each script could modify their own global environment without affecting the global environment of other scripts. In other words, their environment has been sandboxed!
+
+For more information, visit the official [Luau page about sandboxing](https://luau.org/sandbox).
