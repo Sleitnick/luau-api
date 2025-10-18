@@ -48,9 +48,11 @@ nav:
   - Reference: reference.md
   - Guide:
       - Setup: guide/setup.md
+      - Stack: guide/stack.md
       - Sandboxing: guide/sandboxing.md
       - Atoms: guide/atoms.md
       - Tags: guide/tags.md
+      - Buffers: guide/buffers.md
       - Userdata: guide/userdata.md
       - Light Userdata: guide/light-userdata.md
       - Tables: guide/tables.md
