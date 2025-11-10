@@ -598,9 +598,9 @@ if (lua_checkstack(L, 2)) {
 ----
 
 
-### <span class="subsection">`lua_checkstack`</span>
+### <span class="subsection">`luaL_checkstack`</span>
 
-<span class="signature">`void lua_checkstack(lua_State* L, int size, const char* msg)`</span>
+<span class="signature">`void luaL_checkstack(lua_State* L, int size, const char* msg)`</span>
 <span class="stack">`[-0, +0, m]`</span>
 
 - `L`: Lua thread
@@ -3364,6 +3364,60 @@ const char* name = lua_getlightuserdataname(L, kMyDataTag); // name == "MyData"
 ----
 
 
+### <span class="subsection">`lua_rawsetptagged`</span>
+
+<span class="signature">`void lua_rawsetptagged(lua_State* L, int idx, void* p)`</span>
+<span class="stack">`[-1, +0, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `p`: Arbitrary pointer to be represented as lightuserdata
+
+
+Assuming table `t` on the stack at `idx` and `v` at the top of the stack,
+this pops `v` from the stack and adds it to the table: `t[p] = v`.
+
+```cpp title="Example" hl_lines="4-6"
+struct SomeData {};
+SomeData* data = new SomeData();
+
+lua_newtable(L);
+lua_pushliteral(L, "hello");
+lua_rawsetptagged(L, -2, data); // t[data] = "hello"
+```
+
+
+----
+
+
+### <span class="subsection">`lua_rawgetptagged`</span>
+
+<span class="signature">`void lua_rawgetptagged(lua_State* L, int idx, void* p)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `idx`: Stack index
+- `p`: Arbitrary pointer to be represented as lightuserdata
+
+
+Assuming table `t` on the stack at `idx`, this pushes to the stack `t[p]`.
+
+```cpp title="Example" hl_lines="8-9"
+struct SomeData {};
+SomeData* data = new SomeData();
+
+lua_newtable(L);
+lua_pushliteral(L, "hello");
+lua_rawsetptagged(L, -2, data); // t[data] = "hello"
+
+lua_rawgetptagged(L, -1, data); // v = t[data]
+const char* s = lua_tostring(L, -1); // "hello"
+```
+
+
+----
+
+
 ## Load and Call Functions
 
 ### <span class="subsection">`luau_load`</span>
@@ -4189,7 +4243,7 @@ bool is_table_empty(lua_State* L, int idx) {
 ### <span class="subsection">`lua_rawiter`</span>
 
 <span class="signature">`int lua_rawiter(lua_State* L, int idx, int iter)`</span>
-<span class="stack">`[-0, +2, -]`</span>
+<span class="stack">`[-0, +(0|2), -]`</span>
 
 - `L`: Lua thread
 - `idx`: Stack index

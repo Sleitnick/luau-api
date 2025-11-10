@@ -175,6 +175,8 @@ sections:
       - lightuserdata_functions/lua_lightuserdatatag.md
       - lightuserdata_functions/lua_setlightuserdataname.md
       - lightuserdata_functions/lua_getlightuserdataname.md
+      - lightuserdata_functions/lua_rawsetptagged.md
+      - lightuserdata_functions/lua_rawgetptagged.md
   - name: Load and Call Functions
     functions:
       - load_call_functions/luau_load.md
