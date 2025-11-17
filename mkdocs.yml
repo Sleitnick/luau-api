@@ -60,6 +60,7 @@ nav:
       - Coroutine Threads: guide/threads.md
       - Error Handling: guide/error-handling.md
       - Native Code Gen: guide/native.md
+      - Native Userdata: guide/native-userdata.md
 
 markdown_extensions:
   - attr_list
