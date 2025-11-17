@@ -98,6 +98,8 @@ While NCG might give a boost for built-in Luau libraries and functions, there is
 
 Luau includes APIs to generate IR (intermediate representation) code for userdata accesses, method calls, and some other metamethod calls. This may result in significant performance benefits.
 
+See the [Native Userdata](native-userdata.md) guide for more info.
+
 ## Profiling
 
 NCG is not always going to be faster than normal Luau bytecode. As such, always profile and benchmark your code to understand if NCG is improving performance as expected. Experiment with directive-level and function-attribute-level NCG to understand which performs best for your code.
