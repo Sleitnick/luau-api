@@ -147,7 +147,7 @@ static inline uint8_t ud_idx_to_type(uint8_t ud_idx) {
 }
 ```
 
-Now, within our callback, we need to tell Luau that our "x" and "y" properties should be typed as numbers (`LBC_TYPE_NUMBER`).
+Within our callback, we need to tell Luau that our "x" and "y" properties should be typed as numbers (`LBC_TYPE_NUMBER`).
 
 ```cpp
 uint8_t ud_access_bytecode_type(uint8_t type, const char* member, size_t member_len) {
@@ -166,13 +166,13 @@ uint8_t ud_access_bytecode_type(uint8_t type, const char* member, size_t member_
 }
 ```
 
-Now, when Luau sees "vec2.x" (and when it knows vec2 is a Vector2 from the given type), then our callback will inform Luau that the expected access type is a number.
+When Luau sees "vec2.x" (and when it knows vec2 is a Vector2 from the given type), then our callback will inform Luau that the expected access type is a number.
 
 ### IR Builder
 
 Our final step is to generate the necessary intermediate code for our "x" and "y" properties.
 
-First, let's write our stub:
+Let's write our stub first:
 
 ```cpp
 bool ud_access(
@@ -195,7 +195,7 @@ Assign the callback to the native options, just like our previous callback:
 native_opts.userdataAccess = ud_access;
 ```
 
-Our next chunk of code will be the most confusing, as we're interfacing with Luau's `IrBuilder`. The various commands are documented in Luau's CodeGen `IrData.h` header.
+Our next chunk of code will be the most complicated, as we're interfacing with Luau's `IrBuilder`. The various commands are documented in Luau's CodeGen [`IrData.h`](https://github.com/luau-lang/luau/blob/master/CodeGen/include/Luau/IrData.h) header. Other than that, there is not much documentation outside of just reading the source code.
 
 The gist of what we want to do is:
 
@@ -256,6 +256,10 @@ bool ud_access(
 We've made it! Now, when a Vector2's "x" property is accessed, Luau should properly generate the necessary IR code to fetch the property. The code for accessing "y" looks identical, except the `offsetof` macro references the "y" property instead: `offsetof(Vector2, y)`.
 
 On a personal note, I have seen upwards of a 12x time improvement in production code for basic property accesses using similar code.
+
+## Metamethods and Namecalls
+
+We looked at "access" calls, e.g. accessing `Vector2.x`, but we skipped metamethod calls (`vec1 + vec2`) and namecalls (`vec1:Dot(vec2)`). These both have similar callbacks to the accessor callbacks. There are also similar callbacks for builtin `vector` types. Including examples for all of these would be lengthy and repetitive. Instead, take a look at the [`ConformanceIrHooks.h`](https://github.com/luau-lang/luau/blob/7aba73849f1a6f98e1bcf77aea2fdf86e1551ab8/tests/ConformanceIrHooks.h) file for examples of all of these callbacks.
 
 ## Caveats
 
