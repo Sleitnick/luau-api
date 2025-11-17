@@ -255,15 +255,13 @@ bool ud_access(
 
 We've made it! Now, when a Vector2's "x" property is accessed, Luau should properly generate the necessary IR code to fetch the property. The code for accessing "y" looks identical, except the `offsetof` macro references the "y" property instead: `offsetof(Vector2, y)`.
 
-On a personal note, I have seen upwards of a 12x time improvement in production code for basic property accesses using similar code.
-
 ## Metamethods and Namecalls
 
 We looked at "access" calls, e.g. accessing `Vector2.x`, but we skipped metamethod calls (`vec1 + vec2`) and namecalls (`vec1:Dot(vec2)`). These both have similar callbacks to the accessor callbacks. There are also similar callbacks for builtin `vector` types. Including examples for all of these would be lengthy and repetitive. Instead, take a look at the [`ConformanceIrHooks.h`](https://github.com/luau-lang/luau/blob/7aba73849f1a6f98e1bcf77aea2fdf86e1551ab8/tests/ConformanceIrHooks.h) file for examples of all of these callbacks.
 
 ## Caveats
 
-1. This only applies to native-generated code.
+1. This only applies to natively generated code.
 2. The type of the value must be known in the source code.
 ```luau
 --!native
