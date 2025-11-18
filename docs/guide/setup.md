@@ -1,5 +1,24 @@
 # Setup
 
+## Project Setup
+
+Important notes about Luau, many of which are pulled from the [Luau readme](https://github.com/luau-lang/luau/blob/master/README.md):
+- Runtime requires C++11 minimum.
+- Compiler and analysis libraries require C++17 minimum.
+- Licensed under the [MIT license](https://github.com/luau-lang/luau/blob/master/README.md#license).
+- cmake is the primary tool used for building Luau
+
+This guide does not seek to teach cmake, or any other build tool for that matter. It is assumed that the reader can set up a C++ project targeting Luau.
+
+Luau is split up into various build projects. For creating a project that embeds Luau, the common projects used are: VM, Compiler, Ast, CodeGen, Require, and Common.
+
+- **VM**: Virtual machine. This handles running Luau, and includes many of the C APIs that are commonly used to interface with Luau.
+- **Compiler**: Handles compiling Luau to bytecode.
+- **Ast**: Abstract syntax tree. This is used by the compiler.
+- **CodeGen**: Native code generation (NCG). This allows Luau to generate native code. It can be thought of as a hybrid between AOT and JIT, as it compiles against bytecode that is already loaded in the VM.
+- **Require**: Adds require-by-string functionality.
+- **Common**: Common/shared utilities and resources, such as all the bytecode opcodes.
+
 ## New Instance
 
 To create a new instance, call either `lua_newstate` or `luaL_newstate`. The former allows you to assign your own allocator, along with an opaque pointer to arbitrary data. The latter will use a default allocator.
