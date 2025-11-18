@@ -170,7 +170,7 @@ By using tags, we:
 
 ### Max Tags
 
-As of writing this, Luau has a tag limit of 128 (including 0, so starting at 127). This is defined by the `LUA_UTAG_LIMIT` preprocessor value.
+As of writing this, Luau has a tag limit of 128 (including 0, so technically 127 slots available). This is defined by the `LUA_UTAG_LIMIT` constant.
 
 ### Sharing Tags
 

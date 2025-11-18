@@ -35,19 +35,20 @@ foo->data = nullptr;
 foo->data_size = 0;
 ```
 
-Alternatively, C++'s placement new operator can be used to initialize data.
+!!! warning "Zero-initialization"
+	Luau gives us a chunk of memory, but it is _not_ zero-initialized. Ensure that you initialize all fields for your userdata, just as it's shown in the example above. C++'s placement new operator can be used as an easy way to zero-initialize, seen below.
+
+Alternatively, C++'s placement new operator can be used to initialize data. This is a safe way to ensure your data is zero-initialized.
 
 ```cpp title="Placement New"
+// Must include 'new' to use placement-new
 #include <new>
 
 // ...
 
 Foo* foo = new (lua_newuserdata(L, sizeof(Foo))) Foo{};
-// No need to initialize fields manually
+// foo is zero-initialized, so no need to manually do so.
 ```
-
-!!! warning "Not zero-initialized"
-	Luau gives us a chunk of memory, but it is _not_ zero-initialized. Ensure that you initialize all fields for your userdata, just as it's shown in the example above, or use some form of initialization such as C++'s placement new.
 
 ## Foo Library
 
