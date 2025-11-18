@@ -3,6 +3,7 @@
 ## Project Setup
 
 Important notes about Luau, many of which are pulled from the [Luau readme](https://github.com/luau-lang/luau/blob/master/README.md):
+
 - Runtime requires C++11 minimum.
 - Compiler and analysis libraries require C++17 minimum.
 - Licensed under the [MIT license](https://github.com/luau-lang/luau/blob/master/README.md#license).
@@ -19,9 +20,9 @@ Luau is split up into various build projects. For creating a project that embeds
 - **Require**: Adds require-by-string functionality.
 - **Common**: Common/shared utilities and resources, such as all the bytecode opcodes.
 
-## New Instance
+## New VM Instance
 
-To create a new instance, call either `lua_newstate` or `luaL_newstate`. The former allows you to assign your own allocator, along with an opaque pointer to arbitrary data. The latter will use a default allocator.
+To create a new Luau VM instance, call either `lua_newstate` or `luaL_newstate`. The former allows you to assign your own allocator, along with an opaque pointer to arbitrary data. The latter will use a default allocator.
 
 The default allocator looks like this:
 ```cpp title="Allocator"
@@ -81,10 +82,26 @@ States need to be closed once completed with them.
 lua_close(L);
 ```
 
-## Smart Pointer
+## RAII
 
-We can utilize smart pointers to automatically clean up the state once out of scope.
+Since Luau state is initialized and destroyed via C API functions, it is useful to bind the lifetime of Luau using the RAII idiom to prevent leaking the state.
+
+A common pattern is to wrap the Luau state in its own class.
 
 ```cpp
-std::unique_ptr<lua_State, void(*)(lua_State*)> state(luaL_newState(), lua_close);
+class LuauState {
+	lua_State* L;
+
+public:
+	LuauState() : L(luaL_newstate()) {
+		// state setup
+		luaL_openlibs(L);
+		luaL_sandbox(L);
+	}
+	~LuauState() {
+		lua_close(L);
+	}
+};
 ```
+
+Smarter pointers would also work. However, using a class allows you to encapsulate the setup behavior of the state too, such as opening up libraries and enabling sandboxing.

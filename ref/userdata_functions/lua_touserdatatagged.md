@@ -14,9 +14,9 @@ args:
     desc: Tag
 ---
 
-Returns a pointer to a tagged userdata on the stack. Returns `NULL` if the value is not a userdata _or_ the userdata's tag does not match the provided `tag` argument. For more info on tags, see the [Tags](guide/tags.md) page.
+Returns a pointer to a tagged userdata on the stack. Returns `NULL` if the value is not a userdata _or_ the userdata's tag does not match the provided `tag` argument. For more info on tags, see the [Tags](guides/tags.md) page.
 
-**Note:** It may be unsafe to hang onto a pointer to a userdata value. The Luau GC owns the userdata memory, and may free it. See the page on [pinning](guide/pinning.md) for tips on keeping a value from being GC'd, or consider using [light userdata](guide/light-userdata.md) instead.
+**Note:** It may be unsafe to hang onto a pointer to a userdata value. The Luau GC owns the userdata memory, and may free it. See the page on [pinning](guides/pinning.md) for tips on keeping a value from being GC'd, or consider using [light userdata](guides/light-userdata.md) instead.
 
 ```cpp title="Example" hl_lines="10"
 constexpr int kFooTag = 1;

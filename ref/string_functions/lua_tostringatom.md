@@ -14,4 +14,4 @@ args:
     desc: Atom
 ---
 
-Identical to [`lua_tostring`](#lua_tostring), except the string atom is written to the `atom` argument. See the [Atoms](guide/atoms.md) page for more information on string atoms.
+Identical to [`lua_tostring`](#lua_tostring), except the string atom is written to the `atom` argument. See the [Atoms](guides/atoms.md) page for more information on string atoms.

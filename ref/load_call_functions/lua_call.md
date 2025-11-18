@@ -16,7 +16,7 @@ args:
 
 Calls the function at the top of the stack with `nargs` arguments, and expecting `nresults` return values. To use `lua_call`, push the desired function to the stack, and then push the desired arguments to the stack next.
 
-If the function errors, the program will need to handle the error. This differs based on how Luau was built. See [Error Handling](guide/error-handling.md) for more information. Also consider using [`lua_pcall`](#lua_pcall) instead.
+If the function errors, the program will need to handle the error. This differs based on how Luau was built. See [Error Handling](guides/error-handling.md) for more information. Also consider using [`lua_pcall`](#lua_pcall) instead.
 
 ```cpp title="Example" hl_lines="16"
 int sub(lua_State* L) {

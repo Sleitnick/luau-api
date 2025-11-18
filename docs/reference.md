@@ -1709,7 +1709,7 @@ Equivalent to [`lua_tolstring`](#lua_tolstring), without the length argument.
 - `atom`: Atom
 
 
-Identical to [`lua_tostring`](#lua_tostring), except the string atom is written to the `atom` argument. See the [Atoms](guide/atoms.md) page for more information on string atoms.
+Identical to [`lua_tostring`](#lua_tostring), except the string atom is written to the `atom` argument. See the [Atoms](guides/atoms.md) page for more information on string atoms.
 
 
 ----
@@ -1726,7 +1726,7 @@ Identical to [`lua_tostring`](#lua_tostring), except the string atom is written 
 - `atom`: Atom
 
 
-Identical to [`lua_tolstring`](#lua_tolstring), except the string atom is written to the `atom` argument. See the [Atoms](guide/atoms.md) page for more information on string atoms.
+Identical to [`lua_tolstring`](#lua_tolstring), except the string atom is written to the `atom` argument. See the [Atoms](guides/atoms.md) page for more information on string atoms.
 
 
 ----
@@ -2835,7 +2835,7 @@ foo->data = new char[256];
 - `tag`: Tag
 
 
-Creates the tagged userdata and pushes it to the stack. A pointer to the newly-constructed data is returned. Use [`lua_touserdatatagged`](#lua_touserdatatagged) to retrieve the value. For more info on tags, see the [Tags](guide/tags.md) page.
+Creates the tagged userdata and pushes it to the stack. A pointer to the newly-constructed data is returned. Use [`lua_touserdatatagged`](#lua_touserdatatagged) to retrieve the value. For more info on tags, see the [Tags](guides/tags.md) page.
 
 **Note:** Luau-constructed userdata are not zero-initialized. After construction, assign all fields of the object.
 
@@ -2865,7 +2865,7 @@ foo->n = 0;
 - `tag`: Tag
 
 
-Creates the tagged userdata with a pre-defined metatable and pushes it to the stack. A pointer to the newly-constructed data is returned. Use [`lua_touserdatatagged`](#lua_touserdatatagged) to retrieve the value. For more info on tags, see the [Tags](guide/tags.md) page.
+Creates the tagged userdata with a pre-defined metatable and pushes it to the stack. A pointer to the newly-constructed data is returned. Use [`lua_touserdatatagged`](#lua_touserdatatagged) to retrieve the value. For more info on tags, see the [Tags](guides/tags.md) page.
 
 Using this method is faster than attempting to assign a metatable to new userdata every construction, e.g. using `luaL_newmetatable`. Instead, the metatable is created ahead of time using `lua_setuserdatametatable`, linked to the userdata's tag.
 
@@ -2942,7 +2942,7 @@ Returns a pointer to a userdata on the stack. Returns `NULL` if the value is not
 
 If it is preferred to throw an error if the value is not a userdata, use the `luaL_checkuserdata` function instead.
 
-**Note:** It may be unsafe to hang onto a pointer to a userdata value. The Luau GC owns the userdata memory, and may free it. See the page on [pinning](guide/pinning.md) for tips on keeping a value from being GC'd, or consider using [light userdata](guide/light-userdata.md) instead.
+**Note:** It may be unsafe to hang onto a pointer to a userdata value. The Luau GC owns the userdata memory, and may free it. See the page on [pinning](guides/pinning.md) for tips on keeping a value from being GC'd, or consider using [light userdata](guides/light-userdata.md) instead.
 
 ```cpp title="Example" hl_lines="8"
 struct Foo {
@@ -2970,9 +2970,9 @@ printf("foo->n = %d\n", foo->n); // foo->n = 32
 - `tag`: Tag
 
 
-Returns a pointer to a tagged userdata on the stack. Returns `NULL` if the value is not a userdata _or_ the userdata's tag does not match the provided `tag` argument. For more info on tags, see the [Tags](guide/tags.md) page.
+Returns a pointer to a tagged userdata on the stack. Returns `NULL` if the value is not a userdata _or_ the userdata's tag does not match the provided `tag` argument. For more info on tags, see the [Tags](guides/tags.md) page.
 
-**Note:** It may be unsafe to hang onto a pointer to a userdata value. The Luau GC owns the userdata memory, and may free it. See the page on [pinning](guide/pinning.md) for tips on keeping a value from being GC'd, or consider using [light userdata](guide/light-userdata.md) instead.
+**Note:** It may be unsafe to hang onto a pointer to a userdata value. The Luau GC owns the userdata memory, and may free it. See the page on [pinning](guides/pinning.md) for tips on keeping a value from being GC'd, or consider using [light userdata](guides/light-userdata.md) instead.
 
 ```cpp title="Example" hl_lines="10"
 constexpr int kFooTag = 1;
@@ -3182,7 +3182,7 @@ lua_pushlightuserdata(L, foo);
 - `tag`: Tag
 
 
-Pushes the tagged lightuserdata to the stack. Use [`lua_tolightuserdatatagged`](#lua_tolightuserdatatagged) to retrieve the value. For more info on tags, see the [Tags](guide/tags.md) page.
+Pushes the tagged lightuserdata to the stack. Use [`lua_tolightuserdatatagged`](#lua_tolightuserdatatagged) to retrieve the value. For more info on tags, see the [Tags](guides/tags.md) page.
 
 ```cpp title="Example" hl_lines="6"
 constexpr int kFooTag = 1;
@@ -3238,7 +3238,7 @@ printf("foo->n = %d\n", foo->n); // foo->n = 32
 - `tag`: Tag
 
 
-Returns a pointer to a lightuserdata on the stack. Returns `NULL` if the value is not a lightuserdata _or_ if the attached tag does not equal the provided `tag` argument. For more info on tags, see the [Tags](guide/tags.md) page.
+Returns a pointer to a lightuserdata on the stack. Returns `NULL` if the value is not a lightuserdata _or_ if the attached tag does not equal the provided `tag` argument. For more info on tags, see the [Tags](guides/tags.md) page.
 
 ```cpp title="Example" hl_lines="12"
 constexpr int kFooTag = 1;
@@ -3480,7 +3480,7 @@ int status = lua_resume(T, nullptr, 0);
 
 Calls the function at the top of the stack with `nargs` arguments, and expecting `nresults` return values. To use `lua_call`, push the desired function to the stack, and then push the desired arguments to the stack next.
 
-If the function errors, the program will need to handle the error. This differs based on how Luau was built. See [Error Handling](guide/error-handling.md) for more information. Also consider using [`lua_pcall`](#lua_pcall) instead.
+If the function errors, the program will need to handle the error. This differs based on how Luau was built. See [Error Handling](guides/error-handling.md) for more information. Also consider using [`lua_pcall`](#lua_pcall) instead.
 
 ```cpp title="Example" hl_lines="16"
 int sub(lua_State* L) {
@@ -4010,7 +4010,7 @@ printf("total: %zu bytes\n", total_bytes);
 - `L`: Lua thread
 
 
-Throws a Luau error. Expects the error message to be on the top of the stack. Depending on how Luau is built, this will either perform a `longjmp` or throw a C++ `luau_exception`. See [Error Handling](guide/error-handling.md) for more information.
+Throws a Luau error. Expects the error message to be on the top of the stack. Depending on how Luau is built, this will either perform a `longjmp` or throw a C++ `luau_exception`. See [Error Handling](guides/error-handling.md) for more information.
 
 Using [`luaL_error`](#lual_error) is typically a more ergonomic way to throw errors, since an error message can be provided.
 

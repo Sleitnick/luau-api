@@ -14,7 +14,7 @@ args:
     desc: Tag
 ---
 
-Creates the tagged userdata and pushes it to the stack. A pointer to the newly-constructed data is returned. Use [`lua_touserdatatagged`](#lua_touserdatatagged) to retrieve the value. For more info on tags, see the [Tags](guide/tags.md) page.
+Creates the tagged userdata and pushes it to the stack. A pointer to the newly-constructed data is returned. Use [`lua_touserdatatagged`](#lua_touserdatatagged) to retrieve the value. For more info on tags, see the [Tags](guides/tags.md) page.
 
 **Note:** Luau-constructed userdata are not zero-initialized. After construction, assign all fields of the object.
 

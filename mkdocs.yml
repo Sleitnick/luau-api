@@ -47,21 +47,21 @@ extra_css:
 nav:
   - Home: index.md
   - Reference: reference.md
-  - Guide:
-      - Setup: guide/setup.md
-      - Stack: guide/stack.md
-      - Sandboxing: guide/sandboxing.md
-      - Atoms: guide/atoms.md
-      - Tags: guide/tags.md
-      - Buffers: guide/buffers.md
-      - Userdata: guide/userdata.md
-      - Light Userdata: guide/light-userdata.md
-      - Tables: guide/tables.md
-      - Pinning and References: guide/pinning.md
-      - Coroutine Threads: guide/threads.md
-      - Error Handling: guide/error-handling.md
-      - Native Code Gen: guide/native.md
-      - Native Userdata: guide/native-userdata.md
+  - Guides:
+      - Setup: guides/setup.md
+      - Stack: guides/stack.md
+      - Sandboxing: guides/sandboxing.md
+      - Atoms: guides/atoms.md
+      - Tags: guides/tags.md
+      - Buffers: guides/buffers.md
+      - Userdata: guides/userdata.md
+      - Light Userdata: guides/light-userdata.md
+      - Tables: guides/tables.md
+      - Pinning and References: guides/pinning.md
+      - Coroutine Threads: guides/threads.md
+      - Error Handling: guides/error-handling.md
+      - Native Code Gen: guides/native.md
+      - Native Userdata: guides/native-userdata.md
 
 markdown_extensions:
   - attr_list

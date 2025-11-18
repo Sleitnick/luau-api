@@ -14,7 +14,7 @@ args:
     desc: Tag
 ---
 
-Pushes the tagged lightuserdata to the stack. Use [`lua_tolightuserdatatagged`](#lua_tolightuserdatatagged) to retrieve the value. For more info on tags, see the [Tags](guide/tags.md) page.
+Pushes the tagged lightuserdata to the stack. Use [`lua_tolightuserdatatagged`](#lua_tolightuserdatatagged) to retrieve the value. For more info on tags, see the [Tags](guides/tags.md) page.
 
 ```cpp title="Example" hl_lines="6"
 constexpr int kFooTag = 1;
