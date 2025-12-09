@@ -120,7 +120,7 @@ static int Foo_new(lua_State* L) {
 
         // We can also assign a type, which is returned from Luau's "typeof" function:
         lua_pushliteral(L, "Foo");
-        lua_rawsetfield(L, "__type", -2);
+        lua_rawsetfield(L, -2, "__type");
     }
 
     // Assign the metatable to our userdata:
