@@ -35,7 +35,7 @@ int new_Foo(lua_State* L) {
 	if (luaL_newmetatable(L, kFoo)) {
 		// Assign __namecall metamethod:
 		lua_pushcfunction(L, Foo_namecall, "namecall");
-		lua_rawsetfield(L, "__namecall", -2);
+		lua_rawsetfield(L, -2, "__namecall");
 	}
 	lua_setmetatable(L, -2);
 	return 1;

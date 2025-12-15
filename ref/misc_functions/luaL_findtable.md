@@ -33,7 +33,7 @@ luaL_findtable(L, LUA_REGISTRYINDEX, "mydata.subtable.another", 1);
 lua_newtable(L);
 luaL_findtable(L, -1, "my_data", 1);
 lua_pushliteral(L, "hello");
-lua_rawsetfield(L, "message", -2); // mydata.message = "hello"
+lua_rawsetfield(L, -2, "message"); // mydata.message = "hello"
 
 // Conflicts are returned ("hello" exists within "my_data" but isn't a table):
 const char* conflict = luaL_findtable(L, -1, "my_data.hello.nested");
