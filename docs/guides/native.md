@@ -7,6 +7,10 @@ The first step to enable NCG is to check if it is supported, and then create the
 ## Enable
 
 ```cpp title="Enable NCG" hl_lines="3-5"
+#include <luacodegen.h>
+
+// ...
+
 lua_State* L = luaL_newstate();
 
 if (luau_codegen_supported()) {
@@ -22,6 +26,10 @@ luaL_sandbox(L);
 Next, when you load your script for execution, call `luau_codegen_compile(L, idx)`, where `idx` is the location of our loaded script.
 
 ```cpp
+#include <luacodegen.h>
+
+// ...
+
 int res = luau_load(script, ...);
 if (res != 0) {
     // handle error
@@ -35,7 +43,28 @@ if (luau_codegen_supported()) {
 
 ## Enable Within Luau
 
-By default, our Luau code still won't compile to native code yet. There are two ways to enable NCG within our Luau code.
+With the above code, native codegen will always be generated for a given chunk. However, it is much preferred to allow the code itself to direct when and where native codegen should be utilized. This can be done with directives and function attributes. However, we first must change our above code to include compilation options.
+
+```cpp
+#include <Luau/CodeGen.h> // Note that this is different than the previous examples
+
+// ...
+
+if (Luau::CodeGen::isSupported()) {
+    Luau::CodeGen::CompilationOptions native_opts{};
+
+    // Set the "OnlyNativeModules" flag for native compilation:
+    native_opts.flags = Luau::CodeGen::CodeGenFlags::CodeGen_OnlyNativeModules;
+
+    Luau::CodeGen::CompilationResult res = Luau::CodeGen::compile(script, -1, native_opts);
+    if (res.hasErrors()) {
+        // Optionally log out errors.
+        // This isn't fatal; and it might just be "NothingToCompile" or "NotNativeModule".
+    }
+}
+```
+
+With the `CodeGen_OnlyNativeModules` flag set, attempting to do native compilation will only affect Luau code that is explicitly marked with a native directive or function attribute. More info on these below.
 
 ### Native Directive
 
