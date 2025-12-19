@@ -1,0 +1,18 @@
+.subsection > code {
+	background-color: inherit;
+	font-weight: bold;
+}
+
+.signature {
+	position: absolute;
+}
+
+/* .signature > code {
+	background-color: inherit;
+} */
+
+.stack {
+	display: block;
+	text-align: right;
+	width: 100%;
+}
