@@ -38,9 +38,6 @@ theme:
         icon: material/brightness-4
         name: Switch to system preference
 
-repo_name: Sleitnick/luau-api
-repo_url: https://github.com/Sleitnick/luau-api
-
 extra_css:
   - stylesheets/extra.css
 
