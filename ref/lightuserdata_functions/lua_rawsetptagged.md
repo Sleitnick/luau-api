@@ -12,10 +12,15 @@ args:
   - name: p
     type: void*
     desc: Arbitrary pointer to be represented as lightuserdata
+  - name: tag
+    type: int
+    desc: Tag
 ---
 
 Assuming table `t` on the stack at `idx` and `v` at the top of the stack,
-this pops `v` from the stack and adds it to the table: `t[p] = v`.
+this pops `v` from the stack and adds it to the table: `t[p] = v`, where `p`
+is an arbitrary pointer to some data. Luau will turn this into a lightuserdata
+value with the given tag.
 
 ```cpp title="Example" hl_lines="4-6"
 struct SomeData {};

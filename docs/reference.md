@@ -3366,16 +3366,19 @@ const char* name = lua_getlightuserdataname(L, kMyDataTag); // name == "MyData"
 
 ### <span class="subsection">`lua_rawsetptagged`</span>
 
-<span class="signature">`void lua_rawsetptagged(lua_State* L, int idx, void* p)`</span>
+<span class="signature">`void lua_rawsetptagged(lua_State* L, int idx, void* p, int tag)`</span>
 <span class="stack">`[-1, +0, -]`</span>
 
 - `L`: Lua thread
 - `idx`: Stack index
 - `p`: Arbitrary pointer to be represented as lightuserdata
+- `tag`: Tag
 
 
 Assuming table `t` on the stack at `idx` and `v` at the top of the stack,
-this pops `v` from the stack and adds it to the table: `t[p] = v`.
+this pops `v` from the stack and adds it to the table: `t[p] = v`, where `p`
+is an arbitrary pointer to some data. Luau will turn this into a lightuserdata
+value with the given tag.
 
 ```cpp title="Example" hl_lines="4-6"
 struct SomeData {};
@@ -3392,25 +3395,28 @@ lua_rawsetptagged(L, -2, data); // t[data] = "hello"
 
 ### <span class="subsection">`lua_rawgetptagged`</span>
 
-<span class="signature">`void lua_rawgetptagged(lua_State* L, int idx, void* p)`</span>
+<span class="signature">`void lua_rawgetptagged(lua_State* L, int idx, void* p, int tag)`</span>
 <span class="stack">`[-0, +1, -]`</span>
 
 - `L`: Lua thread
 - `idx`: Stack index
 - `p`: Arbitrary pointer to be represented as lightuserdata
+- `tag`: Tag
 
 
-Assuming table `t` on the stack at `idx`, this pushes to the stack `t[p]`.
+Assuming table `t` on the stack at `idx`, this pushes to the stack `t[p]` where `t[p]` is a lightuserdata with the given tag.
 
 ```cpp title="Example" hl_lines="8-9"
 struct SomeData {};
 SomeData* data = new SomeData();
 
+int tag = 1;
+
 lua_newtable(L);
 lua_pushliteral(L, "hello");
-lua_rawsetptagged(L, -2, data); // t[data] = "hello"
+lua_rawsetptagged(L, -2, data, tag); // t[data] = "hello"
 
-lua_rawgetptagged(L, -1, data); // v = t[data]
+lua_rawgetptagged(L, -1, data, tag); // v = t[data]
 const char* s = lua_tostring(L, -1); // "hello"
 ```
 

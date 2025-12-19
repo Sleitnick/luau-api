@@ -12,18 +12,23 @@ args:
   - name: p
     type: void*
     desc: Arbitrary pointer to be represented as lightuserdata
+  - name: tag
+    type: int
+    desc: Tag
 ---
 
-Assuming table `t` on the stack at `idx`, this pushes to the stack `t[p]`.
+Assuming table `t` on the stack at `idx`, this pushes to the stack `t[p]` where `t[p]` is a lightuserdata with the given tag.
 
 ```cpp title="Example" hl_lines="8-9"
 struct SomeData {};
 SomeData* data = new SomeData();
 
+int tag = 1;
+
 lua_newtable(L);
 lua_pushliteral(L, "hello");
-lua_rawsetptagged(L, -2, data); // t[data] = "hello"
+lua_rawsetptagged(L, -2, data, tag); // t[data] = "hello"
 
-lua_rawgetptagged(L, -1, data); // v = t[data]
+lua_rawgetptagged(L, -1, data, tag); // v = t[data]
 const char* s = lua_tostring(L, -1); // "hello"
 ```
