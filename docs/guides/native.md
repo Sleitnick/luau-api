@@ -112,13 +112,22 @@ multiplyVectorsInPlace(vecs, 5)
 To clarify, the `@native` attribute can be on the same line as the function definition. Do whatever is clearer for you and your team. It is also not necessary for the function to be local.
 
 ```luau
-@native local function a()
-    -- ...
-end
+-- Various examples
 
-@native function b()
-    -- ...
-end
+@native local function a() --[[ ... ]] end
+
+@native function b() --[[ ... ]] end
+
+@native
+function c() --[[ ... ]] end
+
+--
+
+local lib = {}
+
+@native function lib.foo() --[[ ... ]] end
+
+lib.bar = @native function() --[[ ... ]] end
 ```
 
 ## IR Lowering
