@@ -2,7 +2,7 @@
 
 Luau provides native code generation (NCG). This is a feature that must be explicitly enabled.
 
-The first step to enable NCG is to check if it is supported, and then create the code generator state. We will do this with the `luau_codegen_supported` and `luau_codegen_create` functions. Luau must be built with Luau the CodeGen project for this to work.
+The first step to enable NCG is to check if it is supported, and then create the code generator state. We will do this with the `luau_codegen_supported` and `luau_codegen_create` functions. Luau must be built with the CodeGen project for this to work.
 
 ## Enable
 
