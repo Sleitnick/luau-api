@@ -1,7 +1,7 @@
 # FFlags
 
 Luau has a slew of fast flags (FFlags) which can be configured from code. FFlags are scattered about Luau.
-If you come across one that you would like to toggle, you can do so with the `LUA_FASTFLAG` and `LUA_FASTINT`
+If you come across one that you would like to toggle, you can do so with the `LUAU_FASTFLAG` and `LUAU_FASTINT`
 macros. These macros inject an `extern` variable pointing to the desired fast flag.
 
 ## Example
@@ -36,7 +36,7 @@ the limit is set to 1000. Let's set it to 800 instead.
 LUAU_FASTINT(LuauRecursionLimit);
 
 void setup() {
-	FInt::LuauRecursionLimit = 800;
+	FInt::LuauRecursionLimit.value = 800;
 }
 ```
 
@@ -45,13 +45,16 @@ void setup() {
 Using the `LUAU_FASTFLAGVARIABLE` and `LUAU_FASTINTVARIABLE` macros, you can create your own fast flags.
 
 ```cpp
-LUAU_FASTFLAGVARIABLE(MyFeature);
+LUAU_FASTFLAGVARIABLE(MyFeature, true);
+LUAU_FASTINTVARIABLE(SomeLimit, 12);
 
 void foo() {
 	if (FFlag::MyFeature) {
 		// Do something
 	}
+
+	doSomethingWithLimit(FInt::SomeLimit);
 }
 ```
 
-Other code can then use `LUAU_FASTFLAG(MyFeature)` to get a reference to the flag elsewhere.
+Other code can then use `LUAU_FASTFLAG(MyFeature)` and `LUAU_FASTINT(SomeLimit)` to get a reference to the flags elsewhere.
