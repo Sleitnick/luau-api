@@ -5269,3 +5269,20 @@ Gets a traceback string.
 
 
 Pushes a string onto the stack containing the short source and current line, e.g. `"some/script.luau:10: "`. This is often used as a prefix for other debug logging information.
+
+
+----
+
+
+### <span class="subsection">`luaL_traceback`</span>
+
+<span class="signature">`void luaL_traceback(lua_State* L, lua_State* L1, const char* msg, int level)`</span>
+<span class="stack">`[-0, +1, -]`</span>
+
+- `L`: Lua thread
+- `L1`: Lua thread
+- `msg`: Message
+- `level`: Stack level
+
+
+Pushes a string onto the stack containing the traceback. The `msg` argument is the prefix for the traceback.

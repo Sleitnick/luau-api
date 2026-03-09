@@ -265,3 +265,4 @@ sections:
       - debug_functions/lua_getcoverage.md
       - debug_functions/lua_debugtrace.md
       - debug_functions/luaL_where.md
+      - debug_functions/luaL_traceback.md
