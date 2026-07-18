@@ -63,7 +63,7 @@ constexpr int16_t kAtomRemoveThat = 4;
 ```cpp title="Useratom Callback"
 #include "my_atoms.h"
 
-static int16_t handle_useratom(const char* s, size_t l) {
+static int16_t handle_useratom(lua_State* L, const char* s, size_t l) {
 	// Match the string to the desired atom value:
 	if (strcmp(s, "DoThis") == 0) {
 		return kAtomDoThis;
